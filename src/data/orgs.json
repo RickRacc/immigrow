@@ -1,0 +1,41 @@
+[
+  {
+    "id": "org-1",
+    "name": "Immigrant Community & Citizenship Services",
+    "city": "Austin",
+    "state": "TX",
+    "topic": "Naturalization",
+    "foundedYear": 2014,
+    "meetingFrequency": "Monthly",
+    "imageUrl": "/images/orgs/iccs.jpg",
+    "externalUrl": "https://example.org/iccs",
+    "eventIds": ["evt-1"],
+    "resourceIds": ["res-1"]
+  },
+  {
+    "id": "org-2",
+    "name": "Austin Allies for Immigrant Care",
+    "city": "Austin",
+    "state": "TX",
+    "topic": "Legal Aid",
+    "foundedYear": 2017,
+    "meetingFrequency": "Weekly",
+    "imageUrl": "/images/orgs/aaic.jpg",
+    "externalUrl": "https://example.org/aaic",
+    "eventIds": ["evt-2"],
+    "resourceIds": ["res-2"]
+  },
+  {
+    "id": "org-3",
+    "name": "ESL Community Club",
+    "city": "Austin",
+    "state": "TX",
+    "topic": "Education",
+    "foundedYear": 2020,
+    "meetingFrequency": "Biweekly",
+    "imageUrl": "/images/orgs/eslclub.jpg",
+    "externalUrl": "https://example.org/eslclub",
+    "eventIds": ["evt-3"],
+    "resourceIds": ["res-3"]
+  }
+]

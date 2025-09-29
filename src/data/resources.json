@@ -1,0 +1,35 @@
+[
+  {
+    "id": "res-1",
+    "title": "N-400 Naturalization Checklist",
+    "scope": "Federal",
+    "topic": "Citizenship",
+    "published": "2024-08-01",
+    "format": "PDF",
+    "imageUrl": "/images/resources/n400.jpg",
+    "externalUrl": "https://example.org/n400-checklist",
+    "orgIds": ["org-1"]
+  },
+  {
+    "id": "res-2",
+    "title": "Know Your Rights in Texas",
+    "scope": "State",
+    "topic": "Civil Rights",
+    "published": "2025-01-10",
+    "format": "Web",
+    "imageUrl": "/images/resources/kyr-texas.jpg",
+    "externalUrl": "https://example.org/kyr-texas",
+    "orgIds": ["org-1", "org-2"]
+  },
+  {
+    "id": "res-3",
+    "title": "Beginner ESL Guide",
+    "scope": "Local",
+    "topic": "Education",
+    "published": "2025-05-20",
+    "format": "Web",
+    "imageUrl": "/images/resources/esl-guide.jpg",
+    "externalUrl": "https://example.org/esl-guide",
+    "orgIds": ["org-3"]
+  }
+]

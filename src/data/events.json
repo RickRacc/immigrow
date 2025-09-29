@@ -1,0 +1,36 @@
+
+[
+  {
+    "id": "evt-1",
+    "title": "Citizenship Workshop",
+    "date": "2025-10-12",
+    "location": "Austin, TX",
+    "durationMins": 120,
+    "imageUrl": "/images/events/citizenship.png",
+    "orgId": "org-1",
+    "resourceIds": ["res-1", "res-2"],
+    "externalUrl": "https://example.org/citizenship"
+  },
+  {
+    "id": "evt-2",
+    "title": "Know Your Rights Clinic",
+    "date": "2025-10-20",
+    "location": "Austin, TX",
+    "durationMins": 90,
+    "imageUrl": "/images/events/know_rights.jpg",
+    "orgId": "org-2",
+    "resourceIds": ["res-2"],
+    "externalUrl": "https://example.org/kyr"
+  },
+  {
+    "id": "evt-3",
+    "title": "ESL Community Meetup",
+    "date": "2025-11-05",
+    "location": "Austin, TX",
+    "durationMins": 60,
+    "imageUrl": "/images/events/esl.jpg",
+    "orgId": "org-3",
+    "resourceIds": ["res-3"],
+    "externalUrl": "https://example.org/esl"
+  }
+]
