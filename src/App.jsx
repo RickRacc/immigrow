@@ -4,6 +4,9 @@ import About from "./pages/About";
 import Events from "./pages/Events";
 import Orgs from "./pages/Orgs";
 import Resources from "./pages/Resources";
+import CitizenshipWorkshop from "./pages/CitizenshipWorkshop";
+import KnowYourRightsClinic from "./pages/KnowYourRightsClinic";
+import ESLCommunityMeetup from "./pages/ESLCommunityMeetup";
 
 
 export default function App() {
@@ -22,6 +25,9 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/events" element={<Events />} />
+            <Route path="/events/evt-1" element={<CitizenshipWorkshop />} />
+            <Route path="/events/evt-2" element={<KnowYourRightsClinic />} />
+            <Route path="/events/evt-3" element={<ESLCommunityMeetup />} />
             <Route path="/orgs" element={<Orgs />} />
             <Route path="/resources" element={<Resources />} />
           </Routes>
