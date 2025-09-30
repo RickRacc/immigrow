@@ -7,6 +7,12 @@ import Resources from "./pages/Resources";
 import CitizenshipWorkshop from "./pages/CitizenshipWorkshop";
 import KnowYourRightsClinic from "./pages/KnowYourRightsClinic";
 import ESLCommunityMeetup from "./pages/ESLCommunityMeetup";
+import ImmigrantCommunityServices from "./pages/ImmigrantCommunityServicesClean";
+import AustinAlliesImmigrantCare from "./pages/AustinAlliesClean";
+import ESLCommunityClub from "./pages/ESLCommunityClubClean";
+import N400NaturalizationChecklist from "./pages/N400NaturalizationChecklistClean";
+import KnowYourRightsTexas from "./pages/KnowYourRightsTexasClean";
+import BeginnerESLGuide from "./pages/BeginnerESLGuideClean";
 
 
 export default function App() {
@@ -29,7 +35,13 @@ export default function App() {
             <Route path="/events/evt-2" element={<KnowYourRightsClinic />} />
             <Route path="/events/evt-3" element={<ESLCommunityMeetup />} />
             <Route path="/orgs" element={<Orgs />} />
+            <Route path="/orgs/org-1" element={<ImmigrantCommunityServices />} />
+            <Route path="/orgs/org-2" element={<AustinAlliesImmigrantCare />} />
+            <Route path="/orgs/org-3" element={<ESLCommunityClub />} />
             <Route path="/resources" element={<Resources />} />
+            <Route path="/resources/res-1" element={<N400NaturalizationChecklist />} />
+            <Route path="/resources/res-2" element={<KnowYourRightsTexas />} />
+            <Route path="/resources/res-3" element={<BeginnerESLGuide />} />
           </Routes>
         </div>
       </BrowserRouter>
