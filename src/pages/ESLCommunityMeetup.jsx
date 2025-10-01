@@ -71,7 +71,7 @@ export default function ESLCommunityMeetup() {
                                 <strong>Meetings:</strong> {org.meetingFrequency}<br />
                                 <strong>Location:</strong> {org.city}, {org.state}
                             </p>
-                            <a href={org.externalUrl} className="btn btn-outline-primary btn-sm" target="_blank" rel="noopener noreferrer">
+                            <a href={org.selfUrl} className="btn btn-outline-primary btn-sm" target="_blank" rel="noopener noreferrer">
                                 Learn More
                             </a>
                         </div>
@@ -97,7 +97,7 @@ export default function ESLCommunityMeetup() {
                                         <strong>Format:</strong> {resource.format}<br />
                                         <strong>Published:</strong> {new Date(resource.published).toLocaleDateString()}
                                     </p>
-                                    <a href={resource.externalUrl} className="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener noreferrer">
+                                    <a href={resource.selfUrl} className="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener noreferrer">
                                         Access Resource
                                     </a>
                                 </div>

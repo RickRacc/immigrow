@@ -52,7 +52,7 @@ export default function AustinAlliesImmigrantCare() {
                       <strong>Date:</strong> {new Date(event.date).toLocaleDateString()}<br/>
                       <strong>Location:</strong> {event.location}
                     </p>
-                    <a href={`/events/${event.id}`} className="btn btn-outline-primary btn-sm">
+                    <a href={`/events/${event.id}`} target="_blank" className="btn btn-outline-primary btn-sm">
                       View Event
                     </a>
                   </div>
@@ -74,7 +74,7 @@ export default function AustinAlliesImmigrantCare() {
                       <strong>Topic:</strong> {resource.topic}<br/>
                       <strong>Format:</strong> {resource.format}
                     </p>
-                    <a href={`/resources/${resource.id}`} className="btn btn-outline-secondary btn-sm">
+                    <a href={`/resources/${resource.id}`} target="_blank" className="btn btn-outline-secondary btn-sm">
                       View Resource
                     </a>
                   </div>

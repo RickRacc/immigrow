@@ -69,7 +69,7 @@ export default function ImmigrantCommunityServices() {
                       <strong>Location:</strong> {event.location}<br/>
                       <strong>Duration:</strong> {event.durationMins} minutes
                     </p>
-                    <a href={`/events/${event.id}`} className="btn btn-outline-primary btn-sm">
+                    <a href={`/events/${event.id}`} target="_blank" className="btn btn-outline-primary btn-sm">
                       View Event Details
                     </a>
                   </div>
@@ -98,7 +98,7 @@ export default function ImmigrantCommunityServices() {
                       <strong>Format:</strong> {resource.format}<br/>
                       <strong>Published:</strong> {new Date(resource.published).toLocaleDateString()}
                     </p>
-                    <a href={`/resources/${resource.id}`} className="btn btn-outline-secondary btn-sm">
+                    <a href={`/resources/${resource.id}`} target="_blank" className="btn btn-outline-secondary btn-sm">
                       View Resource
                     </a>
                   </div>

@@ -28,6 +28,35 @@ export default function BeginnerESLGuide() {
           </div>
         </div>
 
+                        {relatedEvents.length > 0 && relatedEvents.length > 0 && (
+            <div className="col-md-4">
+              <div className="card-header">
+                <h5>Related Events</h5>
+              </div>
+              <div className="card-body">
+                {relatedEvents.map(event => (
+                  <div key={event.id} className="mb-3">
+                    <img 
+                      src={event.imageUrl} 
+                      className="img-fluid rounded mb-2" 
+                      alt={event.title}
+                      style={{ maxHeight: '150px', width: '100%', objectFit: 'cover' }}
+                    />
+                    <h6 className="card-title">{event.title}</h6>
+                    <p className="card-text small">
+                      <strong>Date:</strong> {new Date(event.date).toLocaleDateString()}<br/>
+                      <strong>Location:</strong> {event.location}<br/>
+                      <strong>Duration:</strong> {event.durationMins} minutes
+                    </p>
+                    <a href={`/events/${event.id}`} target="_blank" className="btn btn-outline-primary btn-sm">
+                      View Event Details
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
         <div className="col-md-4">
           <div className="card">
             <div className="card-header"><h5>Provided By</h5></div>
@@ -36,7 +65,7 @@ export default function BeginnerESLGuide() {
                 <div key={org.id} className="mb-3">
                   <h6>{org.name}</h6>
                   <p><strong>Focus:</strong> {org.topic}</p>
-                  <a href={`/orgs/${org.id}`} className="btn btn-sm btn-outline-primary">View Organization</a>
+                  <a href={`/orgs/${org.id}`} target="_blank" className="btn btn-sm btn-outline-primary">View Organization</a>
                 </div>
               ))}
             </div>
