@@ -8,9 +8,10 @@
     "foundedYear": 2014,
     "meetingFrequency": "Monthly",
     "imageUrl": "/images/orgs/iccs.jpg",
-    "externalUrl": "https://example.org/iccs",
+    "externalUrl": "https://www.austintexas.gov/page/immigrant-affairs#spanclassckanchoridFallCitizenshipClinicspanFall2025InformationSessionsampCitizenshipClinicDates",
     "eventIds": ["evt-1"],
-    "resourceIds": ["res-1"]
+    "resourceIds": ["res-1"],
+    "selfUrl": "/orgs/org-1"
   },
   {
     "id": "org-2",
@@ -21,9 +22,10 @@
     "foundedYear": 2017,
     "meetingFrequency": "Weekly",
     "imageUrl": "/images/orgs/aaic.jpg",
-    "externalUrl": "https://example.org/aaic",
+    "externalUrl": "https://www.austinallies.org/",
     "eventIds": ["evt-2"],
-    "resourceIds": ["res-2"]
+    "resourceIds": ["res-2"],
+    "selfUrl": "/orgs/org-2"
   },
   {
     "id": "org-3",
@@ -34,8 +36,9 @@
     "foundedYear": 2020,
     "meetingFrequency": "Biweekly",
     "imageUrl": "/images/orgs/eslclub.jpg",
-    "externalUrl": "https://example.org/eslclub",
+    "externalUrl": "https://adulted.austincc.edu/english-as-a-second-language-esl/",
     "eventIds": ["evt-3"],
-    "resourceIds": ["res-3"]
+    "resourceIds": ["res-3"],
+    "selfUrl": "/orgs/org-3"
   }
 ]

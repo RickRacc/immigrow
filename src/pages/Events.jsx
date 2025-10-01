@@ -10,7 +10,7 @@ export default function Events() {
           titleKey="title" 
           subtitleFunc={(e) => `${e.date} | ${e.location}`} 
           linkFunc={(e) => `/events/${e.id}`} 
-          footFunc={(e) => `${e.durationMins} min`}
+          footFunc={(e) => `${e.durationMins} min | start: ${e.startTime}`}
       />
     </>
   )

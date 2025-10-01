@@ -7,8 +7,9 @@
     "published": "2024-08-01",
     "format": "PDF",
     "imageUrl": "/images/resources/n400.jpg",
-    "externalUrl": "https://example.org/n400-checklist",
-    "orgIds": ["org-1"]
+    "externalUrl": "https://www.uscis.gov/sites/default/files/document/forms/n-400.pdf",
+    "orgIds": ["org-1"],
+    "selfUrl": "/resources/res-1"
   },
   {
     "id": "res-2",
@@ -18,8 +19,9 @@
     "published": "2025-01-10",
     "format": "Web",
     "imageUrl": "/images/resources/kyr-texas.jpg",
-    "externalUrl": "https://example.org/kyr-texas",
-    "orgIds": ["org-1", "org-2"]
+    "externalUrl": "https://unitedwedream.org/resources/texas-know-your-rights-know-your-power/",
+    "orgIds": ["org-1", "org-2"],
+    "selfUrl": "/resources/res-2"
   },
   {
     "id": "res-3",
@@ -29,7 +31,8 @@
     "published": "2025-05-20",
     "format": "Web",
     "imageUrl": "/images/resources/esl-guide.jpg",
-    "externalUrl": "https://example.org/esl-guide",
-    "orgIds": ["org-3"]
+    "externalUrl": "https://professorscottsenglish.com/english-grammar/articles/omitting-articles-correctly/mastering-articles-in-english-3/",
+    "orgIds": ["org-3"],
+    "selfUrl": "/resources/res-3"
   }
 ]
