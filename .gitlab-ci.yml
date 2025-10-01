@@ -1,0 +1,33 @@
+stages: [build, deploy]
+
+variables:
+  # used by aws-cli image
+  AWS_DEFAULT_REGION: "us-east-1"
+
+cache:
+  key: npm-deps
+  paths:
+    - node_modules/
+
+build:
+  image: node:20
+  stage: build
+  script:
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
+  only:
+    - main
+
+deploy:
+  image: amazon/aws-cli:2.17.0
+  stage: deploy
+  dependencies: [build]
+  script:
+    - aws s3 sync dist/ "s3://$S3_BUCKET" --delete
+    - aws cloudfront create-invalidation --distribution-id "$CF_DIST_ID" --paths "/*"
+  only:
+    - main
