@@ -6,10 +6,6 @@ Immigo is a platform designed to make it easier for immigrants to access informa
 ---
 
 ## 2. User Stories
-List a few short user stories to illustrate functionality:
-- *As a [type of user], I want to [do something], so that [benefit].*
-- *As a student, I want to log in with my Canvas account, so I can see my upcoming assignments.*
-- *As an admin, I want to manage organizations, so I can keep resources up to date.*
 
 ---
 
@@ -33,10 +29,10 @@ Link: https://documenter.getpostman.com/view/48953688/2sB3QGsAi5(https://documen
 ---
 
 ## 5. Models
-Outline the data models used in your system (in JSON or schema form):
 
 **Resources Model**
 ```json
+Data Source: ProPublica Congress API
 {
   "id": "int",
   "resource_number": "int",
@@ -45,8 +41,10 @@ Outline the data models used in your system (in JSON or schema form):
   "latest_major_action": "string",
   "subject": "string"
 }
-
+```
 **Organizations Model**
+Data Source: www.immigrationlawhelp.org(www.immigrationlawhelp.org)
+```json
 {
   "organization_id": "int",
   "name": "string",
@@ -55,8 +53,11 @@ Outline the data models used in your system (in JSON or schema form):
   "location": "string",
   "contact": "string"
 }
+```
 
 ** Events Model**
+Data Source: Eventbrite API
+```json
 {
   "event_id": "int",
   "title": "string",
@@ -66,3 +67,7 @@ Outline the data models used in your system (in JSON or schema form):
   "start_time": "time",
   "organizer": "string"
 }
+```
+
+## 6. Challenges 
+Some of our challenges included setting up hosting on AWS, identifying and linking instances with related attributes across multiple models, and integrating media content into the webpages.
