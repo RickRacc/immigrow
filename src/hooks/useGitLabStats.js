@@ -31,7 +31,7 @@ const TEAM = [
     bio: 'UX & React components.',
     photo: '/images/team/mrinalini.jpg',
     emails: [
-      'mrinalinij05@gmail.com'
+      'mrinalinij05@utexas.edu'
     ],
   },
   {
