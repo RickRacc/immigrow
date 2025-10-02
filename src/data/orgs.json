@@ -1,44 +1,42 @@
 [
   {
-    "id": "org-1",
-    "name": "Immigrant Community & Citizenship Services",
-    "city": "Austin",
-    "state": "TX",
-    "topic": "Naturalization",
-    "foundedYear": 2014,
-    "meetingFrequency": "Monthly",
-    "imageUrl": "/images/orgs/iccs.jpg",
-    "externalUrl": "https://www.austintexas.gov/page/immigrant-affairs#spanclassckanchoridFallCitizenshipClinicspanFall2025InformationSessionsampCitizenshipClinicDates",
-    "eventIds": ["evt-1"],
-    "resourceIds": ["res-1"],
-    "selfUrl": "/orgs/org-1"
+    "organization_id": "201",
+    "name": "New York Immigrant Coalition",
+    "areas_of_assistance": [
+      "Immigration",
+      "Family Sponsorship"
+    ],
+    "types_of_assistance": [
+      "Consultation",
+      "Representation"
+    ],
+    "location": "123 Main St, NY",
+    "contact": "contact@nyic.org"
   },
   {
-    "id": "org-2",
-    "name": "Austin Allies for Immigrant Care",
-    "city": "Austin",
-    "state": "TX",
-    "topic": "Legal Aid",
-    "foundedYear": 2017,
-    "meetingFrequency": "Weekly",
-    "imageUrl": "/images/orgs/aaic.jpg",
-    "externalUrl": "https://www.austinallies.org/",
-    "eventIds": ["evt-2"],
-    "resourceIds": ["res-2"],
-    "selfUrl": "/orgs/org-2"
+    "organization_id": "202",
+    "name": "Brooklyn Legal Aid",
+    "areas_of_assistance": [
+      "Asylum",
+      "Deportation Defense"
+    ],
+    "types_of_assistance": [
+      "Representation"
+    ],
+    "location": "45 Court Ave, Brooklyn, NY",
+    "contact": "info@brooklynlegal.org"
   },
   {
-    "id": "org-3",
-    "name": "ESL Community Club",
-    "city": "Austin",
-    "state": "TX",
-    "topic": "Education",
-    "foundedYear": 2020,
-    "meetingFrequency": "Biweekly",
-    "imageUrl": "/images/orgs/eslclub.jpg",
-    "externalUrl": "https://adulted.austincc.edu/english-as-a-second-language-esl/",
-    "eventIds": ["evt-3"],
-    "resourceIds": ["res-3"],
-    "selfUrl": "/orgs/org-3"
+    "organization_id": "203",
+    "name": "Queens Immigration Support",
+    "areas_of_assistance": [
+      "Visa Applications",
+      "Citizenship"
+    ],
+    "types_of_assistance": [
+      "Consultation"
+    ],
+    "location": "78 Elm St, Queens, NY",
+    "contact": "help@qis.org"
   }
 ]

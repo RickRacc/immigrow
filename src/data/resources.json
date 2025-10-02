@@ -1,38 +1,23 @@
 [
   {
-    "id": "res-1",
-    "title": "N-400 Naturalization Checklist",
-    "scope": "Federal",
-    "topic": "Citizenship",
-    "published": "2024-08-01",
-    "format": "PDF",
-    "imageUrl": "/images/resources/n400.jpg",
-    "externalUrl": "https://www.uscis.gov/sites/default/files/document/forms/n-400.pdf",
-    "orgIds": ["org-1"],
-    "selfUrl": "/resources/res-1"
+    "resource_number": "HR1234",
+    "title": "Immigration Reform Act",
+    "introduced_date": "2025-01-15",
+    "latest_major_action": "Passed House, referred to Senate",
+    "subject": "Immigration"
   },
   {
-    "id": "res-2",
-    "title": "Know Your Rights in Texas",
-    "scope": "State",
-    "topic": "Civil Rights",
-    "published": "2025-01-10",
-    "format": "Web",
-    "imageUrl": "/images/resources/kyr-texas.jpg",
-    "externalUrl": "https://unitedwedream.org/resources/texas-know-your-rights-know-your-power/",
-    "orgIds": ["org-1", "org-2"],
-    "selfUrl": "/resources/res-2"
+    "resource_number": "S5678",
+    "title": "Asylum Procedures Update",
+    "introduced_date": "2025-02-10",
+    "latest_major_action": "Committee Review",
+    "subject": "Asylum"
   },
   {
-    "id": "res-3",
-    "title": "Beginner ESL Guide",
-    "scope": "Local",
-    "topic": "Education",
-    "published": "2025-05-20",
-    "format": "Web",
-    "imageUrl": "/images/resources/esl-guide.jpg",
-    "externalUrl": "https://professorscottsenglish.com/english-grammar/articles/omitting-articles-correctly/mastering-articles-in-english-3/",
-    "orgIds": ["org-3"],
-    "selfUrl": "/resources/res-3"
+    "resource_number": "HR9101",
+    "title": "Legal Aid Funding Act",
+    "introduced_date": "2025-03-05",
+    "latest_major_action": "Awaiting Vote",
+    "subject": "Legal Aid"
   }
 ]
