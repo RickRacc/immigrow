@@ -1,29 +1,42 @@
+
 [
   {
-    "event_id": "101",
-    "title": "Immigrant Rights Workshop",
-    "description": "Join us for a workshop on immigrant rights.",
-    "location": "Community Center, NY",
-    "date": "2025-10-15",
-    "start_time": "10:00",
-    "organizer": "NY Immigrant Alliance"
+    "id": "evt-1",
+    "title": "Citizenship Workshop",
+    "date": "2025-10-08",
+    "location": "Austin, TX",
+    "durationMins": 120,
+    "startTime": "10:00 AM",
+    "imageUrl": "/images/events/citizenship.png",
+    "orgId": "org-1",
+    "resourceIds": ["res-1", "res-2"],
+    "externalUrl": "https://docs.google.com/forms/d/e/1FAIpQLSfoFgccAhBMSFezXsShm7GYLPw1r1teb9TMafEpQoMmkyxPhQ/viewform?pli=1",
+    "selfUrl": "/events/evt-1"
   },
   {
-    "event_id": "102",
-    "title": "Legal Aid Q&A Session",
-    "description": "A session to answer questions about legal aid services.",
-    "location": "Downtown Library, NY",
-    "date": "2025-10-18",
-    "start_time": "14:00",
-    "organizer": "Legal Aid Society"
-  },
-  {
-    "event_id": "103",
-    "title": "Community Citizenship Workshop",
-    "description": "Learn about citizenship processes and resources.",
-    "location": "City Hall, NY",
+    "id": "evt-2",
+    "title": "Know Your Rights Clinic",
     "date": "2025-10-20",
-    "start_time": "09:30",
-    "organizer": "Citizenship Now!"
+    "location": "Austin, TX",
+    "durationMins": 90,
+    "startTime": "5:00 PM",
+    "imageUrl": "/images/events/know_rights.jpg",
+    "orgId": "org-2",
+    "resourceIds": ["res-2"],
+    "externalUrl": "https://www.immigrationadvocates.org/nonprofit/legaldirectory/organization.393336-Catholic_Charities_of_Central_Texas_Immigration_Legal_Services_Austin_Offi",
+    "selfUrl": "/events/evt-2"
+  },
+  {
+    "id": "evt-3",
+    "title": "ESL Community Meetup",
+    "date": "2025-10-08",
+    "location": "Austin, TX",
+    "durationMins": 60,
+    "startTime": "6:00 PM",
+    "imageUrl": "/images/events/esl.jpg",
+    "orgId": "org-3",
+    "resourceIds": ["res-3"],
+    "externalUrl": "https://www.meetup.com/welcome-to-america-practice-learn-improve-your-english/events/308928518/?recId=a5062b15-e94d-4be3-bb76-0ef25ed4e16c&recSource=event-search&searchId=d7bbd2ae-797d-4160-98d9-0dd4752acf7a&eventOrigin=find_page%24all",
+    "selfUrl": "/events/evt-3"
   }
 ]
