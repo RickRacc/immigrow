@@ -1,8 +1,10 @@
-stages: [build, deploy]
+stages:
+  - build
+  - deploy
 
 variables:
   AWS_DEFAULT_REGION: "us-east-1"
-  AWS_PAGER: ""   # prevents aws cli from paging output
+  AWS_PAGER: ""                # prevent AWS CLI from paging output
 
 cache:
   key: npm-deps
@@ -23,21 +25,20 @@ build:
     - main
 
 deploy:
+  stage: deploy
   image:
     name: amazon/aws-cli:2.17.0
-    entrypoint: [""]           # <-- critical line: disable 'aws' entrypoint
-  stage: deploy
-  dependencies: [build]
-  variables:
-    AWS_DEFAULT_REGION: "us-east-1"
-    AWS_PAGER: ""
+    entrypoint: [""]           # critical: run a normal shell, not `aws` as entrypoint
+  dependencies:
+    - build
   script:
-    - set -euo pipefail
-    - echo "DEBUG: Bucket=$S3_BUCKET Dist=$CF_DIST_ID Region=$AWS_DEFAULT_REGION"
-    - aws --version
-    - aws sts get-caller-identity
-    - aws s3 ls "s3://$S3_BUCKET" || echo "Note: ls failed (will still try to sync)"
-    - aws s3 sync dist/ "s3://$S3_BUCKET" --delete --exact-timestamps
-    - aws cloudfront create-invalidation --distribution-id "$CF_DIST_ID" --paths "/*"
+    - |
+      set -euo pipefail
+      echo "DEBUG: Bucket=$S3_BUCKET Dist=$CF_DIST_ID Region=$AWS_DEFAULT_REGION"
+      aws --version
+      aws sts get-caller-identity
+      aws s3 ls "s3://$S3_BUCKET" || echo "Note: ls failed (continuing to sync)"
+      aws s3 sync dist/ "s3://$S3_BUCKET" --delete --exact-timestamps
+      aws cloudfront create-invalidation --distribution-id "$CF_DIST_ID" --paths "/*"
   only:
     - main
