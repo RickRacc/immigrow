@@ -23,7 +23,9 @@ build:
     - main
 
 deploy:
-  image: amazon/aws-cli:2
+  image:
+    name: amazon/aws-cli:2.17.0
+    entrypoint: [""]           # <-- critical line: disable 'aws' entrypoint
   stage: deploy
   dependencies: [build]
   variables:
@@ -33,16 +35,9 @@ deploy:
     - set -euo pipefail
     - echo "DEBUG: Bucket=$S3_BUCKET Dist=$CF_DIST_ID Region=$AWS_DEFAULT_REGION"
     - aws --version
-    # This will fail with a clear message if credentials/region are wrong
     - aws sts get-caller-identity
-
-    # Check that the bucket exists and that we can see it (prints clear AccessDenied/NoSuchBucket)
     - aws s3 ls "s3://$S3_BUCKET" || echo "Note: ls failed (will still try to sync)"
-
-    # Upload the build; if perms or bucket are wrong, you'll get a specific error here
     - aws s3 sync dist/ "s3://$S3_BUCKET" --delete --exact-timestamps
-
-    # Invalidate CloudFront cache
     - aws cloudfront create-invalidation --distribution-id "$CF_DIST_ID" --paths "/*"
   only:
     - main
