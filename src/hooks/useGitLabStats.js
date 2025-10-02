@@ -21,7 +21,7 @@ const TEAM = [
     bio: 'APIs, data pipelines, and Eventbrite integrations.',
     photo: '/images/team/anisha.jpg',
     emails: [
-      // 'anisha@example.edu',
+      'anishabhaskartorres@gmail.com'
     ],
   },
   {
@@ -31,7 +31,7 @@ const TEAM = [
     bio: 'UX & React components.',
     photo: '/images/team/mrinalini.jpg',
     emails: [
-      // 'mrinalini@example.edu',
+      'mrinalinij05@gmail.com'
     ],
   },
   {
