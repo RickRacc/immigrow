@@ -1,4 +1,4 @@
-# Immigrow — Phase X README
+# Immigrow — Phase 1 README
 
 ## Team Members
 
