@@ -1,16 +1,40 @@
-# React + Vite
+# Immigrow — Phase X README
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Team Members
 
-Currently, two official plugins are available:
+| Name                  | EID         | GitLab ID          | Estimated Hours | Actual Hours |
+|------------------------|-------------|---------------------|-----------------|-------------|
+| Lucas Berio Perez     | lbp1234     | lucasberio          | 10              | 12          |
+| Anisha Bhaskar Torres | abt5678     | anisha-torres       | 5               | 6           |
+| Mrinalini Jithendra   | mj4321      | mrinalini-j        | 5               | 5           |
+| Rakesh Singh          | rs9876      | rakesh-singh       | 5               | 5           |
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+> **Note:** EIDs and GitLab IDs are placeholders—replace with actual ones if needed.
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Project Leader
 
-## Expanding the ESLint configuration
+**Lucas Berio Perez** served as the **Project Leader** for this phase.  
+Responsibilities included:
+- Setting up AWS infrastructure (S3, CloudFront, Route53) for deployment.  
+- Organizing and delegating tasks based on each member’s skills.  
+- Overseeing integration between frontend components and deployment pipeline.  
+- Ensuring timely progress and coordinating team communication.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## Repository Information
+
+- **Git SHA:** _[to be filled — use `git rev-parse HEAD` to get it]_  
+- **Pipelines URL:** _[to be filled — navigate to **CI/CD > Pipelines** in GitLab and copy the URL]_  
+- **Website URL:** [https://www.immigrow.site](https://www.immigrow.site)
+
+---
+
+## Comments
+
+This phase focused on setting up core infrastructure and the initial deployment.  
+The team collaborated well, with responsibilities split cleanly between frontend development, AWS setup, and GitLab CI/CD configuration. Some challenges arose during the initial DNS propagation and SSL certificate validation, but they were resolved through group debugging sessions.
+
+---
