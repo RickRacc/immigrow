@@ -9,7 +9,6 @@ const TEAM = [
     role: 'Frontend & Deployment',
     bio: 'Builds UI, deploys to S3/CloudFront, and maintains CI/CD.',
     photo: '/images/team/lucas.jpg',
-    // from `git shortlog -sne`
     emails: ['lucasberio815@gmail.com'],
   },
   {
