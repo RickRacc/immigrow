@@ -118,7 +118,7 @@ export default function About() {
         <h2>Links</h2>
         <p>
           <a href={project?.web_url} target="_blank" rel="noreferrer">Immigrow GitLab Repository</a><br />
-          <a href="#" target="_blank" rel="noreferrer">Immigrow Postman API Collection</a>
+          <a href="https://documenter.getpostman.com/view/48953688/2sB3QGsAi5" target="_blank" rel="noreferrer">Immigrow Postman API Collection</a>
         </p>
       </section>
     </>

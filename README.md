@@ -5,9 +5,9 @@
 | Name                  | EID         | GitLab ID          | Estimated Hours | Actual Hours |
 |------------------------|-------------|---------------------|-----------------|-------------|
 | Lucas Berio Perez     | lfb1234     | lucasberio           | 10              | 12          |
-| Anisha Bhaskar Torres | MISSING     | anisha1045           | 5               | 6           |
-| Mrinalini Jithendra   | MISSING      | mrinalinij05        | 5               | 5           |
-| Rakesh Singh          | MISSING      | rrrakesh            | 5               | 5           |
+| Anisha Bhaskar Torres | MISSING     | avb834           | 3               | 6           |
+| Mrinalini Jithendra   | MISSING      | mrinalinij05        | 8               | 10           |
+| Rakesh Singh          | MISSING      | rps2439            | 8               | 6.75        |
 
 ---
 
