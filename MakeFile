@@ -1,0 +1,171 @@
+.DEFAULT_GOAL := help
+SHELL         := bash
+
+# Package manager (switch to pnpm/yarn if you use those)
+PKG      ?= npm
+RUN      := $(PKG) run
+
+# Paths
+SRC_DIR      := src
+PUBLIC_DIR   := public
+DIST_DIR     := dist
+TEAM_IMG_DIR := $(PUBLIC_DIR)/images/team
+
+# AWS deploy (optional). Set these env vars in shell or CI if you use S3 + CloudFront.
+S3_BUCKET   ?=
+CF_DIST_ID  ?=
+
+# Tools (installed locally via devDependencies)
+VITE      := $(RUN) vite
+ESLINT    := $(RUN) lint
+PRETTIER  := $(RUN) format
+TEST      := $(RUN) test
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Git helpers
+# ─────────────────────────────────────────────────────────────────────────────
+
+.PHONY: config status pull push log
+
+config:        ## Show git config
+	git config -l
+
+status:        ## Clean then show branch + remotes + status
+	@$(MAKE) --no-print-directory clean
+	@echo
+	git branch
+	git remote -v
+	git status
+
+pull:          ## Pull latest changes
+	@$(MAKE) --no-print-directory clean
+	@echo
+	git pull
+	git status
+
+push:          ## Stage common files and push (edit as needed)
+	@$(MAKE) --no-print-directory clean
+	@echo
+	git add .gitignore
+	git add .gitlab-ci.yml
+	git add README.md
+	git add vite.config.js
+	git add package.json package-lock.json
+	git add $(PUBLIC_DIR)/**/*
+	git add $(SRC_DIR)/**/*
+	git commit -m "another commit" || echo "Nothing to commit"
+	git push
+	git status
+
+log:           ## Save git log to a file
+	git log > Immigrow.log.txt
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Node/Vite lifecycle
+# ─────────────────────────────────────────────────────────────────────────────
+
+.PHONY: install dev build preview test lint format typecheck
+
+install:       ## Install deps
+	$(PKG) ci || $(PKG) install
+
+dev:           ## Start Vite dev server
+	$(RUN) dev
+
+build:         ## Build production bundle
+	$(RUN) build
+
+preview:       ## Preview the production build locally
+	$(RUN) preview
+
+test:          ## Run tests (if configured)
+	-$(TEST)
+
+lint:          ## Lint with ESLint (if configured)
+	-$(ESLINT)
+
+format:        ## Format with Prettier (if configured)
+	-$(PRETTIER)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Project checks
+# ─────────────────────────────────────────────────────────────────────────────
+
+.PHONY: check check-images check-public
+
+check: check-images ## Run project checks
+
+check-images:       ## Verify team images exist in public/images/team
+	@echo "Checking team images in $(TEAM_IMG_DIR)"
+	@test -d "$(TEAM_IMG_DIR)" || (echo "Missing: $(TEAM_IMG_DIR)"; exit 1)
+	@test -f "$(TEAM_IMG_DIR)/lucas.jpg"     || (echo "Missing: lucas.jpg"; exit 1)
+	@test -f "$(TEAM_IMG_DIR)/anisha.jpg"    || (echo "Missing: anisha.jpg"; exit 1)
+	@test -f "$(TEAM_IMG_DIR)/mrinalini.jpg" || (echo "Missing: mrinalini.jpg"; exit 1)
+	@test -f "$(TEAM_IMG_DIR)/rakesh.jpg"    || (echo "Missing: rakesh.jpg"; exit 1)
+	@echo "✓ All team images present."
+
+check-public:       ## Confirm public assets copied to dist (after build)
+	@test -d "$(DIST_DIR)/images/team" || (echo "Run 'make build' first"; exit 1)
+	@ls -la "$(DIST_DIR)/images/team"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Clean / scrub
+# ─────────────────────────────────────────────────────────────────────────────
+
+.PHONY: clean scrub
+
+clean:         ## Remove build artifacts
+	rm -rf "$(DIST_DIR)"
+
+scrub: clean   ## Remove extra temp files
+	rm -rf node_modules
+	rm -f  Immigrow.log.txt
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Deploy helpers (S3 + CloudFront) – optional, used only if you deploy this way
+# ─────────────────────────────────────────────────────────────────────────────
+
+.PHONY: deploy invalidate
+
+deploy: build  ## Upload dist/ to S3 (requires AWS CLI + env vars)
+	@if [ -z "$(S3_BUCKET)" ]; then echo "Set S3_BUCKET=<your-bucket>"; exit 1; fi
+	aws s3 sync "$(DIST_DIR)" "s3://$(S3_BUCKET)" --delete
+	@echo "✓ Uploaded to s3://$(S3_BUCKET)"
+
+invalidate:    ## Invalidate CloudFront cache (optional)
+	@if [ -z "$(CF_DIST_ID)" ]; then echo "Set CF_DIST_ID=<distribution-id>"; exit 1; fi
+	aws cloudfront create-invalidation --distribution-id "$(CF_DIST_ID)" --paths "/*"
+	@echo "✓ Invalidation requested"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Versions (Node, npm, vite, eslint, prettier)
+# ─────────────────────────────────────────────────────────────────────────────
+
+.PHONY: versions
+
+versions:      ## Print tool versions
+	uname -p
+	@echo
+	uname -s
+	@echo
+	which node; node --version
+	@echo
+	which npm;  npm  --version
+	@echo
+	npx --yes vite --version || true
+	@echo
+	npx --yes eslint --version || true
+	@echo
+	npx --yes prettier --version || true
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Help
+# ─────────────────────────────────────────────────────────────────────────────
+
+.PHONY: help
+
+help:          ## Show this help
+	@echo "Immigrow Makefile — common commands"
+	@echo
+	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | \
+		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
