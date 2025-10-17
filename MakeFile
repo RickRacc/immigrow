@@ -1,29 +1,25 @@
 .DEFAULT_GOAL := help
 SHELL         := bash
 
-# Package manager (switch to pnpm/yarn if you use those)
 PKG      ?= npm
 RUN      := $(PKG) run
 
-# Paths
 SRC_DIR      := src
 PUBLIC_DIR   := public
 DIST_DIR     := dist
 TEAM_IMG_DIR := $(PUBLIC_DIR)/images/team
 
-# AWS deploy (optional). Set these env vars in shell or CI if you use S3 + CloudFront.
+# AWS deploy 
 S3_BUCKET   ?=
 CF_DIST_ID  ?=
 
-# Tools (installed locally via devDependencies)
+# Tools 
 VITE      := $(RUN) vite
 ESLINT    := $(RUN) lint
 PRETTIER  := $(RUN) format
 TEST      := $(RUN) test
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Git helpers
-# ─────────────────────────────────────────────────────────────────────────────
 
 .PHONY: config status pull push log
 
@@ -37,13 +33,13 @@ status:        ## Clean then show branch + remotes + status
 	git remote -v
 	git status
 
-pull:          ## Pull latest changes
+pull:         
 	@$(MAKE) --no-print-directory clean
 	@echo
 	git pull
 	git status
 
-push:          ## Stage common files and push (edit as needed)
+push:          
 	@$(MAKE) --no-print-directory clean
 	@echo
 	git add .gitignore
@@ -57,12 +53,8 @@ push:          ## Stage common files and push (edit as needed)
 	git push
 	git status
 
-log:           ## Save git log to a file
+log:          
 	git log > Immigrow.log.txt
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Node/Vite lifecycle
-# ─────────────────────────────────────────────────────────────────────────────
 
 .PHONY: install dev build preview test lint format typecheck
 
@@ -87,10 +79,6 @@ lint:          ## Lint with ESLint (if configured)
 format:        ## Format with Prettier (if configured)
 	-$(PRETTIER)
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Project checks
-# ─────────────────────────────────────────────────────────────────────────────
-
 .PHONY: check check-images check-public
 
 check: check-images ## Run project checks
@@ -108,10 +96,6 @@ check-public:       ## Confirm public assets copied to dist (after build)
 	@test -d "$(DIST_DIR)/images/team" || (echo "Run 'make build' first"; exit 1)
 	@ls -la "$(DIST_DIR)/images/team"
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Clean / scrub
-# ─────────────────────────────────────────────────────────────────────────────
-
 .PHONY: clean scrub
 
 clean:         ## Remove build artifacts
@@ -121,10 +105,6 @@ scrub: clean   ## Remove extra temp files
 	rm -rf node_modules
 	rm -f  Immigrow.log.txt
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Deploy helpers (S3 + CloudFront) – optional, used only if you deploy this way
-# ─────────────────────────────────────────────────────────────────────────────
-
 .PHONY: deploy invalidate
 
 deploy: build  ## Upload dist/ to S3 (requires AWS CLI + env vars)
@@ -132,14 +112,10 @@ deploy: build  ## Upload dist/ to S3 (requires AWS CLI + env vars)
 	aws s3 sync "$(DIST_DIR)" "s3://$(S3_BUCKET)" --delete
 	@echo "✓ Uploaded to s3://$(S3_BUCKET)"
 
-invalidate:    ## Invalidate CloudFront cache (optional)
+invalidate:    ## Invalidate CloudFront cache 
 	@if [ -z "$(CF_DIST_ID)" ]; then echo "Set CF_DIST_ID=<distribution-id>"; exit 1; fi
 	aws cloudfront create-invalidation --distribution-id "$(CF_DIST_ID)" --paths "/*"
 	@echo "✓ Invalidation requested"
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Versions (Node, npm, vite, eslint, prettier)
-# ─────────────────────────────────────────────────────────────────────────────
 
 .PHONY: versions
 
@@ -157,10 +133,6 @@ versions:      ## Print tool versions
 	npx --yes eslint --version || true
 	@echo
 	npx --yes prettier --version || true
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Help
-# ─────────────────────────────────────────────────────────────────────────────
 
 .PHONY: help
 
