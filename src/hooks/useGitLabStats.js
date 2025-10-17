@@ -1,7 +1,6 @@
 // src/hooks/useGitLabStats.js
 import { useEffect, useMemo, useState } from 'react';
 import { getProject, getIssueCount, getLatestPipeline } from '../lib/gitlab';
-import { UNSAFE_getTurboStreamSingleFetchDataStrategy } from 'react-router-dom';
 
 const TEAM = [
   {
@@ -10,9 +9,8 @@ const TEAM = [
     role: 'Frontend & Deployment',
     bio: 'Builds UI, deploys to S3/CloudFront, and maintains CI/CD.',
     photo: '/images/team/lucas.jpg',
-    emails: [
-      'lucasberio815@gmail.com'
-    ],
+    // from `git shortlog -sne`
+    emails: ['lucasberio815@gmail.com'],
   },
   {
     name: 'Anisha Bhaskar Torres',
@@ -20,9 +18,7 @@ const TEAM = [
     role: 'Backend & Data',
     bio: 'APIs, data pipelines, and Eventbrite integrations.',
     photo: '/images/team/anisha.jpg',
-    emails: [
-      'anishabhaskartorres@gmail.com'
-    ],
+    emails: ['144181985+anisha1045@users.noreply.github.com'],
   },
   {
     name: 'Mrinalini Jithendra',
@@ -30,9 +26,7 @@ const TEAM = [
     role: 'Frontend',
     bio: 'UX & React components.',
     photo: '/images/team/mrinalini.jpg',
-    emails: [
-      'mrinalinij05@utexas.edu'
-    ],
+    emails: ['minijith@cs.utexas.edu'],
   },
   {
     name: 'Rakesh Singh',
@@ -40,61 +34,45 @@ const TEAM = [
     role: 'Full-stack',
     bio: 'Rakesh Singh is a Junior CS student at UT Austin!',
     photo: '/images/team/rakesh.jpg',
-    emails: [
-      'rakesh.p.singh2030@gmail.com'
-    ],
+    emails: ['rakesh.p.singh2030@gmail.com'],
   },
 ];
 
 /* ──────────────────────────────────────────────────────────────────────────────
-   Commit counting helpers (browser-friendly)
-   We avoid relying on the X-Total header (not CORS-exposed). We page through
-   commits and, if emails are provided, we filter client-side by author_email.
+   GitLab fetch helpers
    ──────────────────────────────────────────────────────────────────────────── */
 const GL_API = 'https://gitlab.com/api/v4';
 const GL_TOKEN = import.meta.env.VITE_GITLAB_TOKEN;
 
+function authHeaders() {
+  return GL_TOKEN ? { Authorization: `Bearer ${GL_TOKEN}` } : {};
+}
+
 /**
- * Count commits for a project by paging.
- * Options:
- *  - ref: branch/ref name (defaults to 'main' or project.default_branch)
- *  - authorUsername: optional; narrows results server-side
- *  - authorEmails: optional array of emails; filters client-side
+ * Pages through commits and applies a LOCAL predicate to each commit.
+ * This avoids relying on server-side author filters that may be ignored.
  *
- * If authorEmails are supplied, we still page through all (or narrowed) commits
- * and count only those whose commit.author_email matches (case-insensitive).
+ * Options:
+ *  - ref (branch)            -> 'main' etc.; omit for repo-wide
+ *  - predicate(commit)       -> returns true to count, false to skip
+ *  - dedupeBySha (boolean)   -> if true, union by SHA to avoid double count
  */
-async function fetchCommitTotal(
-  projectId,
-  { ref = 'main', authorUsername, authorEmails = [] } = {}
-) {
+async function pageAndCountCommits(projectId, { ref = null, predicate, dedupeBySha = false } = {}) {
   const perPage = 100;
+  const safetyCap = 20_000; // guardrail
   let page = 1;
   let total = 0;
-  const safetyCap = 20_000;
+  const shaSet = dedupeBySha ? new Set() : null;
 
-  // Normalize list for case-insensitive matching
-  const emailSet =
-    Array.isArray(authorEmails) && authorEmails.length
-      ? new Set(authorEmails.map((e) => String(e).trim().toLowerCase()))
-      : null;
+  // default predicate = count everything
+  const pred = typeof predicate === 'function' ? predicate : () => true;
 
   while (true) {
-    const params = new URLSearchParams({
-      per_page: String(perPage),
-      page: String(page),
-      ref_name: ref,
-    });
-    // Narrow by username if provided (reduces pages considerably)
-    if (authorUsername) params.set('author_username', authorUsername);
+    const params = new URLSearchParams({ per_page: String(perPage), page: String(page) });
+    if (ref) params.set('ref_name', ref);
 
-    const res = await fetch(
-      `${GL_API}/projects/${encodeURIComponent(
-        projectId
-      )}/repository/commits?${params.toString()}`,
-      { headers: GL_TOKEN ? { Authorization: `Bearer ${GL_TOKEN}` } : {} }
-    );
-
+    const url = `${GL_API}/projects/${encodeURIComponent(projectId)}/repository/commits?${params.toString()}`;
+    const res = await fetch(url, { headers: authHeaders() });
     if (!res.ok) {
       const msg = await res.text().catch(() => res.statusText);
       throw new Error(`Commits fetch failed (${res.status}): ${msg}`);
@@ -103,23 +81,65 @@ async function fetchCommitTotal(
     const data = await res.json();
     if (!Array.isArray(data) || data.length === 0) break;
 
-    if (emailSet) {
-      // Count only commits whose author_email matches one of ours
-      for (const c of data) {
-        const email = (c?.author_email || '').toLowerCase();
-        if (emailSet.has(email)) total += 1;
+    for (const c of data) {
+      if (!pred(c)) continue;
+      if (shaSet) {
+        const sha = c?.id || c?.short_id;
+        if (sha && !shaSet.has(sha)) {
+          shaSet.add(sha);
+          total += 1;
+        }
+      } else {
+        total += 1;
       }
-    } else {
-      total += data.length;
     }
 
-    if (data.length < perPage) break; // done
-    if (total >= safetyCap) break; // guardrail
+    if (data.length < perPage) break; // last page
+    if (total >= safetyCap) break;
 
     page += 1;
   }
 
   return total;
+}
+
+/**
+ * Count commits with robust local filtering:
+ *  - If authorEmails provided -> union across those emails (case-insensitive)
+ *  - Else if authorName provided -> match commit.author_name (case-insensitive)
+ *  - Else -> unfiltered
+ *
+ * `ref`: pass a branch (e.g., 'main') to count on that branch; omit for repo-wide.
+ */
+async function fetchCommitTotal(
+  projectId,
+  { ref = null, authorEmails = [], authorName = null } = {}
+) {
+  if (Array.isArray(authorEmails) && authorEmails.length > 0) {
+    const emailSet = new Set(
+      authorEmails.map((e) => String(e || '').trim().toLowerCase()).filter(Boolean)
+    );
+    // Union by SHA to avoid counting same commit twice if multiple emails match
+    return pageAndCountCommits(projectId, {
+      ref,
+      dedupeBySha: true,
+      predicate: (c) => {
+        const email = String(c?.author_email || '').toLowerCase();
+        return emailSet.has(email);
+      },
+    });
+  }
+
+  if (authorName && String(authorName).trim()) {
+    const nameLC = String(authorName).trim().toLowerCase();
+    return pageAndCountCommits(projectId, {
+      ref,
+      predicate: (c) => String(c?.author_name || '').toLowerCase() === nameLC,
+    });
+  }
+
+  // unfiltered
+  return pageAndCountCommits(projectId, { ref });
 }
 
 export function useGitLabStats() {
@@ -137,16 +157,16 @@ export function useGitLabStats() {
       try {
         setLoading(true);
 
-        // 1) Project info (includes default branch)
+        // 1) Project (for default branch)
         const proj = await getProject();
         if (!mounted) return;
         setProject(proj);
 
         const ref = proj?.default_branch || 'main';
 
-        // 2) Totals for project
+        // 2) Totals (repo-wide commits to match GitLab header)
         const [commitsAll, issuesAll, latest] = await Promise.all([
-          fetchCommitTotal(proj.id, { ref }),
+          fetchCommitTotal(proj.id, { /* repo-wide */ }),
           getIssueCount(proj.id),
           getLatestPipeline(proj.id).catch(() => null),
         ]);
@@ -154,15 +174,11 @@ export function useGitLabStats() {
         setTotals({ commits: commitsAll, issues: issuesAll });
         setPipeline(latest ?? null);
 
-        // 3) Per-member stats (commit counts use emails to be exact)
+        // 3) Per-member stats on default branch
         const enriched = await Promise.all(
           TEAM.map(async (m) => {
             const [myCommits, myIssues] = await Promise.all([
-              fetchCommitTotal(proj.id, {
-                ref,
-                authorUsername: m.username, // narrows server-side
-                authorEmails: m.emails, // exact author_email matching
-              }),
+              fetchCommitTotal(proj.id, { ref, authorEmails: m.emails, authorName: m.name }),
               getIssueCount(proj.id, m.username),
             ]);
             return { ...m, commits: myCommits, issues: myIssues };
