@@ -53,13 +53,12 @@ implementations and testing each component individually before integration.
 ### Evidence of Independent Work
 Paste a before-and-after snippet (3–5 lines max) showing where you changed your own code in
 response to AI guidance.
-Before: const events = eventsData.filter(e => org.eventIds.includes(e.id));
-After: const resources = resourcesData.filter(r => org.resourceIds.includes(r.id));
+Before: const events = ["event1", "event2"];
+After: const events = eventsData.filter(e => org.eventsIds.includes(e.id))
 In 2–3 sentences, explain what you learned by making this change.
 We learned that establishing bi-directional relationships between data models requires careful
-consideration of the data structure. By adding the resources filter alongside the events filter, we
-created a more complete cross-referencing system that allows users to navigate between all
-related content seamlessly!!
+consideration of the data structure. By adding the events filter, we
+created a more complete cross-referencing system that allows for better scalibility and future use cases!!
 
 ### Integrity Statement
 We confirm that the AI was used only as a helper (explainer, debugger, reviewer) and not as a
