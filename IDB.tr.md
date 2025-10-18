@@ -79,6 +79,6 @@ Data Source: Eventbrite API
 ## 6. Challenges
 Some of our challenges included setting up hosting on AWS, identifying and linking instances
 with related attributes across multiple models, and integrating media content into the
-webpages.
+webpages. We overcame these challenges by consulting online resources such as AWS documentation, Geeks for Geeks help pages on HTML, using Gen AI to explain the process, and relying on each other's past knowledge. 
 ---
 
