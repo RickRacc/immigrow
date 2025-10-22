@@ -8,5 +8,10 @@ export default defineConfig({
   build: {
     outDir: "dist",
     sourcemap: true
+  },
+  server: {
+    proxy: {
+      '/api': 'http://localhost:5000'
+    }
   }
 })
