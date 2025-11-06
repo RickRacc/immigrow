@@ -1,0 +1,51 @@
+Project Name
+Immigrow
+
+Proposed Project
+Immigrow helps underserved immigrant communities and their allies discover firsthand stories, trustworthy organizations, and nearby resources/events. This includes pulling from platforms like Eventbrite, providing a “Know Your Rights” model with access to legal clinics, ESL classes, and citizenship workshops. The site promotes civic engagement by connecting users to actionable services, multilingual materials, and community events.
+
+Data Sources
+
+Eventbrite API
+LawHelp API
+ProPublica Nonprofit Explorer API
+
+
+Models
+
+Events
+Legal Resources
+Organizations
+
+
+
+Attributes (Filterable/Sortable)
+Events: Location, Title, Date, Start Time, Length of Event, description
+Legal Resources: Date, Topic, Scope (Federal/State/Local), Description, Date
+Organizations: Location, Size, Topic, Meeting Frequency, Description
+
+
+Media Types
+Events: Link to event webpage, text, images of event
+Legal Resources: Links to news articles, text
+Organizations: Link to org homepage, text, images of organization
+Immigrant Stories: Link, text, images
+
+Relations Between Models
+
+
+Events: (1) Organizations that host events, (2) Events that deal with legal resources
+
+Legal Resources: (1) Links connecting to organizations, (2) Stories of people affected
+
+Organizations: (1) Organizations that have legal resources, (2) Events hosted by organizations
+
+Immigrant Stories: (1) Testimonies from people in organizations, (2) Legal issues and resources used
+
+
+Guiding Questions
+
+What are cultural events near me?
+What is the newest legislation passed in the U.S. really saying?
+What organizations near me can I join for support?
+What experiences have other immigrants faced, and how can their stories guide my own journey?
