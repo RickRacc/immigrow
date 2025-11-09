@@ -15,7 +15,7 @@ DATABASE_URL = os.getenv('DATABASE_URL')
 if DATABASE_URL:
     # Option 1: Use DATABASE_URL (production - Heroku, AWS, etc.)
     app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
-    print("✓ Using DATABASE_URL for database connection")
+    print("[OK] Using DATABASE_URL for database connection")
 elif os.getenv('POSTGRES_HOST'):
     # Option 2: PostgreSQL with individual variables (RECOMMENDED for development)
     pg_user = os.getenv('POSTGRES_USER', 'postgres')
@@ -28,7 +28,7 @@ elif os.getenv('POSTGRES_HOST'):
         f'postgresql://{pg_user}:{pg_password}@'
         f'{pg_host}:{pg_port}/{pg_db}'
     )
-    print(f"✓ Using PostgreSQL: {pg_host}:{pg_port}/{pg_db}")
+    print(f"[OK] Using PostgreSQL: {pg_host}:{pg_port}/{pg_db}")
 elif os.getenv('MYSQL_HOST'):
     # Option 3: MySQL configuration (alternative)
     mysql_user = os.getenv('MYSQL_USER', 'root')
@@ -41,11 +41,11 @@ elif os.getenv('MYSQL_HOST'):
         f'mysql+pymysql://{mysql_user}:{mysql_password}@'
         f'{mysql_host}:{mysql_port}/{mysql_db}'
     )
-    print(f"✓ Using MySQL: {mysql_host}:{mysql_port}/{mysql_db}")
+    print(f"[OK] Using MySQL: {mysql_host}:{mysql_port}/{mysql_db}")
 else:
     # Option 4: SQLite fallback (development only)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///immigrow.db'
-    print("⚠️  Using SQLite database (development mode)")
+    print("[WARNING] Using SQLite database (development mode)")
     print("   RECOMMENDED: Install PostgreSQL and configure POSTGRES_* variables in .env")
     print("   See backend/SETUP.md for PostgreSQL installation instructions")
 
@@ -342,7 +342,7 @@ def get_stats():
 def init_db():
     """Initialize the database (create tables)"""
     db.create_all()
-    print("✓ Database tables created")
+    print("[OK] Database tables created")
 
 
 @app.cli.command('seed-db')
@@ -357,7 +357,7 @@ def reset_db():
     """Reset the database (drop and recreate tables)"""
     db.drop_all()
     db.create_all()
-    print("✓ Database reset complete")
+    print("[OK] Database reset complete")
 
 
 # ============================================================================
@@ -388,7 +388,7 @@ if __name__ == "__main__":
     debug = os.getenv('FLASK_ENV') == 'development'
 
     print("\n" + "=" * 60)
-    print("🚀 IMMIGROW API SERVER")
+    print("IMMIGROW API SERVER")
     print("=" * 60)
     print(f"Database: {app.config['SQLALCHEMY_DATABASE_URI']}")
     print(f"Port: {port}")

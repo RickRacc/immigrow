@@ -35,6 +35,8 @@ class EventbriteAPI:
         """
         Search for immigration-related events
 
+        Note: Eventbrite deprecated public event search. Using organization events instead.
+
         Args:
             keywords: List of search terms (default: immigration-related terms)
             location: Location string (e.g., "Texas", "New York, NY")
@@ -43,50 +45,50 @@ class EventbriteAPI:
         Returns:
             List of event dictionaries ready for database insertion
         """
-        if keywords is None:
-            keywords = [
-                'immigration', 'immigrant rights', 'citizenship workshop',
-                'DACA', 'asylum', 'refugee', 'naturalization', 'visa',
-                'immigrant support', 'immigrant community'
-            ]
+        # Eventbrite changed their API - public search no longer available with OAuth tokens
+        # Instead, we'll search using their discovery endpoint or fetch from known organizations
 
         all_events = []
 
-        for keyword in keywords[:3]:  # Limit to avoid rate limiting
-            try:
-                params = {
-                    'q': keyword,
-                    'sort_by': 'date',
-                    'expand': 'venue,organizer'
-                }
+        try:
+            # Try to get user's organizations first
+            response = requests.get(
+                f"{self.BASE_URL}/users/me/organizations/",
+                headers=self.headers,
+                timeout=10
+            )
 
-                if location:
-                    params['location.address'] = location
+            if response.status_code == 200:
+                orgs = response.json().get('organizations', [])
+                print(f"Found {len(orgs)} organizations accessible with this token")
 
-                response = requests.get(
-                    f"{self.BASE_URL}/events/search/",
-                    headers=self.headers,
-                    params=params,
-                    timeout=10
-                )
+                # For each organization, get their events
+                for org in orgs[:3]:  # Limit to first 3 orgs
+                    org_id = org.get('id')
+                    if org_id:
+                        events_response = requests.get(
+                            f"{self.BASE_URL}/organizations/{org_id}/events/",
+                            headers=self.headers,
+                            params={'status': 'live'},
+                            timeout=10
+                        )
 
-                if response.status_code == 200:
-                    data = response.json()
-                    events = data.get('events', [])
+                        if events_response.status_code == 200:
+                            events = events_response.json().get('events', [])
+                            print(f"Fetched {len(events)} events from org {org.get('name', org_id)}")
 
-                    for event in events[:limit]:
-                        transformed_event = self._transform_event(event)
-                        if transformed_event:
-                            all_events.append(transformed_event)
+                            for event in events[:limit]:
+                                transformed_event = self._transform_event(event)
+                                if transformed_event:
+                                    all_events.append(transformed_event)
 
-                    print(f"Fetched {len(events)} events for keyword: {keyword}")
-                    time.sleep(1)  # Rate limiting
-                else:
-                    print(f"Error fetching events for '{keyword}': {response.status_code}")
+                        time.sleep(1)  # Rate limiting
+            else:
+                print(f"Unable to access organizations: {response.status_code}")
+                print(f"Response: {response.text[:200]}")
 
-            except Exception as e:
-                print(f"Error searching events for '{keyword}': {e}")
-                continue
+        except Exception as e:
+            print(f"Error fetching Eventbrite data: {e}")
 
         # Remove duplicates by eventbrite_id
         seen = set()
@@ -161,66 +163,118 @@ class ProPublicaNonprofitAPI:
 
     API Documentation: https://projects.propublica.org/nonprofits/api
     Authentication: None required
+
+    NOTE: Using search endpoint instead of direct EIN lookup (more reliable)
     """
 
     BASE_URL = "https://projects.propublica.org/nonprofits/api/v2"
 
-    # Sample EINs for immigration-related organizations (you'll want to expand this)
-    IMMIGRATION_ORGS_EINS = [
-        '135593186',  # American Immigration Council
-        '941248274',  # International Rescue Committee
-        '131685039',  # Catholic Charities USA
-        '135562162',  # National Immigration Law Center
-        '136224012',  # Migration Policy Institute
-        '941156326',  # International Institute of the Bay Area
-        '237321541',  # HIAS (Hebrew Immigrant Aid Society)
-        '133453711',  # Kids in Need of Defense (KIND)
-        '954583612',  # Central American Resource Center (CARECEN)
-        '943036054',  # Immigrant Legal Resource Center
+    # Immigration-related search terms
+    IMMIGRATION_SEARCH_TERMS = [
+        'immigration legal services',
+        'immigrant rights',
+        'refugee assistance',
+        'citizenship help',
+        'asylum services'
     ]
 
-    def fetch_organizations(self, ein_list: List[str] = None, limit: int = 20) -> List[Dict]:
+    def fetch_organizations(self, search_terms: List[str] = None, limit: int = 20) -> List[Dict]:
         """
-        Fetch nonprofit organizations by EIN
+        Fetch nonprofit organizations by searching for immigration-related terms
 
         Args:
-            ein_list: List of Employer Identification Numbers
+            search_terms: List of search terms (default: immigration-related)
             limit: Maximum number of organizations to fetch
 
         Returns:
             List of organization dictionaries ready for database insertion
         """
-        if ein_list is None:
-            ein_list = self.IMMIGRATION_ORGS_EINS
+        if search_terms is None:
+            search_terms = self.IMMIGRATION_SEARCH_TERMS
 
         organizations = []
+        seen_eins = set()  # Track to avoid duplicates
 
-        for ein in ein_list[:limit]:
+        for term in search_terms:
             try:
+                # Use search endpoint instead of direct EIN lookup
                 response = requests.get(
-                    f"{self.BASE_URL}/organizations/{ein}.json",
+                    f"{self.BASE_URL}/search.json",
+                    params={'q': term},
                     timeout=10
                 )
 
                 if response.status_code == 200:
                     data = response.json()
-                    transformed_org = self._transform_organization(data)
-                    if transformed_org:
-                        organizations.append(transformed_org)
-                        print(f"Fetched organization: {transformed_org['name']}")
-                else:
-                    print(f"Error fetching organization {ein}: {response.status_code}")
+                    orgs = data.get('organizations', [])
 
-                time.sleep(0.5)  # Rate limiting
+                    for org_data in orgs[:5]:  # Top 5 results per search term
+                        ein = org_data.get('ein')
+                        if ein and ein not in seen_eins:
+                            seen_eins.add(ein)
+                            transformed_org = self._transform_organization_from_search(org_data)
+                            if transformed_org:
+                                organizations.append(transformed_org)
+                                print(f"Fetched organization: {transformed_org['name']}")
+
+                        if len(organizations) >= limit:
+                            return organizations
+
+                    time.sleep(1)  # Rate limiting
+
+                else:
+                    print(f"Error searching for '{term}': {response.status_code}")
 
             except Exception as e:
-                print(f"Error fetching organization {ein}: {e}")
+                print(f"Error searching for '{term}': {e}")
                 continue
 
-        return organizations
+        return organizations[:limit]
+
+    def _transform_organization_from_search(self, org_data: Dict) -> Optional[Dict]:
+        """Transform ProPublica search result data to our database schema"""
+        try:
+            # Search results have a flatter structure
+            name = org_data.get('name', 'Unknown Organization')
+            city = org_data.get('city', 'Unknown')
+            state = org_data.get('state', 'Unknown')
+            ein = str(org_data.get('ein', ''))
+
+            # Get NTEE code and map to topic (convert to string)
+            ntee_code = str(org_data.get('ntee_code', 'Q'))
+            topic = self._map_ntee_to_topic(ntee_code)
+
+            # Get subsection (convert to string)
+            subsection = str(org_data.get('subsection', '3'))
+            size = self._map_subsection_to_size(subsection)
+
+            # Estimate meeting frequency
+            meeting_frequency = self._estimate_meeting_frequency(ntee_code)
+
+            return {
+                'name': name[:255] if isinstance(name, str) else str(name)[:255],
+                'city': city[:100] if isinstance(city, str) else str(city)[:100],
+                'state': state[:50] if isinstance(state, str) else str(state)[:50],
+                'topic': topic[:100],
+                'size': size[:50],
+                'meeting_frequency': meeting_frequency,
+                'description': f"{name} - {topic} organization in {city}, {state}",
+                'address': '',
+                'zipcode': '',
+                'ein': ein[:20],
+                'subsection_code': f"501(c)({subsection})",
+                'ntee_code': ntee_code[:20],
+                'external_url': f"https://projects.propublica.org/nonprofits/organizations/{ein}",
+                'guidestar_url': f"https://www.guidestar.org/profile/{ein}",
+                'image_url': None
+            }
+
+        except Exception as e:
+            print(f"Error transforming organization from search: {e}")
+            return None
 
     def _transform_organization(self, org_data: Dict) -> Optional[Dict]:
-        """Transform ProPublica organization data to our database schema"""
+        """Transform ProPublica organization data to our database schema (legacy method)"""
         try:
             org = org_data.get('organization', {})
 
@@ -305,11 +359,12 @@ class CourtListenerAPI:
     CourtListener API Integration
     Fetches immigration-related legal resources and court cases
 
-    API Documentation: https://www.courtlistener.com/help/api/rest/
-    Authentication: API token required for higher rate limits (optional)
+    API Documentation: https://www.courtlistener.com/help/api/rest-v4/
+    Authentication: API token required
+    Note: V4 API required for new users (V3 deprecated)
     """
 
-    BASE_URL = "https://www.courtlistener.com/api/rest/v3"
+    BASE_URL = "https://www.courtlistener.com/api/rest/v4"
 
     def __init__(self, api_token: Optional[str] = None):
         self.api_token = api_token or os.getenv('COURTLISTENER_API_TOKEN')
@@ -364,9 +419,16 @@ class CourtListenerAPI:
                             all_resources.append(transformed)
 
                     print(f"Fetched {len(results)} cases for: {query}")
-                    time.sleep(2)  # Rate limiting
+                    time.sleep(3)  # Increased rate limiting to avoid 403s
+                elif response.status_code == 403:
+                    print(f"Error fetching cases: {response.status_code} (Access Forbidden)")
+                    print(f"  Response: {response.text[:200]}")
+                    print(f"  Headers used: {self.headers}")
+                    print(f"  Increasing wait time and retrying...")
+                    time.sleep(5)
                 else:
                     print(f"Error fetching cases: {response.status_code}")
+                    print(f"  Response: {response.text[:200]}")
 
             except Exception as e:
                 print(f"Error searching cases for '{query}': {e}")
@@ -386,31 +448,53 @@ class CourtListenerAPI:
     def _transform_case(self, case_data: Dict) -> Optional[Dict]:
         """Transform CourtListener case data to our database schema"""
         try:
-            # Determine scope based on court
-            court_name = case_data.get('court', '')
-            scope = self._determine_scope(court_name)
+            # Skip if no case name
+            case_name = case_data.get('caseName') or case_data.get('case_name')
+            if not case_name:
+                print(f"  ! Skipping case - no case name found in: {list(case_data.keys())[:5]}")
+                return None
 
-            # Extract date
-            date_filed = case_data.get('dateFiled')
+            # Determine scope based on court
+            court_name = case_data.get('court') or case_data.get('court_name') or 'Unknown Court'
+            scope = self._determine_scope(str(court_name))
+
+            # Extract date - handle multiple possible field names
+            date_filed = case_data.get('dateFiled') or case_data.get('date_filed') or case_data.get('dateArgued')
             if date_filed:
-                date_obj = datetime.fromisoformat(date_filed.replace('Z', '+00:00')).date()
+                try:
+                    date_obj = datetime.fromisoformat(str(date_filed).replace('Z', '+00:00')).date()
+                except:
+                    date_obj = datetime.now().date()
             else:
                 date_obj = datetime.now().date()
 
+            # Get snippet/description - V4 uses 'opinions' array with 'snippet' inside
+            description = case_name  # Default to case name
+            if case_data.get('opinions') and len(case_data['opinions']) > 0:
+                description = case_data['opinions'][0].get('snippet', case_name)
+
+            # Get URL
+            abs_url = case_data.get('absolute_url') or ''
+            external_url = f"https://www.courtlistener.com{abs_url}" if abs_url else ''
+
+            # Handle citation - V4 returns array, join with commas
+            citation_raw = case_data.get('citation', [])
+            citation = ', '.join(citation_raw) if isinstance(citation_raw, list) else str(citation_raw)
+
             return {
-                'title': case_data.get('caseName', 'Untitled Case')[:500],
+                'title': str(case_name)[:500],
                 'date_published': date_obj,
-                'topic': self._extract_topic(case_data.get('caseName', '')),
+                'topic': self._extract_topic(str(case_name)),
                 'scope': scope,
-                'description': case_data.get('snippet', case_data.get('caseName', ''))[:1000],
+                'description': str(description)[:1000],
                 'format': 'Court Opinion',
-                'court_name': court_name[:255],
-                'citation': case_data.get('citation', '')[:255],
-                'external_url': f"https://www.courtlistener.com{case_data.get('absolute_url', '')}",
+                'court_name': str(court_name)[:255],
+                'citation': citation[:255],
+                'external_url': external_url,
                 'image_url': None,
-                'courtlistener_id': str(case_data.get('id', '')),
-                'docket_number': case_data.get('docketNumber', '')[:100],
-                'judge_name': case_data.get('judge', '')[:255]
+                'courtlistener_id': str(case_data.get('cluster_id') or case_data.get('id') or ''),
+                'docket_number': str(case_data.get('docketNumber') or case_data.get('docket_number') or '')[:100],
+                'judge_name': str(case_data.get('judge') or '')[:255]
             }
 
         except Exception as e:

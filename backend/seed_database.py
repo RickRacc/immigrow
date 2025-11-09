@@ -7,6 +7,11 @@ import os
 import sys
 from datetime import datetime
 import random
+from dotenv import load_dotenv
+
+# Load environment variables
+env_path = os.path.join(os.path.dirname(__file__), '..', '.env')
+load_dotenv(env_path)
 
 # Add backend to path
 sys.path.insert(0, os.path.dirname(__file__))
@@ -172,6 +177,12 @@ def seed_events(organizations: list) -> list:
         eventbrite_api = EventbriteAPI()
         event_data_list = eventbrite_api.search_events(limit=20)
 
+        # If no events found from Eventbrite, use sample events
+        if not event_data_list:
+            print("  ! No events found from Eventbrite API")
+            print("  ! Creating sample events instead")
+            return create_sample_events(organizations)
+
         events = []
         for event_data in event_data_list:
             try:
@@ -283,6 +294,76 @@ def create_sample_events(organizations: list) -> list:
             'city': 'Miami',
             'state': 'FL',
             'description': 'Weekly English classes and citizenship test preparation'
+        },
+        {
+            'title': 'Asylum Seeker Support Group',
+            'date': date.today() + timedelta(days=10),
+            'start_time': '5:00 PM CST',
+            'duration_minutes': 120,
+            'location': 'Chicago, IL',
+            'city': 'Chicago',
+            'state': 'IL',
+            'description': 'Monthly support group for asylum seekers and refugees'
+        },
+        {
+            'title': 'Green Card Application Workshop',
+            'date': date.today() + timedelta(days=17),
+            'start_time': '1:00 PM PST',
+            'duration_minutes': 150,
+            'location': 'San Francisco, CA',
+            'city': 'San Francisco',
+            'state': 'CA',
+            'description': 'Legal assistance with green card and permanent residency applications'
+        },
+        {
+            'title': 'Immigration Court Preparation Clinic',
+            'date': date.today() + timedelta(days=24),
+            'start_time': '9:00 AM EST',
+            'duration_minutes': 180,
+            'location': 'Boston, MA',
+            'city': 'Boston',
+            'state': 'MA',
+            'description': 'Free legal clinic to prepare for immigration court hearings'
+        },
+        {
+            'title': 'Refugee Resettlement Information Session',
+            'date': date.today() + timedelta(days=31),
+            'start_time': '3:00 PM MST',
+            'duration_minutes': 90,
+            'location': 'Phoenix, AZ',
+            'city': 'Phoenix',
+            'state': 'AZ',
+            'description': 'Information session on refugee resettlement programs and resources'
+        },
+        {
+            'title': 'Naturalization Test Prep Course',
+            'date': date.today() + timedelta(days=38),
+            'start_time': '6:30 PM EST',
+            'duration_minutes': 120,
+            'location': 'Philadelphia, PA',
+            'city': 'Philadelphia',
+            'state': 'PA',
+            'description': 'Free course to prepare for the U.S. citizenship naturalization test'
+        },
+        {
+            'title': 'Immigration Legal Aid Clinic',
+            'date': date.today() + timedelta(days=45),
+            'start_time': '10:00 AM PST',
+            'duration_minutes': 240,
+            'location': 'Seattle, WA',
+            'city': 'Seattle',
+            'state': 'WA',
+            'description': 'Walk-in legal clinic for immigration questions and consultations'
+        },
+        {
+            'title': 'Immigrant Entrepreneur Workshop',
+            'date': date.today() + timedelta(days=52),
+            'start_time': '2:00 PM CST',
+            'duration_minutes': 150,
+            'location': 'Dallas, TX',
+            'city': 'Dallas',
+            'state': 'TX',
+            'description': 'Workshop on starting a business as an immigrant, visa options, and resources'
         }
     ]
 
@@ -326,36 +407,97 @@ def create_relationships(events: list, organizations: list, resources: list):
     Create many-to-many relationships between models
 
     Logic:
-    - Events are linked to Resources if they share similar topics
-    - Organizations are linked to Resources if they share similar topics
+    - Each Event links to 2-3 Resources
+    - Each Organization links to 2-3 Resources
+    - Ensures ALL instances have at least 2 connections
+    - Caps total connections at ~5 per instance
     """
     try:
-        # Link Events to Resources
+        import random
+
+        # Link Events to Resources (2-3 resources per event)
+        print("\n  Linking Events to Resources...")
         for event in events:
-            # Find resources with matching topics
-            event_topics = ['immigration', 'asylum', 'citizenship', 'visa', 'daca']
+            # Randomly select 2-3 resources for this event
+            num_resources = random.randint(2, 3)
+            selected_resources = random.sample(resources, min(num_resources, len(resources)))
 
-            for resource in resources[:5]:  # Link to a few resources
-                # Simple topic matching - could be more sophisticated
-                if any(topic in event.title.lower() or topic in resource.title.lower()
-                       for topic in event_topics):
-                    if resource not in event.resources:
-                        event.resources.append(resource)
-                        print(f"  → Linked Event '{event.title[:40]}' to Resource '{resource.title[:40]}'")
+            for resource in selected_resources:
+                if resource not in event.resources:
+                    event.resources.append(resource)
+                    print(f"    → Event '{event.title[:35]}' ↔ Resource '{resource.title[:35]}'")
 
-        # Link Organizations to Resources
+        # Link Organizations to Resources (2-3 resources per org)
+        print("\n  Linking Organizations to Resources...")
         for org in organizations:
-            # Link organizations to resources in their topic area
-            for resource in resources[:5]:
-                # Match by topic
-                if org.topic.lower() in resource.topic.lower() or \
-                   org.topic.lower() in resource.description.lower():
-                    if resource not in org.resources:
-                        org.resources.append(resource)
-                        print(f"  -> Linked Org '{org.name[:40]}' to Resource '{resource.title[:40]}'")
+            # Randomly select 2-3 resources for this organization
+            num_resources = random.randint(2, 3)
+            selected_resources = random.sample(resources, min(num_resources, len(resources)))
+
+            for resource in selected_resources:
+                if resource not in org.resources:
+                    org.resources.append(resource)
+                    print(f"    → Org '{org.name[:35]}' ↔ Resource '{resource.title[:35]}'")
 
         db.session.commit()
-        print(" All relationships created")
+        print("\n  ✓ Initial relationships created")
+
+        # ENSURE ALL RESOURCES HAVE AT LEAST 2 CONNECTIONS
+        print("\n  Ensuring all resources have minimum 2 connections...")
+        for resource in resources:
+            conn_count = len(resource.events) + len(resource.organizations)
+
+            if conn_count < 2:
+                # Resource needs more connections
+                needed = 2 - conn_count
+                print(f"    ! '{resource.title[:40]}' only has {conn_count} connections, adding {needed} more...")
+
+                # Try to add from organizations first (less likely to have many already)
+                available_orgs = [o for o in organizations if resource not in o.resources]
+                if available_orgs:
+                    selected = random.sample(available_orgs, min(needed, len(available_orgs)))
+                    for org in selected:
+                        org.resources.append(resource)
+                        print(f"      + Added Org '{org.name[:30]}'")
+                        needed -= 1
+
+                # If still need more, add from events
+                if needed > 0:
+                    available_events = [e for e in events if resource not in e.resources]
+                    if available_events:
+                        selected = random.sample(available_events, min(needed, len(available_events)))
+                        for event in selected:
+                            event.resources.append(resource)
+                            print(f"      + Added Event '{event.title[:30]}'")
+
+        db.session.commit()
+        print("\n  ✓ All relationships finalized")
+
+        # Final verification
+        print("\n  Final verification of all 47 instances...")
+        issues = []
+
+        for event in events:
+            conn_count = len(event.resources) + (1 if event.organization else 0)
+            if conn_count < 2:
+                issues.append(f"Event '{event.title}' has only {conn_count} connection(s)")
+
+        for org in organizations:
+            conn_count = len(org.events) + len(org.resources)
+            if conn_count < 2:
+                issues.append(f"Organization '{org.name}' has only {conn_count} connection(s)")
+
+        for resource in resources:
+            conn_count = len(resource.events) + len(resource.organizations)
+            if conn_count < 2:
+                issues.append(f"Resource '{resource.title[:50]}' has only {conn_count} connection(s)")
+
+        if issues:
+            print(f"\n  [FAILED] Found {len(issues)} instances with < 2 connections:")
+            for issue in issues:
+                print(f"    - {issue}")
+        else:
+            print(f"  [SUCCESS] All {len(events) + len(organizations) + len(resources)} instances have 2+ connections")
 
     except Exception as e:
         print(f"Error creating relationships: {e}")

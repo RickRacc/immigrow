@@ -1,13 +1,20 @@
 # Immigrow Backend Setup Guide - Phase 2
 
-This guide will help you set up the Phase 2 backend with real API integration and database.
+This guide will help you set up the Phase 2 backend with real API integration and AWS RDS PostgreSQL database.
 
 ## Overview
+
+The backend uses:
+- **Flask** - REST API server
+- **AWS RDS PostgreSQL** - Cloud database
+- **2 REST APIs** - ProPublica (orgs) + CourtListener (legal resources)
+- **Sample Events** - Temporary (will be replaced with web scraper)
+
 ## Prerequisites
 
 - Python 3.8+
 - pip
-- PostgreSQL or MySQL (optional - SQLite works for development)
+- AWS RDS PostgreSQL (already set up)
 
 ## Quick Start
 
@@ -26,73 +33,54 @@ Copy the example environment file:
 cp .env.example .env
 ```
 
-Edit `.env` and add your API keys:
+Edit `.env` and add your configuration:
 
 ```bash
-# REQUIRED for full functionality
-EVENTBRITE_API_TOKEN=your_token_here
+# AWS RDS Database (REQUIRED)
+DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@immigrow-db.cz8gegw2sqh9.us-east-2.rds.amazonaws.com:5432/Immigrow
 
-# OPTIONAL (increases rate limits)
+# CourtListener API (REQUIRED - for legal resources)
 COURTLISTENER_API_TOKEN=your_token_here
+
 ```
 
-### 3. Set Up Database
+**Note:** ProPublica API requires no authentication - it's completely public
 
-**RECOMMENDED: Use PostgreSQL**
+### 3. Database is Already Set Up
 
-PostgreSQL is the recommended database for Phase 2. For detailed setup instructions:
+Your team is using **AWS RDS PostgreSQL**:
+- Instance: `immigrow-db`
+- Database name: `Immigrow` (capital I)
+- Region: us-east-2
+- Already configured in `.env`
 
-**See [POSTGRESQL_SETUP.md](POSTGRESQL_SETUP.md) for complete PostgreSQL installation guide**
-
-Quick setup:
-```bash
-# Install PostgreSQL (see POSTGRESQL_SETUP.md)
-# Then create database:
-createdb -U postgres immigrow
-
-# Configure in .env (already set in .env.example):
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=your_password
-POSTGRES_DATABASE=immigrow
-```
-
-**Alternative A: Use SQLite (quick testing only)**
-```bash
-# No configuration needed - just delete POSTGRES_* variables from .env
-# SQLite is NOT recommended for production
-python app.py
-```
-
-**Alternative B: Use MySQL**
-```bash
-# Install MySQL, then create database
-mysql -u root -p -e "CREATE DATABASE immigrow;"
-
-# Add to .env:
-MYSQL_HOST=localhost
-MYSQL_USER=root
-MYSQL_PASSWORD=your_password
-MYSQL_DATABASE=immigrow
-```
+**No local database installation needed!**
 
 ### 4. Seed the Database
 
 ```bash
-# Using Flask CLI
-flask seed-db
-
-# Or run the seeding script directly
+# Run the seeding script
 python seed_database.py
 ```
 
 This will:
-1. Create all database tables
-2. Fetch organizations from ProPublica Nonprofit Explorer API
-3. Fetch legal resources from CourtListener API
-4. Fetch events from Eventbrite API (if token is set)
-5. Create relationships between models
+1. Drop and recreate all database tables
+2. Fetch 15 organizations from ProPublica API (no auth needed)
+3. Fetch 20 legal resources from CourtListener V4 API
+4. Create 12 sample immigration events (temporary)
+5. Create relationships: each instance has 2+ connections
+
+**Expected output:**
+```
+[2/6] Fetching organizations from ProPublica...
+  Seeded 15 organizations
+[3/6] Fetching legal resources from CourtListener...
+  Seeded 20 legal resources
+[4/6] Creating sample events...
+  Seeded 12 events
+[5/6] Creating relationships...
+  [SUCCESS] All 47 instances have 2+ connections
+```
 
 ### 5. Run the Server
 
@@ -148,146 +136,162 @@ curl http://localhost:5000/stats
 ## Database Models
 
 ### Event Model
-**Required Attributes (5):**
-1. `title` - Event name
-2. `date` - Event date
-3. `start_time` - Start time
-4. `duration_minutes` - Length of event
-5. `location` - City, State
+**Attributes (18 total, 5+ required for Phase 2):**
+- `title`, `date`, `start_time`, `duration_minutes`, `location`
+- `city`, `state`, `venue_name`, `description`, `external_url`
+- `image_url`, `eventbrite_id`, `end_time`, `timezone`
+- `organization_id` (foreign key), `created_at`, `updated_at`
 
 **Relationships:**
-- Belongs to one Organization
-- Has many Resources (many-to-many)
+- Belongs to ONE Organization (foreign key)
+- Has MANY Resources (many-to-many via `event_resources` table)
 
 ### Organization Model
-**Required Attributes (5):**
-1. `name` - Organization name
-2. `city` - City location
-3. `state` - State location
-4. `topic` - Primary focus (from NTEE code)
-5. `size` - Organization classification
+**Attributes (18 total, 5+ required for Phase 2):**
+- `name`, `city`, `state`, `topic`, `size`
+- `meeting_frequency`, `description`, `address`, `zipcode`, `ein`
+- `subsection_code`, `ntee_code`, `external_url`, `guidestar_url`
+- `image_url`, `created_at`, `updated_at`
 
 **Relationships:**
-- Has many Events
-- Has many Resources (many-to-many)
+- Has MANY Events (one-to-many, reverse of Event.organization)
+- Has MANY Resources (many-to-many via `organization_resources` table)
 
 ### Resource Model
-**Required Attributes (5):**
-1. `title` - Resource title
-2. `date_published` - Publication date
-3. `topic` - Subject area
-4. `scope` - Federal/State/Local
-5. `description` - Resource description
+**Attributes (16 total, 5+ required for Phase 2):**
+- `title`, `date_published`, `topic`, `scope`, `description`
+- `format`, `court_name`, `citation`, `external_url`, `image_url`
+- `courtlistener_id`, `docket_number`, `judge_name`
+- `created_at`, `updated_at`
 
 **Relationships:**
-- Has many Organizations (many-to-many)
-- Has many Events (many-to-many)
+- Has MANY Events (many-to-many via `event_resources` table)
+- Has MANY Organizations (many-to-many via `organization_resources` table)
 
 ## API Data Sources
 
-### 1. Eventbrite API
-- **Purpose:** Fetch immigration-related community events
-- **Endpoint:** `https://www.eventbriteapi.com/v3/events/search/`
-- **Authentication:** OAuth token required
-- **Get Token:** https://www.eventbrite.com/platform/api
-- **Search Keywords:** immigration, citizenship workshop, DACA, asylum, etc.
-
-### 2. ProPublica Nonprofit Explorer API
-- **Purpose:** Fetch nonprofit organizations (immigration-focused)
-- **Endpoint:** `https://projects.propublica.org/nonprofits/api/v2/organizations/{ein}.json`
-- **Authentication:** None required
+### 1. ProPublica Nonprofit Explorer API (Organizations)
+- **Purpose:** Fetch real nonprofit organizations
+- **Type:** REST API
+- **Endpoint:** `https://projects.propublica.org/nonprofits/api/v2/search.json`
+- **Authentication:** **None required** (public API)
 - **Documentation:** https://projects.propublica.org/nonprofits/api
-- **Organizations:** Fetches by EIN (Employer Identification Number)
+- **Status:** Working - fetches 15 immigration-related nonprofits
 
-### 3. CourtListener API
-- **Purpose:** Fetch immigration-related legal cases and resources
-- **Endpoint:** `https://www.courtlistener.com/api/rest/v3/search/`
-- **Authentication:** Optional (for higher rate limits)
-- **Documentation:** https://www.courtlistener.com/help/api/rest/
-- **Search Keywords:** immigration deportation, asylum refugee, DACA, etc.
+### 2. CourtListener API V4 (Legal Resources)
+- **Purpose:** Fetch real immigration court cases and legal opinions
+- **Type:** REST API
+- **Endpoint:** `https://www.courtlistener.com/api/rest/v4/search/`
+- **Authentication:** **Token required** (get at courtlistener.com)
+- **Documentation:** https://www.courtlistener.com/help/api/rest-v4/
+- **Status:** Working - fetches 20 immigration-related court cases
 
-## Testing APIs Without Database
+### 3. Sample Events (Temporary)
+- **Purpose:** Immigration events (citizenship workshops, legal clinics, etc.)
+- **Type:** Hardcoded sample data
+- **Status:** ⚠️ Temporary - will be replaced with web scraper
+- **Future:** Build ImmigrationLawHelp.org scraper (see backend/TODO_PHASE2.md)
 
-To test API integrations independently:
-
-```bash
-python api_integrations.py
-```
-
-This will fetch sample data from each API without requiring database setup.
-
-## Flask CLI Commands
+## Database Verification Tools
 
 ```bash
-# Initialize database (create tables)
-flask init-db
+# View all tables, data, and relationships (table format)
+python verify_database_tables.py
 
-# Seed database with API data
-flask seed-db
+# Quick database inspection with relationship counts
+python inspect_database.py
 
-# Reset database (drop and recreate)
-flask reset-db
+# Check full description fields (no truncation)
+python check_descriptions.py
+
+# Test CourtListener API
+python test_courtlistener_v4.py
 ```
 
 ## Troubleshooting
 
-### Issue: "Eventbrite API token is required"
-**Solution:** The Eventbrite API requires authentication. Either:
-1. Get an API token at https://www.eventbrite.com/platform/api
-2. Add it to `.env` as `EVENTBRITE_API_TOKEN=your_token`
-3. Or: The seeding script will create sample events if no token is provided
-
-### Issue: Database connection error
-**Solution:**
-- Check your database credentials in `.env`
-- Ensure database server is running
-- Verify database exists: `createdb immigrow` (PostgreSQL) or `CREATE DATABASE immigrow;` (MySQL)
-- For development, remove database env vars to use SQLite
-
-### Issue: No data returned from API
-**Solution:**
-- ProPublica and CourtListener work without API keys
-- Check your internet connection
-- API rate limits may apply - the scripts include delays between requests
-- Check console output for specific error messages
-
-### Issue: Import errors
-**Solution:**
+### Issue: "database 'immigrow' does not exist"
+**Solution:** Database name is case-sensitive! Use `Immigrow` (capital I)
 ```bash
-pip install -r requirements.txt
+DATABASE_URL=postgresql://...../Immigrow  # Capital I!
 ```
+
+### Issue: CourtListener 403 errors
+**Solution:**
+- V3 API is deprecated for new users
+- Make sure you're using V4: `https://www.courtlistener.com/api/rest/v4/`
+- Verify API token in `.env`
+
+### Issue: ProPublica returns 404
+**Solution:**
+- Using search endpoint, not direct EIN lookup
+- Endpoint: `/search.json?q=immigration`
+- No authentication needed
+
+### Issue: No events showing up
+**Solution:**
+- Eventbrite public API was deprecated in 2020
+- Currently using 12 hardcoded sample events
+- This is intentional - will be replaced with web scraper later
+
+## Next Steps for Phase 2
+
+### For Backend Developer (You):
+1. Set up AWS RDS PostgreSQL - **DONE**
+2. Implement 2 REST APIs - **DONE** (ProPublica + CourtListener)
+3. Create database models with relationships - **DONE**
+4. Seed database with 47+ instances - **DONE**
+5. Ensure all instances have 2+ connections - **DONE**
+6. ⚠️ **Optional:** Replace sample events with ImmigrationLawHelp.org scraper (30-40 min)
+
+### For Frontend Developers (Your Teammates):
+1. **Connect frontend to backend API** instead of using static JSON files
+2. **Update API calls** in React components:
+   ```javascript
+   // OLD (Phase 1):
+   import events from './data/events.json'
+
+   // NEW (Phase 2):
+   const [events, setEvents] = useState([])
+
+   useEffect(() => {
+     fetch('http://localhost:5000/events?include_relationships=true')
+       .then(res => res.json())
+       .then(data => setEvents(data))
+       .catch(err => console.error(err))
+   }, [])
+   ```
+
+3. **Add loading states** and error handling
+4. **Use relationships** - backend returns nested data when you use `?include_relationships=true`
+5. **Test all pages** - Events, Organizations, Resources, instance detail pages
+
+### Division of Work:
+- **Backend (You):** ✅ Database, APIs, seeding, relationships - **COMPLETE**
+- **Frontend (Teammates):** Connect React to Flask API, display data, handle loading/errors
+- **Optional:** Build web scraper for events (can be done anytime before final submission)
 
 ## Production Deployment
 
-For production (AWS, Heroku, etc.):
+For AWS deployment:
 
-1. **Set DATABASE_URL environment variable:**
+1. **Backend is already on AWS RDS** ✅
+2. **Set environment variables** on your hosting service (EC2, Elastic Beanstalk, etc.)
+3. **Run migrations:**
    ```bash
-   DATABASE_URL=postgresql://user:pass@host:port/dbname
+   python seed_database.py
    ```
-
-2. **Set API keys as environment variables**
-
-3. **Run database migrations:**
-   ```bash
-   flask init-db
-   flask seed-db
-   ```
-
-4. **Use production server:**
+4. **Start server:**
    ```bash
    gunicorn app:app
    ```
 
-## Next Steps for Frontend Integration
+## Important Notes
 
-1. Update frontend API calls to use backend endpoints instead of JSON files
-2. Add loading states and error handling
-3. Use the `include_relationships=true` parameter to get nested data
-4. Example React fetch:
-   ```javascript
-   fetch('http://localhost:5000/events?include_relationships=true')
-     .then(res => res.json())
-     .then(data => setEvents(data))
-   ```
-y
+- Database has **3 tables + 2 junction tables** (Event, Organization, Resource, event_resources, organization_resources)
+- **2 many-to-many** relationships (via junction tables)
+- **1 one-to-many** relationship (Event -> Organization via foreign key)
+- All 47 instances guaranteed to have **2+ connections**
+- ProPublica API is **public** (no key needed)
+- CourtListener requires **API token**
+- Events are **sample data** (will be replaced with scraper later)
