@@ -31,7 +31,24 @@ class Organization(db.Model):
 
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
+    title = db.Column(db.String(255), nullable=False)
+    date = db.Column(db.Date, nullable=False)
+    start_time = db.Column(db.Time, nullable=False)
+    duration_minutes = db.Column(db.Integer, nullable=True)
+    end_time = db.Column(db.Time, nullable=True)
+    location = db.Column(db.String(255), nullable=True)
+    city = db.Column(db.String(100), nullable=True)
+    state = db.Column(db.String(50), nullable=True)
+    venue_name = db.Column(db.String(255), nullable=True)
+    description = db.Column(db.Text, nullable=True)
+    external_url = db.Column(db.String(500), nullable=True)
+    image_url = db.Column(db.String(500), nullable=True)
+    eventbrite_id = db.Column(db.String(100), nullable=True)
+    timezone = db.Column(db.String(50), nullable=True)
+    organization_id = db.Column(db.Integer, db.ForeignKey('organization.id'), nullable=False)
+    created_at = db.Column(db.DateTime)
+    updated_at = db.Column(db.DateTime)
+
 
 class Resource(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -59,8 +76,6 @@ def home():
 @app.route("/orgs/", methods=["GET"])
 def get_orgs():
     orgs = Organization.query.all()
-    print("GOT ORGS! ")
-    print(orgs)
     return jsonify([
         {
             "id": org.id,
@@ -113,13 +128,54 @@ def get_org_by_id(id):
 @app.route("/events", methods=["GET"])
 def get_events():
     events = Event.query.all()
-    return jsonify([{"id": event.id, "name": event.name} for event in events])
+    return jsonify([
+        {
+            "id": event.id,
+            "title": event.title,
+            "date": event.date.isoformat() if event.date else None,
+            "start_time": event.start_time.isoformat() if event.start_time else None,
+            "end_time": event.end_time.isoformat() if event.end_time else None,
+            "duration_minutes": event.duration_minutes,
+            "location": event.location,
+            "city": event.city,
+            "state": event.state,
+            "venue_name": event.venue_name,
+            "description": event.description,
+            "external_url": event.external_url,
+            "image_url": event.image_url,
+            "eventbrite_id": event.eventbrite_id,
+            "timezone": event.timezone,
+            "organization_id": event.organization_id,
+            "created_at": event.created_at.isoformat() if event.created_at else None,
+            "updated_at": event.updated_at.isoformat() if event.updated_at else None
+        } 
+        for event in events
+    ])
 
 # get event by ID
 @app.route("/events/<int:id>", methods=["GET"])
 def get_event_by_id(id):
     event = Event.query.get(id)
-    return jsonify({"id": event.id, "name": event.name})
+    return jsonify(        {
+            "id": event.id,
+            "title": event.title,
+            "date": event.date.isoformat() if event.date else None,
+            "start_time": event.start_time.isoformat() if event.start_time else None,
+            "end_time": event.end_time.isoformat() if event.end_time else None,
+            "duration_minutes": event.duration_minutes,
+            "location": event.location,
+            "city": event.city,
+            "state": event.state,
+            "venue_name": event.venue_name,
+            "description": event.description,
+            "external_url": event.external_url,
+            "image_url": event.image_url,
+            "eventbrite_id": event.eventbrite_id,
+            "timezone": event.timezone,
+            "organization_id": event.organization_id,
+            "created_at": event.created_at.isoformat() if event.created_at else None,
+            "updated_at": event.updated_at.isoformat() if event.updated_at else None
+        })
 
 # get all resources
 @app.route("/resources", methods=["GET"])
