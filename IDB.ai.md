@@ -17,6 +17,7 @@ You can navigate through our site to explore:
 - Tools Used: ChatGPT
 - Debugging Help: ChatGPT was a great resources in helping us set up tools we had limited
 experience in, such as AWS and Postman.
+- Conceptual Clarification: AI helped us understand the architecture and data flow throughout the system with EC2, RDS, and the front end. 
 - Code Improvement: ChatGPT helped us beautify the website and clarify React concepts.
 Original:
 You can navigate through our site to explore organizations, events and legal resouces.
@@ -38,8 +39,7 @@ How did you decide what to keep or ignore from the AI’s suggestions?
 I adopted AI suggestions that aligned with established patterns in my codebase, particularly
 those involving Bootstrap styling and React component structure. However, I adapted these
 suggestions to fit my specific data model and project requirements. I ignored overly complex
-suggestions that would have made the code harder to maintain, instead focusing on clean,
-data-driven approaches that would scale naturally with my JSON files. I also prioritized
+suggestions that would have made the code harder to maintain, instead focusing on clean approaches that would scale naturally with my JSON files. I also prioritized
 suggestions that maintained consistency across all three models (events, organizations,
 resources).
 
@@ -62,4 +62,4 @@ created a more complete cross-referencing system that allows for better scalibil
 
 ### Integrity Statement
 We confirm that the AI was used only as a helper (explainer, debugger, reviewer) and not as a
-code generator. All code submitted our my own work.
+code generator. All code submitted is our own work.
