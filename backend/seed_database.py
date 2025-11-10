@@ -17,7 +17,9 @@ load_dotenv(env_path)
 sys.path.insert(0, os.path.dirname(__file__))
 
 from models import db, Event, Organization, Resource
-from api_integrations import EventbriteAPI, ProPublicaNonprofitAPI, CourtListenerAPI
+from api_integrations import ProPublicaNonprofitAPI, CourtListenerAPI
+from event_scrapers.raices_scraper import scrape_raices_events
+from api_integrations.mobilize_api import fetch_mobilize_events
 
 
 def seed_database(app):
@@ -49,7 +51,7 @@ def seed_database(app):
         print(f"Seeded {len(resources)} legal resources")
 
         # Seed Events (depends on Organizations)
-        print("\n[4/6] Fetching and seeding events from Eventbrite...")
+        print("\n[4/6] Fetching and seeding events from RAICES and Mobilize API...")
         events = seed_events(organizations)
         print(f"Seeded {len(events)} events")
 
@@ -67,10 +69,12 @@ def seed_organizations() -> list:
     """Fetch and seed organizations from ProPublica API"""
     try:
         propublica_api = ProPublicaNonprofitAPI()
-        org_data_list = propublica_api.fetch_organizations(limit=15)
+        org_data_list = propublica_api.fetch_organizations(limit=57)
 
         organizations = []
-        for org_data in org_data_list:
+        batch_size = 10  # Commit every 10 organizations to avoid long transactions
+
+        for idx, org_data in enumerate(org_data_list):
             try:
                 # Check if organization already exists
                 existing = Organization.query.filter_by(ein=org_data['ein']).first()
@@ -101,10 +105,17 @@ def seed_organizations() -> list:
                 organizations.append(org)
                 print(f"  + Added: {org.name} ({org.city}, {org.state})")
 
+                # Commit in batches to prevent connection timeouts
+                if (idx + 1) % batch_size == 0:
+                    db.session.commit()
+                    print(f"    [Committed batch of {batch_size} organizations]")
+
             except Exception as e:
                 print(f"  ! Error adding organization: {e}")
+                db.session.rollback()  # Rollback failed org, continue with others
                 continue
 
+        # Final commit for remaining organizations
         db.session.commit()
         return organizations
 
@@ -118,7 +129,7 @@ def seed_resources() -> list:
     """Fetch and seed legal resources from CourtListener API"""
     try:
         court_api = CourtListenerAPI()
-        resource_data_list = court_api.search_immigration_cases(limit=20)
+        resource_data_list = court_api.search_immigration_cases(limit=57)
 
         resources = []
         for res_data in resource_data_list:
@@ -166,240 +177,62 @@ def seed_resources() -> list:
 
 
 def seed_events(organizations: list) -> list:
-    """Fetch and seed events from Eventbrite API"""
+    """Fetch and seed events from RAICES scraper and Mobilize API"""
+    all_events = []
+
     try:
-        # Check if Eventbrite token is available
-        if not os.getenv('EVENTBRITE_API_TOKEN'):
-            print("  ! Warning: EVENTBRITE_API_TOKEN not set")
-            print("  ! Creating sample events instead of fetching from API")
-            return create_sample_events(organizations)
+        # Fetch from RAICES scraper
+        print("\n  Fetching events from RAICES Texas...")
+        raices_events = scrape_raices_events(max_events=25)
+        print(f"  Fetched {len(raices_events)} events from RAICES")
 
-        eventbrite_api = EventbriteAPI()
-        event_data_list = eventbrite_api.search_events(limit=20)
+        # Fetch from Mobilize API
+        print("\n  Fetching immigration events from Mobilize API...")
+        mobilize_events = fetch_mobilize_events(max_events=30, immigration_only=True)
+        print(f"  Fetched {len(mobilize_events)} events from Mobilize")
 
-        # If no events found from Eventbrite, use sample events
-        if not event_data_list:
-            print("  ! No events found from Eventbrite API")
-            print("  ! Creating sample events instead")
-            return create_sample_events(organizations)
+        # Combine all event data
+        all_event_data = raices_events + mobilize_events
+        print(f"\n  Total events to process: {len(all_event_data)}")
 
-        events = []
-        for event_data in event_data_list:
+        # Add events to database
+        for event_data in all_event_data:
             try:
-                # Check if event already exists
-                existing = Event.query.filter_by(
-                    eventbrite_id=event_data['eventbrite_id']
-                ).first()
-                if existing:
-                    print(f"  - Skipping duplicate: {event_data['title']}")
-                    events.append(existing)
-                    continue
-
-                # Randomly assign organization (in reality, you'd match by organizer)
+                # Randomly assign organization
                 org = random.choice(organizations) if organizations else None
 
                 event = Event(
                     title=event_data['title'],
                     date=event_data['date'],
                     start_time=event_data['start_time'],
-                    end_time=event_data['end_time'],
+                    end_time=event_data.get('end_time', ''),
                     duration_minutes=event_data['duration_minutes'],
                     location=event_data['location'],
-                    city=event_data['city'],
-                    state=event_data['state'],
-                    venue_name=event_data['venue_name'],
-                    description=event_data['description'],
-                    external_url=event_data['external_url'],
-                    image_url=event_data['image_url'],
-                    eventbrite_id=event_data['eventbrite_id'],
-                    timezone=event_data['timezone'],
+                    city=event_data.get('city'),
+                    state=event_data.get('state'),
+                    venue_name=event_data.get('venue_name', ''),
+                    description=event_data.get('description', ''),
+                    external_url=event_data.get('external_url', ''),
+                    image_url=event_data.get('image_url'),
+                    timezone=event_data.get('timezone', 'EST'),
                     organization_id=org.id if org else None
                 )
 
                 db.session.add(event)
-                events.append(event)
-                print(f"  + Added: {event.title} ({event.location})")
+                all_events.append(event)
+                print(f"  + Added: {event.title[:60]}... ({event.location})")
 
             except Exception as e:
                 print(f"  ! Error adding event: {e}")
                 continue
 
         db.session.commit()
-        return events
+        return all_events
 
-    except ValueError as e:
-        print(f"  ! {e}")
-        print("  ! Creating sample events instead")
-        return create_sample_events(organizations)
     except Exception as e:
         print(f"Error seeding events: {e}")
         db.session.rollback()
         return []
-
-
-def create_sample_events(organizations: list) -> list:
-    """
-    Create sample events when Eventbrite API is not available
-    This is a fallback for testing/development
-    """
-    from datetime import date, timedelta
-
-    sample_events = [
-        {
-            'title': 'Citizenship Workshop',
-            'date': date.today() + timedelta(days=7),
-            'start_time': '2:00 PM EST',
-            'duration_minutes': 120,
-            'location': 'Austin, TX',
-            'city': 'Austin',
-            'state': 'TX',
-            'description': 'Free citizenship application assistance and information session'
-        },
-        {
-            'title': 'Know Your Rights - Immigration Law',
-            'date': date.today() + timedelta(days=14),
-            'start_time': '6:00 PM CST',
-            'duration_minutes': 90,
-            'location': 'Houston, TX',
-            'city': 'Houston',
-            'state': 'TX',
-            'description': 'Legal clinic providing information about immigrant rights'
-        },
-        {
-            'title': 'DACA Renewal Assistance',
-            'date': date.today() + timedelta(days=21),
-            'start_time': '10:00 AM EST',
-            'duration_minutes': 180,
-            'location': 'New York, NY',
-            'city': 'New York',
-            'state': 'NY',
-            'description': 'Free assistance with DACA renewal applications'
-        },
-        {
-            'title': 'Immigration Resources Fair',
-            'date': date.today() + timedelta(days=28),
-            'start_time': '12:00 PM PST',
-            'duration_minutes': 240,
-            'location': 'Los Angeles, CA',
-            'city': 'Los Angeles',
-            'state': 'CA',
-            'description': 'Community event with immigration service providers and legal aid'
-        },
-        {
-            'title': 'ESL and Citizenship Classes',
-            'date': date.today() + timedelta(days=35),
-            'start_time': '7:00 PM EST',
-            'duration_minutes': 60,
-            'location': 'Miami, FL',
-            'city': 'Miami',
-            'state': 'FL',
-            'description': 'Weekly English classes and citizenship test preparation'
-        },
-        {
-            'title': 'Asylum Seeker Support Group',
-            'date': date.today() + timedelta(days=10),
-            'start_time': '5:00 PM CST',
-            'duration_minutes': 120,
-            'location': 'Chicago, IL',
-            'city': 'Chicago',
-            'state': 'IL',
-            'description': 'Monthly support group for asylum seekers and refugees'
-        },
-        {
-            'title': 'Green Card Application Workshop',
-            'date': date.today() + timedelta(days=17),
-            'start_time': '1:00 PM PST',
-            'duration_minutes': 150,
-            'location': 'San Francisco, CA',
-            'city': 'San Francisco',
-            'state': 'CA',
-            'description': 'Legal assistance with green card and permanent residency applications'
-        },
-        {
-            'title': 'Immigration Court Preparation Clinic',
-            'date': date.today() + timedelta(days=24),
-            'start_time': '9:00 AM EST',
-            'duration_minutes': 180,
-            'location': 'Boston, MA',
-            'city': 'Boston',
-            'state': 'MA',
-            'description': 'Free legal clinic to prepare for immigration court hearings'
-        },
-        {
-            'title': 'Refugee Resettlement Information Session',
-            'date': date.today() + timedelta(days=31),
-            'start_time': '3:00 PM MST',
-            'duration_minutes': 90,
-            'location': 'Phoenix, AZ',
-            'city': 'Phoenix',
-            'state': 'AZ',
-            'description': 'Information session on refugee resettlement programs and resources'
-        },
-        {
-            'title': 'Naturalization Test Prep Course',
-            'date': date.today() + timedelta(days=38),
-            'start_time': '6:30 PM EST',
-            'duration_minutes': 120,
-            'location': 'Philadelphia, PA',
-            'city': 'Philadelphia',
-            'state': 'PA',
-            'description': 'Free course to prepare for the U.S. citizenship naturalization test'
-        },
-        {
-            'title': 'Immigration Legal Aid Clinic',
-            'date': date.today() + timedelta(days=45),
-            'start_time': '10:00 AM PST',
-            'duration_minutes': 240,
-            'location': 'Seattle, WA',
-            'city': 'Seattle',
-            'state': 'WA',
-            'description': 'Walk-in legal clinic for immigration questions and consultations'
-        },
-        {
-            'title': 'Immigrant Entrepreneur Workshop',
-            'date': date.today() + timedelta(days=52),
-            'start_time': '2:00 PM CST',
-            'duration_minutes': 150,
-            'location': 'Dallas, TX',
-            'city': 'Dallas',
-            'state': 'TX',
-            'description': 'Workshop on starting a business as an immigrant, visa options, and resources'
-        }
-    ]
-
-    events = []
-    for event_data in sample_events:
-        try:
-            org = random.choice(organizations) if organizations else None
-
-            event = Event(
-                title=event_data['title'],
-                date=event_data['date'],
-                start_time=event_data['start_time'],
-                end_time='',
-                duration_minutes=event_data['duration_minutes'],
-                location=event_data['location'],
-                city=event_data['city'],
-                state=event_data['state'],
-                venue_name='Community Center',
-                description=event_data['description'],
-                external_url='https://immigrow.site',
-                image_url=None,
-                eventbrite_id=f'sample-{len(events)}',
-                timezone='America/New_York',
-                organization_id=org.id if org else None
-            )
-
-            db.session.add(event)
-            events.append(event)
-            print(f"  + Added sample: {event.title}")
-
-        except Exception as e:
-            print(f"  ! Error adding sample event: {e}")
-            continue
-
-    db.session.commit()
-    return events
 
 
 def create_relationships(events: list, organizations: list, resources: list):

@@ -25,6 +25,7 @@ dist-ssr
 .env
 *.env
 ../.env
+/.claude
 
 # Backend temporary/personal files
 backend/TODO_PHASE2.md

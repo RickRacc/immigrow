@@ -169,13 +169,30 @@ class ProPublicaNonprofitAPI:
 
     BASE_URL = "https://projects.propublica.org/nonprofits/api/v2"
 
-    # Immigration-related search terms
+    # Immigration-related search terms (expanded to get 40-50 organizations)
     IMMIGRATION_SEARCH_TERMS = [
+        # Legal Services
         'immigration legal services',
+        'immigration attorney',
+        'immigration legal aid',
+        'visa legal services',
+        'deportation defense',
+        # Advocacy & Rights
         'immigrant rights',
+        'immigrant advocacy',
+        'migrant rights',
+        'immigrant justice',
+        # Resettlement & Support
         'refugee assistance',
+        'refugee resettlement',
+        'migrant services',
+        'immigrant family services',
+        # Specific Programs
         'citizenship help',
-        'asylum services'
+        'asylum services',
+        'DACA assistance',
+        'naturalization assistance',
+        'asylum legal help'
     ]
 
     def fetch_organizations(self, search_terms: List[str] = None, limit: int = 20) -> List[Dict]:
@@ -208,7 +225,7 @@ class ProPublicaNonprofitAPI:
                     data = response.json()
                     orgs = data.get('organizations', [])
 
-                    for org_data in orgs[:5]:  # Top 5 results per search term
+                    for org_data in orgs[:8]:  # Top 8 results per search term
                         ein = org_data.get('ein')
                         if ein and ein not in seen_eins:
                             seen_eins.add(ein)
