@@ -1,0 +1,58 @@
+/* Palette aligned with splash buttons */
+:root{
+  --brand: #0b7a6b;         /* site brand */
+  --nav-text: #1f2937;      /* default link text */
+  --events: #0d6efd;        /* Bootstrap primary (blue) */
+  --orgs: #009688;          /* teal (your outline-teal) */
+  --resources: #fbc02d;     /* amber/yellow (outline-warning vibe) */
+}
+
+/* Base navbar look (already added earlier) */
+.navbar-immigrow .navbar-nav .nav-link{
+  color: var(--nav-text) !important;
+  border-bottom: 2px solid transparent;
+  transition: color .15s ease, border-color .15s ease, opacity .15s ease;
+  opacity: .95;
+}
+.navbar-immigrow .navbar-nav .nav-link:hover{
+  opacity: 1;
+}
+
+/* Section-specific colors: hover + active underline */
+.navbar-immigrow .navbar-nav .nav-link.nav-events:hover{
+  color: var(--events) !important;
+}
+.navbar-immigrow .navbar-nav .nav-link.nav-orgs:hover{
+  color: var(--orgs) !important;
+}
+.navbar-immigrow .navbar-nav .nav-link.nav-resources:hover{
+  color: var(--resources) !important;
+}
+
+/* Active state (NavLink sets .active) */
+.navbar-immigrow .navbar-nav .nav-link.nav-events.active,
+.navbar-immigrow .navbar-nav .nav-link.nav-events[aria-current="page"]{
+  color: var(--events) !important;
+  border-bottom-color: var(--events);
+  font-weight: 600;
+}
+.navbar-immigrow .navbar-nav .nav-link.nav-orgs.active,
+.navbar-immigrow .navbar-nav .nav-link.nav-orgs[aria-current="page"]{
+  color: var(--orgs) !important;
+  border-bottom-color: var(--orgs);
+  font-weight: 600;
+}
+.navbar-immigrow .navbar-nav .nav-link.nav-resources.active,
+.navbar-immigrow .navbar-nav .nav-link.nav-resources[aria-current="page"]{
+  color: var(--resources) !important;
+  border-bottom-color: var(--resources);
+  font-weight: 600;
+}
+
+/* About can stay neutral or pick a color if you want */
+.navbar-immigrow .navbar-nav .nav-link.nav-about.active,
+.navbar-immigrow .navbar-nav .nav-link.nav-about[aria-current="page"]{
+  color: var(--brand) !important;
+  border-bottom-color: var(--brand);
+  font-weight: 600;
+}
