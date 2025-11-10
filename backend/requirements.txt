@@ -13,6 +13,7 @@ gunicorn
 
 # API Integration
 requests>=2.31.0
+beautifulsoup4>=4.12.0  # For web scraping
 
 # Database Drivers
 pymysql>=1.1.0  # For MySQL
