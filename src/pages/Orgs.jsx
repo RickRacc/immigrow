@@ -1,47 +1,54 @@
 // src/pages/Orgs.jsx
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { Container, Row, Col, Card } from "react-bootstrap";
+import { Spinner, Alert } from "react-bootstrap";
 import { fetchOrgs } from "../lib/api";
+import EntityGrid from "../components/EntityGrid";
 
 export default function Orgs() {
   const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
   useEffect(() => {
-    fetchOrgs().then(setItems).catch((e) => setErr(e.message));
+    let cancel = false;
+    (async () => {
+      try {
+        const data = await fetchOrgs();
+        if (cancel) return;
+
+        const rows = (data ?? []).map((o) => ({
+          id: o.id,
+          title: o.name ?? "Organization",
+          imageUrl: o.image_url || o.logo_url || o.logo || null,
+          topic: o.topic,
+          subtitle: [o.city, o.state].filter(Boolean).join(", "),
+          foot: o.meeting_frequency ?? " ",
+        }));
+
+        rows.sort((a, b) => (b.imageUrl ? 1 : 0) - (a.imageUrl ? 1 : 0));
+        setItems(rows);
+      } catch (ex) {
+        setErr(ex.message || String(ex));
+      } finally {
+        setLoading(false);
+      }
+    })();
+    return () => void (cancel = true);
   }, []);
 
-  if (err) return <div className="alert alert-danger">Error: {err}</div>;
+  if (loading) return (<div className="container py-4"><Spinner animation="border" /></div>);
+  if (err)      return (<div className="container py-4"><Alert variant="danger">Error loading organizations: {err}</Alert></div>);
 
   return (
-    <Container className="py-4">
-      <h1 className="mb-3">Search from {items.length} Organizations</h1>
-
-      <Row xs={1} md={2} lg={3} className="g-4">
-        {items.map((o) => (
-          <Col key={o.id}>
-            <Link to={`/orgs/${o.id}`} className="text-decoration-none text-reset">
-              <Card className="h-100 shadow-sm border-0 rounded-4 position-relative">
-                <Card.Img
-                  src={o.imageUrl}
-                  alt=""
-                  style={{ aspectRatio: "3 / 2", objectFit: "cover" }}
-                />
-                <Card.Body>
-                  <Card.Title>{o.name}</Card.Title>
-                  <Card.Text className="text-muted">
-                    {[o.city, o.state].filter(Boolean).join(", ")}
-                    {o.topic ? ` | ${o.topic}` : ""}
-                  </Card.Text>
-                  {o.meeting && <small className="text-muted">{o.meeting}</small>}
-                </Card.Body>
-                <div className="stretched-link" />
-              </Card>
-            </Link>
-          </Col>
-        ))}
-      </Row>
-    </Container>
+    <EntityGrid
+      items={items}
+      headerText={`Search from ${items.length} Organizations`}
+      linkFunc={(o) => `/orgs/${o.id}`}
+      titleKey="title"
+      subtitleFunc={(o) => o.subtitle}
+      footFunc={(o) => o.foot}
+      badgeKey="topic"
+      imageKey="imageUrl"
+    />
   );
 }

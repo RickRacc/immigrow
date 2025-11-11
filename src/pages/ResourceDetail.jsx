@@ -1,15 +1,27 @@
+// src/pages/ResourceDetail.jsx
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Container, Row, Col, Card, Button, Badge } from "react-bootstrap";
+import { Alert, Button, Badge } from "react-bootstrap";
 import { fetchResourceById } from "../lib/api";
+import { ArrowUpRight } from "lucide-react"; // lucide-react is available per canvas rules
 
-const withProto = (url) =>
-  !url ? "" : url.startsWith("http") ? url : `https://${url}`;
+function ExtLink({ href, children }) {
+  if (!href) return null;
+  return (
+    <Button
+      as="a"
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="me-2 mt-2"
+    >
+      {children} <ArrowUpRight size={16} className="ms-1" />
+    </Button>
+  );
+}
 
 export default function ResourceDetail() {
   const { id } = useParams();
-  const cleanId = String(id).replace(/^res-/, ""); // allow /resources/res-123
-
   const [data, setData] = useState(null);
   const [err, setErr] = useState("");
 
@@ -17,125 +29,44 @@ export default function ResourceDetail() {
     let cancel = false;
     (async () => {
       try {
-        const r = await fetchResourceById(cleanId); // GET /api/resources/:id
+        const r = await fetchResourceById(id);
         if (!cancel) setData(r);
       } catch (e) {
-        if (!cancel) setErr(e?.message || String(e));
+        if (!cancel) setErr(e.message);
       }
     })();
-    return () => {
-      cancel = true;
-    };
-  }, [cleanId]);
+    return () => void (cancel = true);
+  }, [id]);
 
-  if (err) {
-    return (
-      <Container className="py-4">
-        <div className="alert alert-danger">Error: {err}</div>
-        <Link to="/resources">← Back to Resources</Link>
-      </Container>
-    );
-  }
+  if (err) return <div className="container py-4"><Alert variant="danger">Error: {err}</Alert></div>;
+  if (!data) return <div className="container py-4">Loading…</div>;
 
-  if (!data) return <Container className="py-4">Loading resource…</Container>;
+  const metaLine = [
+    data.topic && <Badge key="topic" bg="warning" text="dark" className="me-2">{data.topic}</Badge>,
+    data.scope && <span key="scope">{data.scope}</span>,
+  ];
 
-  const title = data.name || data.title || `Resource ${cleanId}`;
-  const rawImg = data.image_url || "";
-  const imageUrl = rawImg
-    ? rawImg.startsWith("//")
-      ? `https:${rawImg}`
-      : rawImg
-    : "/images/resources/default.jpg"; // 👈 fallback
+  const detailsLine = [
+    data.court_name,
+    data.citation,
+    data.docket_number && `Docket ${data.docket_number}`,
+    data.date_published && `Filed ${data.date_published}`,
+  ].filter(Boolean).join(" · ");
 
   return (
-    <Container className="py-4">
-      <div className="mb-3">
-        <Link to="/resources">← Back to Resources</Link>
+    <div className="container py-4">
+      <p className="mb-3"><Link to="/resources">← Back to resources</Link></p>
+
+      <h1 className="mb-2">{data.title ?? `Resource ${id}`}</h1>
+      <div className="mb-2">{metaLine}</div>
+
+      {detailsLine && <p className="text-muted">{detailsLine}</p>}
+      {data.description && <p style={{ whiteSpace: "pre-wrap" }}>{data.description}</p>}
+
+      <div className="mt-3">
+        <ExtLink href={data.external_url}>Open external link</ExtLink>
+        {/* If you later add more URLs, show them here the same way */}
       </div>
-
-      <h1 className="mb-1">{title}</h1>
-      {data.topic && (
-        <div className="text-muted mb-3">
-          Topic:{" "}
-          <Badge bg="warning" text="dark">
-            {data.topic}
-          </Badge>
-        </div>
-      )}
-
-      <Row className="g-4">
-        {/* Left: cover + CTA */}
-        <Col md={4}>
-          <Card className="shadow-sm border-0 rounded-4">
-            <Card.Img
-              src={imageUrl}
-              alt={title}
-              onError={(e) =>
-                (e.currentTarget.src = "/images/resources/default.jpg")
-              }
-              style={{ height: 220, objectFit: "cover" }}
-            />
-            {(data.external_url || data.url) && (
-              <Card.Footer className="bg-white">
-                <Button
-                  size="sm"
-                  as="a"
-                  href={withProto(data.external_url || data.url)}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Open Resource
-                </Button>
-              </Card.Footer>
-            )}
-          </Card>
-        </Col>
-
-        {/* Right: summary & meta */}
-        <Col md={8}>
-          <Card className="shadow-sm border-0 rounded-4">
-            <Card.Body>
-              <h5 className="mb-3">Summary</h5>
-              <p className="mb-4">
-                {data.description || "Details coming soon."}
-              </p>
-
-              <Row xs={1} md={2} className="g-3">
-                {data.author && (
-                  <Col>
-                    <Card className="border-0 bg-light">
-                      <Card.Body>
-                        <div className="small text-muted">Author</div>
-                        <div>{data.author}</div>
-                      </Card.Body>
-                    </Card>
-                  </Col>
-                )}
-                {data.language && (
-                  <Col>
-                    <Card className="border-0 bg-light">
-                      <Card.Body>
-                        <div className="small text-muted">Language</div>
-                        <div>{data.language}</div>
-                      </Card.Body>
-                    </Card>
-                  </Col>
-                )}
-                {data.format && (
-                  <Col>
-                    <Card className="border-0 bg-light">
-                      <Card.Body>
-                        <div className="small text-muted">Format</div>
-                        <div>{data.format}</div>
-                      </Card.Body>
-                    </Card>
-                  </Col>
-                )}
-              </Row>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </Container>
+    </div>
   );
 }

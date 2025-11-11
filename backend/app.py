@@ -18,10 +18,8 @@ def as_iso(val):
         return None
     if isinstance(val, (datetime, date, time)):
         return val.isoformat()
-    # already a string (some rows may be strings)
     if isinstance(val, str):
         return val
-    # anything else -> string
     return str(val)
 
 # ---------------------------
@@ -39,7 +37,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 # ---------------------------
-# Models (unchanged)
+# Models
 # ---------------------------
 
 class Organization(db.Model):
@@ -176,6 +174,9 @@ def get_events():
             "url": getattr(e, "external_url", None),
             "description": getattr(e, "description", None),
             "image_url": getattr(e, "image_url", None),
+
+            # NEW: link event -> organization
+            "organization_id": getattr(e, "organization_id", None),
         }
         for e in events
     ])
@@ -197,6 +198,9 @@ def get_event_by_id(id):
         "image_url": getattr(e, "image_url", None),
         "created_at": as_iso(getattr(e, "created_at", None)),
         "updated_at": as_iso(getattr(e, "updated_at", None)),
+
+        # NEW: link event -> organization
+        "organization_id": getattr(e, "organization_id", None),
     })
 
 # --- Resources ---
