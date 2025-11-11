@@ -5,15 +5,35 @@
 		"description": "> This API provides information about 3 models: events, organizations, and legal resources related to immigration support.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
 		"_exporter_id": "48953688",
-		"_collection_link": "https://avb834-4080410.postman.co/workspace/avb834's-Workspace~d07f7e55-4171-49b7-8561-6de991fd5761/collection/48953688-e06ebbd9-3b18-4a99-b644-f23257c5fc39?action=share&source=collection_link&creator=48953688"
+		"_collection_link": "https://avb834-4080410.postman.co/workspace/d07f7e55-4171-49b7-8561-6de991fd5761/collection/48953688-e06ebbd9-3b18-4a99-b644-f23257c5fc39?action=share&source=collection_link&creator=48953688"
 	},
 	"item": [
 		{
 			"name": "events",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"First event has correct title, location, and duration\", function () {",
+							"    let event = pm.response.json()[0];",
+							"    pm.expect(event.title).to.eql(\"Learn Serve Lead 2025\");",
+							"    pm.expect(event.location).to.eql(\"Texas\");",
+							"    pm.expect(event.duration_minutes).to.be.a(\"number\").and.to.eql(120);",
+							"    pm.expect(event.resource_ids).to.be.an(\"array\").that.includes(22);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
-				"description": "Returns a list of all events from the EventBrite API. Each event object includes its title, location, date, start time, length of event, and hosting organization."
+				"url": "http://3.141.5.227:5000/events",
+				"description": "Returns a list of all events from the EventBrite API. Each event object includes information such as its id, description, location, duration_minutes, external_url, and other relevant information."
 			},
 			"response": [
 				{
@@ -39,20 +59,33 @@
 		},
 		{
 			"name": "events/{id}",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Event ID 1 has correct attributes\", function () {",
+							"    let event = pm.response.json(); ",
+							"    pm.expect(event.id).to.eql(1);",
+							"    pm.expect(event.title).to.eql(\"Learn Serve Lead 2025\");",
+							"    pm.expect(event.location).to.eql(\"Texas\");",
+							"    pm.expect(event.duration_minutes).to.be.a(\"number\").and.to.eql(120);",
+							"    pm.expect(event.organization_id).to.eql(36);",
+							"    pm.expect(event.resource_ids).to.be.an(\"array\").that.includes(22);",
+							"    pm.expect(event.external_url).to.eql(\"https://www.raicestexas.org/events/association-of-american-medical-colleges-conference\");",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
-				"url": {
-					"raw": "?id=",
-					"query": [
-						{
-							"key": "id",
-							"value": "",
-							"description": "ID for an instance of an event"
-						}
-					]
-				},
-				"description": "Returns an event by ID from the EventBrite API. The event object includes its title, location, date, start time, length of event, and hosting organization."
+				"url": "http://3.141.5.227:5000/events/1",
+				"description": "Returns an event by ID from the EventBrite API. The event object includes information such as its id, description, location, duration_minutes, external_url, and other relevant information."
 			},
 			"response": [
 				{
@@ -86,10 +119,33 @@
 		},
 		{
 			"name": "orgs",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"All orgs response contains expected first org\", function () {",
+							"    let orgs = pm.response.json();",
+							"    pm.expect(orgs).to.be.an(\"array\").that.is.not.empty;",
+							"    let firstOrg = orgs[0];",
+							"    pm.expect(firstOrg.id).to.eql(1);",
+							"    pm.expect(firstOrg.name).to.eql(\"Immigration Legal Services\");",
+							"    pm.expect(firstOrg.city).to.eql(\"Dearborn\");",
+							"    pm.expect(firstOrg.topic).to.eql(\"Legal Services\");",
+							"    pm.expect(firstOrg.resource_ids).to.include(22);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
-				"description": "Returns all organizations from the webscraping of [<b>www.immigrationlawhelp.org</b>](https://www.immigrationlawhelp.org/search?state=NE). Each resource object includes its name, areas of legal assistance, types of legal assistance, location, and contact."
+				"url": "http://3.141.5.227:5000/orgs",
+				"description": "Returns all organizations from the webscraping of [<b>www.immigrationlawhelp.org</b>](https://www.immigrationlawhelp.org/search?state=NE). Each organization object includes information such as its name, topic, description, state, external_url, and other relevant information."
 			},
 			"response": [
 				{
@@ -115,20 +171,32 @@
 		},
 		{
 			"name": "orgs/{id}",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Org ID 2 has correct attributes\", function () {",
+							"    let org = pm.response.json();",
+							"    pm.expect(org.id).to.eql(2);",
+							"    pm.expect(org.name).to.eql(\"Esperanza Immigration Legal Services\");",
+							"    pm.expect(org.city).to.eql(\"Philadelphia\");",
+							"    pm.expect(org.topic).to.eql(\"Human Services\");",
+							"    pm.expect(org.resource_ids).to.include(35);",
+							"    pm.expect(org.external_url).to.eql(\"https://projects.propublica.org/nonprofits/organizations/300239154\");",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
-				"url": {
-					"raw": "?id",
-					"query": [
-						{
-							"key": "id",
-							"value": null,
-							"description": "ID for an instance of an organization"
-						}
-					]
-				},
-				"description": "Returns an organization by ID from webscraping of [<b>www.immigrationlawhelp.org</b>](https://www.immigrationlawhelp.org/search?state=NE). The organization object includes its title, location, date, start time, length of event, and hosting organization."
+				"url": "http://3.141.5.227:5000/orgs/2",
+				"description": "Returns an organization by ID from webscraping of [<b>www.immigrationlawhelp.org</b>](https://www.immigrationlawhelp.org/search?state=NE). The organization object includes information such as its name, topic, description, state, external_url, and other relevant information."
 			},
 			"response": [
 				{
@@ -162,10 +230,33 @@
 		},
 		{
 			"name": "resources",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"All resources response contains expected first resource\", function () {",
+							"    let resources = pm.response.json();",
+							"    pm.expect(resources).to.be.an(\"array\").that.is.not.empty;",
+							"    let firstResource = resources[0];",
+							"    pm.expect(firstResource.id).to.eql(1);",
+							"    pm.expect(firstResource.title).to.eql(\"Calderon-Uresti v. Bondi\");",
+							"    pm.expect(firstResource.topic).to.eql(\"Immigration Law\");",
+							"    pm.expect(firstResource.scope).to.eql(\"Federal\");",
+							"    pm.expect(firstResource.organization_ids).to.include(7);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
-				"description": "Returns a list of all legal resources from the ProPublica API. Each resource object includes its number, title, introduced date, latest major action, and subject."
+				"url": "http://3.141.5.227:5000/resources",
+				"description": "Returns a list of all legal resources from the ProPublica API. Each resource object includes information such as its title, audio_url, description, topic, court_name, and other relevant information."
 			},
 			"response": [
 				{
@@ -189,6 +280,27 @@
 		},
 		{
 			"name": "resources/{id}",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Resource ID 2 has correct attributes\", function () {",
+							"    let resource = pm.response.json();",
+							"    pm.expect(resource.id).to.eql(2);",
+							"    pm.expect(resource.title).to.eql(\"Dominguez Reyes v. Bondi\");",
+							"    pm.expect(resource.topic).to.eql(\"Immigration Law\");",
+							"    pm.expect(resource.scope).to.eql(\"Federal\");",
+							"    pm.expect(resource.organization_ids).to.include(25);",
+							"    pm.expect(resource.external_url).to.eql(\"https://www.courtlistener.com/opinion/10732066/dominguez-reyes-v-bondi/\");",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -204,17 +316,8 @@
 						}
 					}
 				},
-				"url": {
-					"raw": "?id",
-					"query": [
-						{
-							"key": "id",
-							"value": null,
-							"description": "ID for an instance of a resource"
-						}
-					]
-				},
-				"description": "Returns a legal resources by ID from the ProPublica API. The resource object includes its name, areas of legal assistance, types of legal assistance, location, and contact."
+				"url": "http://3.141.5.227:5000/resources/2",
+				"description": "Returns a legal resources by ID from the ProPublica API. The resource object includes information such as its title, audio_url, description, topic, court_name, and other relevant information."
 			},
 			"response": [
 				{
