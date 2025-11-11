@@ -1,14 +1,46 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from datetime import date, time, datetime
+
+# ---------------------------
+# Helpers
+# ---------------------------
+
+def as_iso(val):
+    """
+    Safely serialize dates/times:
+    - datetime/date/time -> ISO 8601 string
+    - strings pass through unchanged
+    - None stays None
+    """
+    if val is None:
+        return None
+    if isinstance(val, (datetime, date, time)):
+        return val.isoformat()
+    # already a string (some rows may be strings)
+    if isinstance(val, str):
+        return val
+    # anything else -> string
+    return str(val)
+
+# ---------------------------
+# App / DB setup
+# ---------------------------
 
 app = Flask(__name__)
 CORS(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Immigrow123@immigrow-db.cz8gegw2sqh9.us-east-2.rds.amazonaws.com:5432/Immigrow'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["SQLALCHEMY_DATABASE_URI"] = (
+    "postgresql://postgres:Immigrow123@immigrow-db.cz8gegw2sqh9.us-east-2.rds.amazonaws.com:5432/Immigrow"
+)
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
+
+# ---------------------------
+# Models (unchanged)
+# ---------------------------
 
 class Organization(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -45,10 +77,9 @@ class Event(db.Model):
     image_url = db.Column(db.String(500), nullable=True)
     eventbrite_id = db.Column(db.String(100), nullable=True)
     timezone = db.Column(db.String(50), nullable=True)
-    organization_id = db.Column(db.Integer, db.ForeignKey('organization.id'), nullable=False)
+    organization_id = db.Column(db.Integer, db.ForeignKey("organization.id"), nullable=False)
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
-
 
 class Resource(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -68,163 +99,158 @@ class Resource(db.Model):
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
 
+# ---------------------------
+# Routes
+# ---------------------------
+
 @app.route("/")
 def home():
     return "Hello!"
 
-# get all organizations
+# --- Organizations ---
+
 @app.route("/orgs/", methods=["GET"])
 def get_orgs():
     orgs = Organization.query.all()
     return jsonify([
         {
-            "id": org.id,
-            "name": org.name,
-            "city": org.city,
-            "state": org.state,
-            "topic": org.topic,
-            "size": org.size,
-            "meeting_frequency": org.meeting_frequency,
-            "description": org.description,
-            "address": org.address,
-            "zipcode": org.zipcode,
-            "subsection_code": org.subsection_code,
-            "ntee_code": org.ntee_code,
-            "external_url": org.external_url,
-            "guidestar_url": org.guidestar_url,
-            "image_url": org.image_url,
-            "created_at": org.created_at.isoformat() if org.created_at else None,
-            "updated_at": org.updated_at.isoformat() if org.updated_at else None
+            "id": o.id,
+            "name": o.name,
+            "city": o.city,
+            "state": o.state,
+            "topic": o.topic,
+            "size": o.size,
+            "meeting_frequency": o.meeting_frequency,
+            "description": o.description,
+            "address": o.address,
+            "zipcode": o.zipcode,
+            "subsection_code": o.subsection_code,
+            "ntee_code": o.ntee_code,
+            "external_url": o.external_url,
+            "guidestar_url": o.guidestar_url,
+            "image_url": o.image_url,
+            "created_at": as_iso(o.created_at),
+            "updated_at": as_iso(o.updated_at),
         }
-        for org in orgs
+        for o in orgs
     ])
 
-# get organization by ID
 @app.route("/orgs/<int:id>", methods=["GET"])
 def get_org_by_id(id):
-    org = Organization.query.get(id)
-    return jsonify(
-        {
-            "id": org.id,
-            "name": org.name,
-            "city": org.city,
-            "state": org.state,
-            "topic": org.topic,
-            "size": org.size,
-            "meeting_frequency": org.meeting_frequency,
-            "description": org.description,
-            "address": org.address,
-            "zipcode": org.zipcode,
-            "subsection_code": org.subsection_code,
-            "ntee_code": org.ntee_code,
-            "external_url": org.external_url,
-            "guidestar_url": org.guidestar_url,
-            "image_url": org.image_url,
-            "created_at": org.created_at.isoformat() if org.created_at else None,
-            "updated_at": org.updated_at.isoformat() if org.updated_at else None
-        })
+    o = Organization.query.get_or_404(id)
+    return jsonify({
+        "id": o.id,
+        "name": o.name,
+        "city": o.city,
+        "state": o.state,
+        "topic": o.topic,
+        "size": o.size,
+        "meeting_frequency": o.meeting_frequency,
+        "description": o.description,
+        "address": o.address,
+        "zipcode": o.zipcode,
+        "subsection_code": o.subsection_code,
+        "ntee_code": o.ntee_code,
+        "external_url": o.external_url,
+        "guidestar_url": o.guidestar_url,
+        "image_url": o.image_url,
+        "created_at": as_iso(o.created_at),
+        "updated_at": as_iso(o.updated_at),
+    })
 
-# get all events
+# --- Events ---
+
 @app.route("/events", methods=["GET"])
 def get_events():
     events = Event.query.all()
     return jsonify([
         {
-            "id": event.id,
-            "title": event.title,
-            "date": event.date.isoformat() if event.date else None,
-            "start_time": event.start_time.isoformat() if event.start_time else None,
-            "end_time": event.end_time.isoformat() if event.end_time else None,
-            "duration_minutes": event.duration_minutes,
-            "location": event.location,
-            "city": event.city,
-            "state": event.state,
-            "venue_name": event.venue_name,
-            "description": event.description,
-            "external_url": event.external_url,
-            "image_url": event.image_url,
-            "eventbrite_id": event.eventbrite_id,
-            "timezone": event.timezone,
-            "organization_id": event.organization_id,
-            "created_at": event.created_at.isoformat() if event.created_at else None,
-            "updated_at": event.updated_at.isoformat() if event.updated_at else None
-        } 
-        for event in events
+            "id": e.id,
+            "name": getattr(e, "name", None) or getattr(e, "title", None),
+            "date": as_iso(getattr(e, "date", None)),
+            "start_time": as_iso(getattr(e, "start_time", None)),
+            "end_time": as_iso(getattr(e, "end_time", None)),
+            "city": getattr(e, "city", None),
+            "state": getattr(e, "state", None),
+            "venue": getattr(e, "venue_name", None) or getattr(e, "location", None),
+            "url": getattr(e, "external_url", None),
+            "description": getattr(e, "description", None),
+            "image_url": getattr(e, "image_url", None),
+        }
+        for e in events
     ])
 
-# get event by ID
 @app.route("/events/<int:id>", methods=["GET"])
 def get_event_by_id(id):
-    event = Event.query.get(id)
-    return jsonify(        {
-            "id": event.id,
-            "title": event.title,
-            "date": event.date.isoformat() if event.date else None,
-            "start_time": event.start_time.isoformat() if event.start_time else None,
-            "end_time": event.end_time.isoformat() if event.end_time else None,
-            "duration_minutes": event.duration_minutes,
-            "location": event.location,
-            "city": event.city,
-            "state": event.state,
-            "venue_name": event.venue_name,
-            "description": event.description,
-            "external_url": event.external_url,
-            "image_url": event.image_url,
-            "eventbrite_id": event.eventbrite_id,
-            "timezone": event.timezone,
-            "organization_id": event.organization_id,
-            "created_at": event.created_at.isoformat() if event.created_at else None,
-            "updated_at": event.updated_at.isoformat() if event.updated_at else None
-        })
+    e = Event.query.get_or_404(id)
+    return jsonify({
+        "id": e.id,
+        "name": getattr(e, "name", None) or getattr(e, "title", None),
+        "date": as_iso(getattr(e, "date", None)),
+        "start_time": as_iso(getattr(e, "start_time", None)),
+        "end_time": as_iso(getattr(e, "end_time", None)),
+        "city": getattr(e, "city", None),
+        "state": getattr(e, "state", None),
+        "venue": getattr(e, "venue_name", None) or getattr(e, "location", None),
+        "url": getattr(e, "external_url", None),
+        "description": getattr(e, "description", None),
+        "image_url": getattr(e, "image_url", None),
+        "created_at": as_iso(getattr(e, "created_at", None)),
+        "updated_at": as_iso(getattr(e, "updated_at", None)),
+    })
 
-# get all resources
+# --- Resources ---
+
 @app.route("/resources", methods=["GET"])
 def get_resources():
     resources = Resource.query.all()
     return jsonify([
         {
-            "id": resource.id,
-            "title": resource.title,
-            "date_published": resource.date_published.isoformat() if resource.date_published else None,
-            "topic": resource.topic,
-            "scope": resource.scope,
-            "description": resource.description,
-            "format": resource.format,
-            "court_name": resource.court_name,
-            "citation": resource.citation,
-            "external_url": resource.external_url,
-            "image_url": resource.image_url,
-            "courtlistener_id": resource.courtlistener_id,
-            "docket_number": resource.docket_number,
-            "judge_name": resource.judge_name,
-            "created_at": resource.created_at.isoformat() if resource.created_at else None,
-            "updated_at": resource.updated_at.isoformat() if resource.updated_at else None
+            "id": r.id,
+            "title": r.title,
+            "date_published": as_iso(r.date_published),
+            "topic": r.topic,
+            "scope": r.scope,
+            "description": r.description,
+            "format": r.format,
+            "court_name": r.court_name,
+            "citation": r.citation,
+            "external_url": r.external_url,
+            "image_url": r.image_url,
+            "courtlistener_id": r.courtlistener_id,
+            "docket_number": r.docket_number,
+            "judge_name": r.judge_name,
+            "created_at": as_iso(r.created_at),
+            "updated_at": as_iso(r.updated_at),
         }
-        for resource in resources
+        for r in resources
     ])
 
-# get resource by ID
 @app.route("/resources/<int:id>", methods=["GET"])
 def get_resource_by_id(id):
-    resource = Resource.query.get(id)
+    r = Resource.query.get_or_404(id)
     return jsonify({
-            "id": resource.id,
-            "title": resource.title,
-            "date_published": resource.date_published.isoformat() if resource.date_published else None,
-            "topic": resource.topic,
-            "scope": resource.scope,
-            "description": resource.description,
-            "format": resource.format,
-            "court_name": resource.court_name,
-            "citation": resource.citation,
-            "external_url": resource.external_url,
-            "image_url": resource.image_url,
-            "courtlistener_id": resource.courtlistener_id,
-            "docket_number": resource.docket_number,
-            "judge_name": resource.judge_name,
-            "created_at": resource.created_at.isoformat() if resource.created_at else None,
-            "updated_at": resource.updated_at.isoformat() if resource.updated_at else None
-        })
+        "id": r.id,
+        "title": r.title,
+        "date_published": as_iso(r.date_published),
+        "topic": r.topic,
+        "scope": r.scope,
+        "description": r.description,
+        "format": r.format,
+        "court_name": r.court_name,
+        "citation": r.citation,
+        "external_url": r.external_url,
+        "image_url": r.image_url,
+        "courtlistener_id": r.courtlistener_id,
+        "docket_number": r.docket_number,
+        "judge_name": r.judge_name,
+        "created_at": as_iso(r.created_at),
+        "updated_at": as_iso(r.updated_at),
+    })
+
+# ---------------------------
+# Run
+# ---------------------------
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
