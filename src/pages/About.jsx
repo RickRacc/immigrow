@@ -89,8 +89,26 @@ export default function About() {
       <section style={{ margin: '2rem 0' }}>
         <h2>Data Sources</h2>
         <p>
-          During Phase I, we integrated at least one public REST API: <strong>Eventbrite API</strong> for event
-          listings. Phase II will include detailed descriptions of scraping methods and additional sources.
+          During Phase I, we integrated at least one public REST API: <strong>Gitlab API</strong> for retrieving
+          commits and issues created by team members. Phase II will include detailed descriptions of scraping methods and additional sources.
+        </p>
+        <br></br>
+        <p>
+          During Phase II, we used many different sources for Data Collection:
+          <ul>
+            <li>
+              <strong>ProPublica REST API</strong> — used to fetch nonprofit immigration related organizations
+            </li>
+            <li>
+              <strong>CourtListener REST API v4</strong> — used for fetching immigration related court cases and legal documents
+            </li>
+            <li>
+              <strong>RAICES web scraper</strong> — Web scraping for events using Beautiful Soup
+            </li>
+            <li>
+              <strong>Mobilize America REST API</strong> —  also used to gather immigration related community events
+            </li>
+          </ul>
         </p>
       </section>
 
@@ -109,6 +127,12 @@ export default function About() {
           </li>
           <li>
             <strong>Postman</strong> — API exploration & documentation.
+          </li>
+          <li>
+            <strong>Beautiful Soup</strong> — Web scraping for events
+          </li>
+          <li>
+            <strong>AWS RDS</strong> — Used for cloud hosted PostgreSQL database
           </li>
         </ul>
       </section>
