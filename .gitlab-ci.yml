@@ -20,6 +20,15 @@ build:
     paths:
       - dist            # Vite output (default)
 
+pytest_tests:
+  stage: test
+  image: python:3.11
+  before_script:
+    - pip install -r backend/requirements.txt
+    - pip install pytest
+  script:
+    - pytest -q backend/
+
 postman_tests:
   stage: test
   image: 
@@ -28,13 +37,3 @@ postman_tests:
   script:
     - newman -- version
     - newman run inmigo_collection.json
-
-pytest_tests:
-  stage: test
-  image: python:3.11
-  before_script:
-    - pip install -r requirements.txt
-    - pip install pytest
-  script:
-    - pytest -q
-
