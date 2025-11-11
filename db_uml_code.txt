@@ -1,0 +1,164 @@
+@startuml Immigrow Database Schema
+
+!define PRIMARY_KEY <b><color:red>PK</color></b>
+!define FOREIGN_KEY <b><color:blue>FK</color></b>
+
+' Main entities
+class Event {
+  PRIMARY_KEY id : Integer
+  --
+  title : String(255) <<NOT NULL>>
+  date : Date <<NOT NULL>>
+  start_time : String(50) <<NOT NULL>>
+  duration_minutes : Integer <<NOT NULL>>
+  location : String(255) <<NOT NULL>>
+  --
+  city : String(100)
+  state : String(50)
+  venue_name : String(255)
+  description : Text
+  external_url : String(500)
+  image_url : String(500)
+  eventbrite_id : String(100) <<UNIQUE>>
+  end_time : String(50)
+  timezone : String(50)
+  --
+  FOREIGN_KEY organization_id : Integer
+  --
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+class Organization {
+  PRIMARY_KEY id : Integer
+  --
+  name : String(255) <<NOT NULL>>
+  city : String(100) <<NOT NULL>>
+  state : String(50) <<NOT NULL>>
+  topic : String(100) <<NOT NULL>>
+  size : String(50) <<NOT NULL>>
+  --
+  meeting_frequency : String(50)
+  description : Text
+  address : String(255)
+  zipcode : String(20)
+  ein : String(20) <<UNIQUE>>
+  subsection_code : String(20)
+  ntee_code : String(20)
+  external_url : String(500)
+  image_url : String(500)
+  guidestar_url : String(500)
+  form_990_pdf_url : String(500)
+  --
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+class Resource {
+  PRIMARY_KEY id : Integer
+  --
+  title : String(500) <<NOT NULL>>
+  date_published : Date <<NOT NULL>>
+  topic : String(100) <<NOT NULL>>
+  scope : String(50) <<NOT NULL>>
+  description : Text <<NOT NULL>>
+  --
+  format : String(50)
+  court_name : String(255)
+  citation : String(255)
+  external_url : String(500)
+  image_url : String(500)
+  audio_url : String(500)
+  courtlistener_id : String(100) <<UNIQUE>>
+  docket_number : String(100)
+  judge_name : String(255)
+  --
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+' Junction tables for many-to-many relationships
+class event_resources <<Junction Table>> {
+  PRIMARY_KEY event_id : Integer
+  PRIMARY_KEY resource_id : Integer
+}
+
+class organization_resources <<Junction Table>> {
+  PRIMARY_KEY organization_id : Integer
+  PRIMARY_KEY resource_id : Integer
+}
+
+' Relationships
+
+' One-to-Many: Organization to Events
+Organization "1" --> "0..*" Event : hosts
+note on link
+  One organization can host
+  zero or many events
+end note
+
+' Many-to-Many: Event to Resources (via junction table)
+Event "0..*" -- "0..*" Resource : related_to
+(Event, Resource) .. event_resources
+note on link
+  Events and Resources have
+  many-to-many relationship
+  via event_resources table
+end note
+
+' Many-to-Many: Organization to Resources (via junction table)
+Organization "0..*" -- "0..*" Resource : provides
+(Organization, Resource) .. organization_resources
+note on link
+  Organizations and Resources
+  have many-to-many relationship
+  via organization_resources table
+end note
+
+' Legend
+legend right
+  |= Symbol |= Meaning |
+  | PK | Primary Key |
+  | FK | Foreign Key |
+  | <<NOT NULL>> | Required field |
+  | <<UNIQUE>> | Unique constraint |
+
+  |= Relationship |= Multiplicity |
+  | Organization → Event | One-to-Many (1:N) |
+  | Event ↔ Resource | Many-to-Many (N:M) |
+  | Organization ↔ Resource | Many-to-Many (N:M) |
+endlegend
+
+' Notes about data sources
+note bottom of Event
+  Data Sources:
+  - RAICES Texas web scraper
+  - Mobilize America API
+
+  Media Requirements:
+  - external_url (link to event page)
+  - image_url (event banner/image)
+end note
+
+note bottom of Organization
+  Data Source:
+  - ProPublica Nonprofit Explorer API
+
+  Media Requirements:
+  - external_url (ProPublica org page)
+  - guidestar_url for public records of non-profit
+    Note: Only ~9% have PDFs due to
+    API data availability
+end note
+
+note bottom of Resource
+  Data Source:
+  - CourtListener API v4
+
+  Media Requirements:
+  - external_url (case page)
+  - audio_url (oral argument audio
+    or opinion PDF download)
+end note
+
+@enduml
