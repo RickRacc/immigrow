@@ -1,0 +1,803 @@
+
+====================================================================================================
+DIRECT DATABASE VERIFICATION - PostgreSQL
+====================================================================================================
+
+[1] ALL TABLES IN DATABASE
+----------------------------------------------------------------------------------------------------
+Found 5 tables:
+
+  - event
+  - event_resources
+  - organization
+  - organization_resources
+  - resource
+
+[2] TABLE STRUCTURES (columns, types, constraints)
+----------------------------------------------------------------------------------------------------
+
+[TABLE] EVENT
+----------------------------------------------------------------------------------------------------
+Columns (18 total):
+
+Column Name                    Type                      Nullable   Default             
+----------------------------------------------------------------------------------------------------
+id                             integer                   NO         nextval('event_id_se
+title                          character varying(255)    NO         -                   
+date                           date                      NO         -                   
+start_time                     character varying(50)     NO         -                   
+duration_minutes               integer                   NO         -                   
+location                       character varying(255)    NO         -                   
+city                           character varying(100)    YES        -                   
+state                          character varying(50)     YES        -                   
+venue_name                     character varying(255)    YES        -                   
+description                    text                      YES        -                   
+external_url                   character varying(500)    YES        -                   
+image_url                      character varying(500)    YES        -                   
+eventbrite_id                  character varying(100)    YES        -                   
+end_time                       character varying(50)     YES        -                   
+timezone                       character varying(50)     YES        -                   
+organization_id                integer                   YES        -                   
+created_at                     timestamp without time zone YES        -                   
+updated_at                     timestamp without time zone YES        -                   
+
+[TABLE] EVENT_RESOURCES
+----------------------------------------------------------------------------------------------------
+Columns (2 total):
+
+Column Name                    Type                      Nullable   Default             
+----------------------------------------------------------------------------------------------------
+event_id                       integer                   NO         -                   
+resource_id                    integer                   NO         -                   
+
+[TABLE] ORGANIZATION
+----------------------------------------------------------------------------------------------------
+Columns (19 total):
+
+Column Name                    Type                      Nullable   Default             
+----------------------------------------------------------------------------------------------------
+id                             integer                   NO         nextval('organizatio
+name                           character varying(255)    NO         -                   
+city                           character varying(100)    NO         -                   
+state                          character varying(50)     NO         -                   
+topic                          character varying(100)    NO         -                   
+size                           character varying(50)     NO         -                   
+meeting_frequency              character varying(50)     YES        -                   
+description                    text                      YES        -                   
+address                        character varying(255)    YES        -                   
+zipcode                        character varying(20)     YES        -                   
+ein                            character varying(20)     YES        -                   
+subsection_code                character varying(20)     YES        -                   
+ntee_code                      character varying(20)     YES        -                   
+external_url                   character varying(500)    YES        -                   
+image_url                      character varying(500)    YES        -                   
+guidestar_url                  character varying(500)    YES        -                   
+form_990_pdf_url               character varying(500)    YES        -                   
+created_at                     timestamp without time zone YES        -                   
+updated_at                     timestamp without time zone YES        -                   
+
+[TABLE] ORGANIZATION_RESOURCES
+----------------------------------------------------------------------------------------------------
+Columns (2 total):
+
+Column Name                    Type                      Nullable   Default             
+----------------------------------------------------------------------------------------------------
+organization_id                integer                   NO         -                   
+resource_id                    integer                   NO         -                   
+
+[TABLE] RESOURCE
+----------------------------------------------------------------------------------------------------
+Columns (17 total):
+
+Column Name                    Type                      Nullable   Default             
+----------------------------------------------------------------------------------------------------
+id                             integer                   NO         nextval('resource_id
+title                          character varying(500)    NO         -                   
+date_published                 date                      NO         -                   
+topic                          character varying(100)    NO         -                   
+scope                          character varying(50)     NO         -                   
+description                    text                      NO         -                   
+format                         character varying(50)     YES        -                   
+court_name                     character varying(255)    YES        -                   
+citation                       character varying(255)    YES        -                   
+external_url                   character varying(500)    YES        -                   
+image_url                      character varying(500)    YES        -                   
+audio_url                      character varying(500)    YES        -                   
+courtlistener_id               character varying(100)    YES        -                   
+docket_number                  character varying(100)    YES        -                   
+judge_name                     character varying(255)    YES        -                   
+created_at                     timestamp without time zone YES        -                   
+updated_at                     timestamp without time zone YES        -                   
+
+
+[3] ROW COUNTS
+----------------------------------------------------------------------------------------------------
+  event                             48 rows
+  event_resources                  119 rows
+  organization                      57 rows
+  organization_resources           139 rows
+  resource                          54 rows
+
+
+[4] ALL DATA FROM MAIN TABLES
+----------------------------------------------------------------------------------------------------
+
+[EVENT] EVENTS TABLE - ALL ROWS (ALL COLUMNS)
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+id              | title           | date            | start_time      | duration_minute | location        | city            | state           | venue_name      | description     | external_url    | image_url       | eventbrite_id   | end_time        | timezone        | organization_id | created_at      | updated_at     
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+1               | Learn Serve Lea | 2025-11-03      | 10:30ΓÇ»AM11:30ΓÇ»A | 120             | Texas           | NULL            | Texas           | NULL            | BEYOND THE CHAR | https://www.rai | https://images. | NULL            | NULL            | CST             | 36              | 2025-11-11 00:1 | 2025-11-11 00:1
+2               | (Em)Power 1/2 H | 2025-09-11      | 7:00ΓÇ»PM7:30ΓÇ»PM  | 120             | Texas           | NULL            | Texas           | NULL            | (EM)POWER 1/2 H | https://www.rai | https://images. | NULL            | NULL            | CST             | 30              | 2025-11-11 00:1 | 2025-11-11 00:1
+3               | Power 1/2 Hour  | 2025-08-14      | 7:00ΓÇ»PM7:30ΓÇ»PM  | 120             | Texas           | NULL            | Texas           | NULL            | POWER 1/2 HOUR: | https://www.rai | https://images. | NULL            | NULL            | CST             | 51              | 2025-11-11 00:1 | 2025-11-11 00:1
+4               | Netroots Nation | 2025-08-07      | 1:00ΓÇ»PM2:00ΓÇ»PM  | 120             | Texas           | NULL            | Texas           | NULL            | PAST EVENTDEFEN | https://www.rai | https://images. | NULL            | NULL            | CST             | 53              | 2025-11-11 00:1 | 2025-11-11 00:1
+5               | (Em)Power 1/2 H | 2025-07-30      | 7:00ΓÇ»PM7:30ΓÇ»PM  | 120             | Texas           | NULL            | Texas           | NULL            | PAST EVENT(EM)P | https://www.rai | https://images. | NULL            | NULL            | CST             | 23              | 2025-11-11 00:1 | 2025-11-11 00:1
+6               | Habeas Training | 2025-07-30      | 3:00ΓÇ»PM4:00ΓÇ»PM  | 120             | Texas           | NULL            | Texas           | NULL            | PAST EVENTHABEA | https://www.rai | https://images. | NULL            | NULL            | CST             | 47              | 2025-11-11 00:1 | 2025-11-11 00:1
+7               | National Associ | 2025-07-09      | 9:00ΓÇ»AM10:30ΓÇ»AM | 120             | Texas           | NULL            | Texas           | NULL            | PAST EVENTHOW N | https://www.rai | https://images. | NULL            | NULL            | CST             | 57              | 2025-11-11 00:1 | 2025-11-11 00:1
+8               | (Em)Power 1/2 H | 2025-06-25      | 7:00ΓÇ»PM7:30ΓÇ»PM  | 120             | Texas           | NULL            | Texas           | NULL            | PAST EVENT(EM)P | https://www.rai | https://images. | NULL            | NULL            | CST             | 45              | 2025-11-11 00:1 | 2025-11-11 00:1
+9               | Fundraising Day | 2025-06-13      | 8:45ΓÇ»AM10:00ΓÇ»AM | 120             | Texas           | NULL            | Texas           | NULL            | PAST EVENTVOLAT | https://www.rai | https://images. | NULL            | NULL            | CST             | 10              | 2025-11-11 00:1 | 2025-11-11 00:1
+10              | Bar Convent Bro | 2025-06-11      | 3:30ΓÇ»PM4:15ΓÇ»PM  | 120             | Texas           | NULL            | Texas           | NULL            | PAST EVENTESTE  | https://www.rai | https://images. | NULL            | NULL            | CST             | 34              | 2025-11-11 00:1 | 2025-11-11 00:1
+11              | Power 1/2 Hour  | 2025-05-21      | 7:00ΓÇ»PM7:30ΓÇ»PM  | 120             | Texas           | NULL            | Texas           | NULL            | PAST EVENTPOWER | https://www.rai | https://images. | NULL            | NULL            | CST             | 49              | 2025-11-11 00:1 | 2025-11-11 00:1
+12              | Power 1/2 Hour  | 2025-04-17      | 7:00ΓÇ»PM7:30ΓÇ»PM  | 120             | Texas           | NULL            | Texas           | NULL            | PAST EVENTPOWER | https://www.rai | https://images. | NULL            | NULL            | CST             | 44              | 2025-11-11 00:1 | 2025-11-11 00:1
+13              | Power 1/2 Hour  | 2025-03-19      | 7:00ΓÇ»PM7:30ΓÇ»PM  | 120             | Texas           | NULL            | Texas           | NULL            | PAST EVENTPOWER | https://www.rai | https://images. | NULL            | NULL            | CST             | 10              | 2025-11-11 00:1 | 2025-11-11 00:1
+14              | In Conversation | 2024-12-20      | 11:00ΓÇ»AM11:30ΓÇ»A | 120             | Texas           | NULL            | Texas           | NULL            | PAST EVENTIN CO | https://www.rai | https://images. | NULL            | NULL            | CST             | 18              | 2025-11-11 00:1 | 2025-11-11 00:1
+15              | In Conversation | 2024-11-21      | 11:00ΓÇ»AM12:00ΓÇ»P | 120             | Texas           | NULL            | Texas           | NULL            | PAST EVENTIN CO | https://www.rai | https://images. | NULL            | NULL            | CST             | 43              | 2025-11-11 00:1 | 2025-11-11 00:1
+16              | Power 1/2 Hour  | 2024-11-19      | 7:00ΓÇ»PM7:30ΓÇ»PM  | 120             | Texas           | NULL            | Texas           | NULL            | PAST EVENTPOWER | https://www.rai | https://images. | NULL            | NULL            | CST             | 34              | 2025-11-11 00:1 | 2025-11-11 00:1
+17              | National Associ | 2024-07-12      | 9:30ΓÇ»AM11:00ΓÇ»AM | 120             | Texas           | NULL            | Texas           | NULL            | PAST EVENTHOLDI | https://www.rai | https://images. | NULL            | NULL            | CST             | 51              | 2025-11-11 00:1 | 2025-11-11 00:1
+18              | Pediatric Healt | 2024-05-02      | 10:00ΓÇ»AM11:00ΓÇ»A | 120             | Texas           | NULL            | Texas           | NULL            | PAST EVENTPEDIA | https://www.rai | https://images. | NULL            | NULL            | CST             | 48              | 2025-11-11 00:1 | 2025-11-11 00:1
+19              | In Conversation | 2024-04-17      | 1:30ΓÇ»PM2:30ΓÇ»PM  | 120             | Texas           | NULL            | Texas           | NULL            | PAST EVENTIN CO | https://www.rai | https://images. | NULL            | NULL            | CST             | 15              | 2025-11-11 00:1 | 2025-11-11 00:1
+20              | In Conversation | 2024-03-18      | 1:00ΓÇ»PM1:30ΓÇ»PM  | 120             | Texas           | NULL            | Texas           | NULL            | PAST EVENTIN CO | https://www.rai | https://images. | NULL            | NULL            | CST             | 4               | 2025-11-11 00:1 | 2025-11-11 00:1
+21              | All On The Line | 2025-11-19      | 07:00 PM        | 60              | Virtual Event   |                 |                 |                 | Join All On The | https://www.mob | https://mobiliz | NULL            | 08:00 PM        | EST             | 20              | 2025-11-11 00:1 | 2025-11-11 00:1
+22              | Fridays at 4--L | 2025-11-14      | 06:00 PM        | 90              | Ashland, OR     | Ashland         | OR              |                 | NOTE: We are a  | https://www.mob | https://mobiliz | NULL            | 07:30 PM        | PST             | 12              | 2025-11-11 00:1 | 2025-11-11 00:1
+23              | Welcome Call: J | 2025-11-13      | 07:30 PM        | 60              | Virtual Event   |                 |                 |                 | Our homes are u | https://www.mob | https://mobiliz | NULL            | 08:30 PM        | EST             | 28              | 2025-11-11 00:1 | 2025-11-11 00:1
+24              | RCV Breakfast C | 2025-12-06      | 11:00 AM        | 60              | Tumwater, WA    | Tumwater        | WA              |                 | Are you interes | https://www.mob | https://mobiliz | NULL            | 12:00 PM        | PST             | 23              | 2025-11-11 00:1 | 2025-11-11 00:1
+25              | 2020 Victorious | 2027-12-31      | 11:00 PM        | 1425            | Virtual Event   |                 |                 |                 | 2020 Victorious | https://www.mob | https://mobiliz | NULL            | 10:45 PM        | EST             | 49              | 2025-11-11 00:1 | 2025-11-11 00:1
+26              | HIGHLIGHTS * 20 | 2027-12-31      | 11:00 PM        | 1425            | Virtual Event   |                 |                 |                 | [2020 Victoriou | https://www.mob | https://mobiliz | NULL            | 10:45 PM        | EST             | 6               | 2025-11-11 00:1 | 2025-11-11 00:1
+27              | Membership Matt | 2027-12-31      | 11:00 PM        | 1425            | Virtual Event   |                 |                 |                 | __Membership Be | https://www.mob | https://mobiliz | NULL            | 10:45 PM        | EST             | 30              | 2025-11-11 00:1 | 2025-11-11 00:1
+28              | 2020 Victorious | 2027-12-31      | 11:00 PM        | 1425            | Virtual Event   |                 |                 |                 | 2020 Victorious | https://www.mob | https://mobiliz | NULL            | 10:45 PM        | EST             | 57              | 2025-11-11 00:1 | 2025-11-11 00:1
+29              | 2020 Victorious | 2027-12-31      | 11:00 PM        | 1425            | Virtual Event   |                 |                 |                 | Private / MEMBE | https://www.mob | https://mobiliz | NULL            | 10:45 PM        | EST             | 26              | 2025-11-11 00:1 | 2025-11-11 00:1
+30              | 2020 Victorious | 2027-12-31      | 11:00 PM        | 1425            | Virtual Event   |                 |                 |                 | Private / MEMBE | https://www.mob | https://mobiliz | NULL            | 10:45 PM        | EST             | 5               | 2025-11-11 00:1 | 2025-11-11 00:1
+31              | 2020 Victorious | 2027-12-31      | 11:00 PM        | 705             | Virtual Event   |                 |                 |                 | Public / YOUTH  | https://www.mob | https://mobiliz | NULL            | 10:45 AM        | EST             | 2               | 2025-11-11 00:1 | 2025-11-11 00:1
+32              | 2020 Victorious | 2027-12-31      | 11:00 PM        | 705             | Virtual Event   |                 |                 |                 | 2020 Victorious | https://www.mob | https://mobiliz | NULL            | 10:45 AM        | EST             | 33              | 2025-11-11 00:1 | 2025-11-11 00:1
+33              | 2020 Victorious | 2027-12-31      | 11:00 PM        | 1425            | Virtual Event   |                 |                 |                 | __2020 Victorio | https://www.mob | https://mobiliz | NULL            | 10:45 PM        | EST             | 41              | 2025-11-11 00:1 | 2025-11-11 00:1
+34              | 2020 Victorious | 2027-12-31      | 11:00 PM        | 1425            | Virtual Event   |                 |                 |                 | __2020 Victorio | https://www.mob | https://mobiliz | NULL            | 10:45 PM        | EST             | 25              | 2025-11-11 00:1 | 2025-11-11 00:1
+35              | BYOP Free Texti | 2025-11-13      | 05:00 PM        | 90              | Los Angeles, CA | Los Angeles     | CA              |                 | Welcome to the  | https://www.mob | https://mobiliz | NULL            | 06:30 PM        | PST             | 35              | 2025-11-11 00:1 | 2025-11-11 00:1
+36              | Shelby Chapter  | 2025-11-20      | 06:00 PM        | 90              | Shelbyville, KY | Shelbyville     | KY              | Stratton Center | Monthly chapter | https://www.mob | https://mobiliz | NULL            | 07:30 PM        | EST             | 55              | 2025-11-11 00:1 | 2025-11-11 00:1
+37              | 2020 Victorious | 2027-12-31      | 11:00 PM        | 1425            | Virtual Event   |                 |                 |                 | 2020 Victorious | https://www.mob | https://mobiliz | NULL            | 10:45 PM        | EST             | 10              | 2025-11-11 00:1 | 2025-11-11 00:1
+38              | 2020 Victorious | 2028-01-01      | 08:00 AM        | 60              | Virtual Event   |                 |                 |                 | 2020 Victorious | https://www.mob | https://mobiliz | NULL            | 09:00 AM        | EST             | 13              | 2025-11-11 00:1 | 2025-11-11 00:1
+39              | 2020 Victorious | 2028-01-01      | 08:00 AM        | 60              | Virtual Event   |                 |                 |                 | N E W * P R O G | https://www.mob | https://mobiliz | NULL            | 09:00 AM        | EST             | 12              | 2025-11-11 00:1 | 2025-11-11 00:1
+40              | 2020 Victorious | 2028-01-01      | 08:00 AM        | 60              | New York, NY    | New York        | NY              | New York City   | 2020 Victorious | https://www.mob | https://mobiliz | NULL            | 09:00 AM        | EST             | 9               | 2025-11-11 00:1 | 2025-11-11 00:1
+41              | 2020 Victorious | 2027-12-31      | 11:00 PM        | 1425            | Virtual Event   |                 |                 |                 | 2020 Victorious | https://www.mob | https://mobiliz | NULL            | 10:45 PM        | EST             | 26              | 2025-11-11 00:1 | 2025-11-11 00:1
+43              | 2020 Victorious | 2027-12-31      | 11:00 PM        | 1425            | Virtual Event   |                 |                 |                 | 2020 Victorious | https://www.mob | https://mobiliz | NULL            | 10:45 PM        | EST             | 20              | 2025-11-11 00:1 | 2025-11-11 00:1
+44              | Gila Dems Offic | 2025-11-12      | 10:00 AM        | 120             | Payson, AZ      | Payson          | AZ              | Dem HQ          | Gila County Dem | https://www.mob | https://mobiliz | NULL            | 12:00 PM        | MST             | 40              | 2025-11-11 00:1 | 2025-11-11 00:1
+45              | How to Partner  | 2025-11-11      | 02:00 PM        | 60              | Virtual Event   |                 |                 |                 | HOWDY PARTNER!  | https://www.mob | https://mobiliz | NULL            | 03:00 PM        | EST             | 3               | 2025-11-11 00:1 | 2025-11-11 00:1
+47              | Politics & Coff | 2025-11-23      | 11:00 AM        | 75              | Winnetka, IL    | Winnetka        | IL              | This eventΓÇÖs ad | # Politics & Co | https://www.mob | https://mobiliz | NULL            | 12:15 PM        | CST             | 6               | 2025-11-11 00:1 | 2025-11-11 00:1
+48              | Detention Advoc | 2025-11-19      | 06:00 PM        | 60              | Virtual Event   |                 |                 |                 | **We will not b | https://www.mob | https://mobiliz | NULL            | 07:00 PM        | EST             | 32              | 2025-11-11 00:1 | 2025-11-11 00:1
+49              | Big Sandy KFTC  | 2025-12-02      | 05:00 PM        | 60              | Prestonsburg, K | Prestonsburg    | KY              | Prestonsburg KF | Join the Big Sa | https://www.mob | https://mobiliz | NULL            | 06:00 PM        | EST             | 44              | 2025-11-11 00:1 | 2025-11-11 00:1
+50              | East Kentucky C | 2025-11-18      | 06:00 PM        | 60              | Prestonsburg, K | Prestonsburg    | KY              | Prestonsburg    | Join us for the | https://www.mob | https://mobiliz | NULL            | 07:00 PM        | EST             | 13              | 2025-11-11 00:1 | 2025-11-11 00:1
+
+Total: 48 events
+
+[ORG] ORGANIZATIONS TABLE - ALL ROWS (ALL COLUMNS)
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+id              | name            | city            | state           | topic           | size            | meeting_frequen | description     | address         | zipcode         | ein             | subsection_code | ntee_code       | external_url    | image_url       | guidestar_url   | form_990_pdf_ur | created_at      | updated_at     
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+1               | Immigration Leg | Dearborn        | MI              | Legal Services  | 501(c)(3) Nonpr | Weekly          | Immigration Leg |                 |                 | 931497334       | 501(c)(3)       | I80             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+2               | Esperanza Immig | Philadelphia    | PA              | Human Services  | 501(c)(3) Nonpr | Weekly          | Esperanza Immig |                 |                 | 300239154       | 501(c)(3)       | P80             | https://project | NULL            | https://www.gui | https://project | 2025-11-11 00:1 | 2025-11-11 00:1
+3               | Compass Immigra | Harrisburg      | PA              | Legal Services  | 501(c)(3) Nonpr | Weekly          | Compass Immigra |                 |                 | 832779670       | 501(c)(3)       | I80             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+4               | Open Immigratio | Oakland         | CA              | Legal Services  | 501(c)(3) Nonpr | Weekly          | Open Immigratio |                 |                 | 820662393       | 501(c)(3)       | I80             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+5               | African Immigra | Boston          | MA              | Community Impro | 501(c)(3) Nonpr | Monthly         | African Immigra |                 |                 | 821491764       | 501(c)(3)       | S50             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+6               | Caritas Immigra | Middletown      | CT              | Legal Services  | 501(c)(3) Nonpr | Weekly          | Caritas Immigra |                 |                 | 882387482       | 501(c)(3)       | I80             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+7               | Houston Immigra | Houston         | TX              | Community Servi | 501(c)(3) Nonpr | Monthly         | Houston Immigra |                 |                 | 300098254       | 501(c)(3)       | T11             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+8               | Lighthouse Immi | N Charleston    | SC              | Legal Services  | 501(c)(3) Nonpr | Weekly          | Lighthouse Immi |                 |                 | 461650622       | 501(c)(3)       | I80             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+9               | Immlaw The Nati | Des Moines      | IA              | Community Impro | 501(c)(3) Nonpr | Monthly         | Immlaw The Nati |                 |                 | 853847409       | 501(c)(3)       | S41             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+10              | Immigration Equ | Fort Lauderdale | FL              | Human Services  | 501(c)(3) Nonpr | Weekly          | Immigration Equ |                 |                 | 993100740       | 501(c)(3)       | P84             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+11              | Restoration Imm | Arlington       | VA              | Legal Services  | 501(c)(3) Nonpr | Weekly          | Restoration Imm |                 |                 | 833874634       | 501(c)(3)       | I80             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+12              | Mazzini Multi S | Windsor Locks   | CT              | Legal Services  | 501(c)(3) Nonpr | Weekly          | Mazzini Multi S |                 |                 | 933767545       | 501(c)(3)       | I80             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+13              | Deportation Def | Hilo            | HI              | Legal Services  | 501(c)(3) Nonpr | Weekly          | Deportation Def |                 |                 | 831341749       | 501(c)(3)       | I80             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+14              | Immigrant Right | Hatboro         | PA              | Human Services  | 501(c)(3) Nonpr | Weekly          | Immigrant Right |                 |                 | 833148733       | 501(c)(3)       | P84             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+15              | Rights Of Immig | Houston         | TX              | Civil Rights    | 501(c)(3) Nonpr | Monthly         | Rights Of Immig |                 |                 | 850834223       | 501(c)(3)       | R99             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+16              | Colorado Immigr | Denver          | CO              | Civil Rights &  | 501(c)(3) Nonpr | Monthly         | Colorado Immigr |                 |                 | 731675486       | 501(c)(3)       | R20             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+17              | Advocates For I | Memphis         | TN              | Legal Services  | 501(c)(3) Nonpr | Weekly          | Advocates For I |                 |                 | 832194896       | 501(c)(3)       | I80             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+18              | Portland Immigr | Portland        | OR              | Civil Rights    | 501(c)(3) Nonpr | Monthly         | Portland Immigr |                 |                 | 833179589       | 501(c)(3)       | R22             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+19              | Skagit Immigran | Mount Vernon    | WA              | Human Services  | 501(c)(3) Nonpr | Weekly          | Skagit Immigran |                 |                 | 640952760       | 501(c)(3)       | P84             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+20              | Northwest Immig | Seattle         | WA              | Community Servi | 501(c)(3) Nonpr | Monthly         | Northwest Immig |                 |                 | 911393082       | 501(c)(3)       | None            | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+21              | Maine Immigrant | Portland        | ME              | Human Services  | 501(c)(3) Nonpr | Weekly          | Maine Immigrant |                 |                 | 823097991       | 501(c)(3)       | P20             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+22              | Immigrant Legal | Portland        | ME              | Legal Services  | 501(c)(3) Nonpr | Weekly          | Immigrant Legal |                 |                 | 223260883       | 501(c)(3)       | I80             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+23              | Wyoming Immigra | Jackson         | WY              | Human Services  | 501(c)(3) Nonpr | Weekly          | Wyoming Immigra |                 |                 | 923894513       | 501(c)(3)       | P84             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+24              | Immigrant Advoc | Desoto          | TX              | Legal Services  | 501(c)(3) Nonpr | Weekly          | Immigrant Advoc |                 |                 | 463401262       | 501(c)(3)       | I80             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+25              | Refugee Immigra | Fort Wayne      | IN              | Human Services  | 501(c)(3) Nonpr | Weekly          | Refugee Immigra |                 |                 | 990628259       | 501(c)(3)       | P84             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+26              | Immigrant Advoc | Upper Darby     | PA              | Civil Rights &  | 501(c)(3) Nonpr | Monthly         | Immigrant Advoc |                 |                 | 392284050       | 501(c)(3)       | R20             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+27              | Rocky Mountain  | Westminster     | CO              | Civil Rights &  | 501(c)(3) Nonpr | Monthly         | Rocky Mountain  |                 |                 | 841565542       | 501(c)(3)       | R20             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+28              | Las Americas Im | El Paso         | TX              | Community Servi | 501(c)(3) Nonpr | Monthly         | Las Americas Im |                 |                 | 742472774       | 501(c)(3)       | None            | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+29              | Texas Immigrant | The Colony      | TX              | Legal Services  | 501(c)(3) Nonpr | Weekly          | Texas Immigrant |                 |                 | 923099891       | 501(c)(3)       | I80             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+30              | Migrant Rights  | Tampa           | FL              | Public Affairs  | 501(c)(3) Nonpr | Monthly         | Migrant Rights  |                 |                 | 465239027       | 501(c)(3)       | W99             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+31              | Migrant Center  | San Antonio     | TX              | Human Services  | 501(c)(3) Nonpr | Weekly          | Migrant Center  |                 |                 | 822379803       | 501(c)(3)       | P84             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+32              | Center On Migra | San Francisco   | CA              | Civil Rights &  | 501(c)(3) Nonpr | Monthly         | Center On Migra |                 |                 | 871702771       | 501(c)(3)       | R20             | https://project | NULL            | https://www.gui | https://project | 2025-11-11 00:1 | 2025-11-11 00:1
+33              | Alba Union For  | Carlsbad        | CA              | Civil Rights    | 501(c)(3) Nonpr | Monthly         | Alba Union For  |                 |                 | 990495658       | 501(c)(3)       | R99             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+34              | Immigrant Justi | Knoxville       | TN              | Legal Services  | 501(c)(3) Nonpr | Weekly          | Immigrant Justi |                 |                 | 472677564       | 501(c)(3)       | I80             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+35              | Immigrant Justi | Boise           | ID              | Legal Services  | 501(c)(3) Nonpr | Weekly          | Immigrant Justi |                 |                 | 831632271       | 501(c)(3)       | I80             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+36              | Immigrant Justi | New York        | NY              | Legal Services  | 501(c)(3) Nonpr | Weekly          | Immigrant Justi |                 |                 | 464879076       | 501(c)(3)       | I80             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+37              | Americans For I | Virginia Gdns   | FL              | Legal Services  | 501(c)(3) Nonpr | Weekly          | Americans For I |                 |                 | 650610872       | 501(c)(3)       | I80             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+38              | Nilc Immigrant  | Washington      | DC              | Human Services  | 501(c)(3) Nonpr | Weekly          | Nilc Immigrant  |                 |                 | 462030419       | 501(c)(3)       | P84             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+39              | Colorado Immigr | Denver          | CO              | Human Services  | 501(c)(3) Nonpr | Weekly          | Colorado Immigr |                 |                 | 881529558       | 501(c)(3)       | P20             | https://project | NULL            | https://www.gui | https://project | 2025-11-11 00:1 | 2025-11-11 00:1
+40              | Immigrant Oppor | Aurora          | CO              | Legal Services  | 501(c)(3) Nonpr | Weekly          | Immigrant Oppor |                 |                 | 992589964       | 501(c)(3)       | I80             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+41              | Montana Immigra | Manhattan       | MT              | Human Services  | 501(c)(3) Nonpr | Weekly          | Montana Immigra |                 |                 | 263644922       | 501(c)(3)       | P62             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+42              | Refugee Communi | Wdm             | IA              | International A | 501(c)(3) Nonpr | Monthly         | Refugee Communi |                 |                 | 923950067       | 501(c)(3)       | Q71             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+43              | Refugee Assista | Coral Gables    | FL              | Human Services  | 501(c)(3) Nonpr | Weekly          | Refugee Assista |                 |                 | 823429406       | 501(c)(3)       | P84             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+44              | Refugee Assista | San Diego       | CA              | Human Services  | 501(c)(3) Nonpr | Weekly          | Refugee Assista |                 |                 | 813884616       | 501(c)(3)       | P20             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+45              | Refugee Assista | Morristown      | NJ              | Human Services  | 501(c)(3) Nonpr | Weekly          | Refugee Assista |                 |                 | 920540283       | 501(c)(3)       | P20             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+46              | Global Refugee  | Irvine          | CA              | Community Servi | 501(c)(3) Nonpr | Monthly         | Global Refugee  |                 |                 | 882584387       | 501(c)(3)       | X20             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+47              | Michigan Refuge | Ann Arbor       | MI              | International A | 501(c)(3) Nonpr | Monthly         | Michigan Refuge |                 |                 | 851812852       | 501(c)(3)       | Q71             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+48              | Hillsborough Re | Hillsborough    | NC              | Human Services  | 501(c)(3) Nonpr | Weekly          | Hillsborough Re |                 |                 | 991847974       | 501(c)(3)       | P50             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+49              | Refugee Family  | Stone Mountain  | GA              | Human Services  | 501(c)(3) Nonpr | Weekly          | Refugee Family  |                 |                 | 861078957       | 501(c)(3)       | P84             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+50              | Refugee Resettl | El Paso         | TX              | Civil Rights    | 501(c)(3) Nonpr | Monthly         | Refugee Resettl |                 |                 | 475674203       | 501(c)(3)       | R12             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+51              | Refugee Resettl | Springfield     | VA              | International A | 501(c)(3) Nonpr | Monthly         | Refugee Resettl |                 |                 | 880552112       | 501(c)(3)       | Q71             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+52              | New Milford Ref | New Milford     | CT              | International A | 501(c)(3) Nonpr | Monthly         | New Milford Ref |                 |                 | 871767376       | 501(c)(3)       | Q71             | https://project | NULL            | https://www.gui | https://project | 2025-11-11 00:1 | 2025-11-11 00:1
+53              | Global Refugee  | Irvine          | CA              | Human Services  | 501(c)(3) Nonpr | Weekly          | Global Refugee  |                 |                 | 881598454       | 501(c)(3)       | P40             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+54              | Siv & Refugee R | Sacramento      | CA              | Human Services  | 501(c)(3) Nonpr | Weekly          | Siv & Refugee R |                 |                 | 863968589       | 501(c)(3)       | P99             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+55              | Rochester Refug | Rochester       | NY              | Human Services  | 501(c)(3) Nonpr | Weekly          | Rochester Refug |                 |                 | 453047057       | 501(c)(3)       | P84             | https://project | NULL            | https://www.gui | https://project | 2025-11-11 00:1 | 2025-11-11 00:1
+56              | Ukrainian Refug | Weston          | FL              | Human Services  | 501(c)(3) Nonpr | Weekly          | Ukrainian Refug |                 |                 | 883263131       | 501(c)(3)       | P60             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+57              | Warren Area Ref | Warren          | PA              | Human Services  | 501(c)(3) Nonpr | Weekly          | Warren Area Ref |                 |                 | 993386244       | 501(c)(3)       | P84             | https://project | NULL            | https://www.gui | NULL            | 2025-11-11 00:1 | 2025-11-11 00:1
+
+Total: 57 organizations
+
+[RESOURCE] RESOURCES TABLE - ALL ROWS (ALL COLUMNS)
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+id              | title           | date_published  | topic           | scope           | description     | format          | court_name      | citation        | external_url    | image_url       | audio_url       | courtlistener_i | docket_number   | judge_name      | created_at      | updated_at     
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+1               | Calderon-Uresti | 2025-11-06      | Immigration Law | Federal         | Case: 24-60445  | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10732068        | 24-60445        |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+2               | Dominguez Reyes | 2025-11-06      | Immigration Law | Federal         | Case: 25-60016  | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10732066        | 25-60016        |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+3               | People v. Jacqu | 2025-11-06      | Immigration Law | Federal         | People v Jacque | Court Opinion   | Appellate Divis | 2025 NY Slip Op | https://www.cou | NULL            | https://www.cou | 10732031        |                 |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+4               | People v. Marti | 2025-11-06      | Immigration Law | Federal         | People v Martin | Court Opinion   | Appellate Divis | 2025 NY Slip Op | https://www.cou | NULL            | https://www.cou | 10731932        | CR-24-1004      |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+5               | Clemente Javier | 2025-11-04      | Immigration Law | Federal         | USCA11 Case: 23 | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10730527        | 23-10811        |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+6               | Yifan Shen v. C | 2025-11-04      | Immigration Law | Federal         | USCA11 Case: 23 | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10730290        | 23-12737        |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+7               | Daley v. Choate | 2025-11-03      | Immigration Law | Federal         |      Appellate  | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10729625        | 24-1191         |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+8               | Reyna Alfaro-Ze | 2025-10-31      | Immigration Law | Federal         | USCA4 Appeal: 2 | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10715959        | 23-2069         |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+9               | In re: O.RG.    | 2025-10-31      | Immigration Law | Local           | In Re: O. RG.,  | Court Opinion   | Court of Specia |                 | https://www.cou | NULL            | https://www.cou | 10715596        | 0404/25         | Reed            | 2025-11-11 00:1 | 2025-11-11 00:1
+10              | Williams & Conn | 2025-10-31      | Immigration Law | Federal         |                 | Court Opinion   | District Court, |                 | https://www.cou | NULL            | https://www.cou | 10715531        | Civil Action No | Judge Paul L. F | 2025-11-11 00:1 | 2025-11-11 00:1
+11              | United States v | 2025-10-31      | Immigration Law | Federal         |                 | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10715524        | 23-991          |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+12              | Ariel Marcelo B | 2025-10-30      | Immigration Law | Federal         | USCA11 Case: 21 | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10714859        | 21-11416        |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+13              | Rojas-Espinoza  | 2025-10-24      | Immigration Law | Federal         |                 | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10710635        | 24-7536         |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+14              | United States v | 2025-10-24      | Immigration Law | Federal         | Case: 24-50533  | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10710629        | 24-50533        |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+15              | Black v. Almodo | 2025-10-24      | Immigration Law | Federal         | 20-3224; 22-70
+ | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10710403        | 20-3224; 22-70  |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+16              | Yupangui-Yunga  | 2025-10-24      | Immigration Law | Federal         | 23-6522
+Yupangu | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10710402        | 23-6522         |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+17              | State v. Hall   | 2025-10-24      | Immigration Law | Local           | [Cite as State  | Court Opinion   | Ohio Court of A | 2025 Ohio 4880  | https://www.cou | NULL            | https://www.cou | 10710391        | 2025-CA-2       | Tucker          | 2025-11-11 00:1 | 2025-11-11 00:1
+18              | IA Migrant Move | 2025-10-23      | Immigration Law | Federal         |                 | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10709610        | 24-2263         |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+19              | United States v | 2025-10-21      | Immigration Law | Federal         |                 | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10708096        | 24-3444         |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+20              | Juan Carlos Pas | 2025-10-17      | Immigration Law | Federal         |                 | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10705942        | 24-4104         | Chad A. Readler | 2025-11-11 00:1 | 2025-11-11 00:1
+21              | Karla Masias Ca | 2025-10-28      | Immigration Law | Federal         | USCA11 Case: 24 | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10712585        | 24-14064        |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+22              | Ramos v. Bondi  | 2025-10-15      | Immigration Law | Federal         |      Appellate  | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10704402        | 23-9567         |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+23              | Community Legal | 2025-10-10      | Immigration Law | Federal         |              FO | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10700314        | 25-2808         |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+24              | Jimenez v. Bond | 2025-10-07      | Immigration Law | Federal         |       Appellate | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10691984        | 24-9573         |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+25              | Esperanza Franc | 2025-10-01      | Immigration Law | Federal         | USCA11 Case: 24 | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10686066        | 24-14117        |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+26              | Rangel-Fuentes  | 2025-09-29      | Immigration Law | Federal         |       Appellate | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10679527        | 23-9511         |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+27              | L.G.M.L v. Noem | 2025-09-18      | Immigration Law | Federal         |                 | Court Opinion   | District Court, |                 | https://www.cou | NULL            | https://www.cou | 10673631        | Civil Action No | Judge Timothy J | 2025-11-11 00:1 | 2025-11-11 00:1
+28              | Usoyan v. Repub | 2025-09-15      | Immigration Law | Federal         |                 | Court Opinion   | District Court, |                 | https://www.cou | NULL            | https://www.cou | 10671700        | Civil Action No | Magistrate Judg | 2025-11-11 00:1 | 2025-11-11 00:1
+29              | Brito Guevara v | 2025-09-05      | Immigration Law | Federal         | Case: 24-10520  | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10667015        | 24-10520        |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+30              | s-S-F-M         | 2025-09-02      | Immigration Law | Local           | Cite as 29 I&N  | Court Opinion   | Board of Immigr | 29 I. & N. Dec. | https://www.cou | NULL            | https://www.cou | 10669468        | ID 4123         |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+31              | Izuchukwu Ozuru | 2025-09-02      | Immigration Law | Federal         | USCA4 Appeal: 2 | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10665527        | 24-2070         |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+32              | W.M.M. v. Trump | 2025-09-02      | Immigration Law | Federal         |  Case: 25-10534 | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10664861        | 25-10534        |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+33              | Make the Road N | 2025-08-29      | Immigration Law | Federal         |                 | Court Opinion   | District Court, |                 | https://www.cou | NULL            | https://www.cou | 10663371        | Civil Action No | Judge Jia M. Co | 2025-11-11 00:1 | 2025-11-11 00:1
+34              | National Tps Al | 2025-08-29      | Immigration Law | Federal         |                 | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10663158        | 25-2120         |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+35              | Ibarra-Perez v. | 2025-08-27      | Immigration Law | Federal         |                 | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10661791        | 24-631          |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+36              | O.C.V. v. Bondi | 2025-08-26      | Immigration Law | Federal         |      Appellate  | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10660893        | 23-9609         |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+37              | Sulma Guandique | 2025-08-13      | Immigration Law | Federal         | USCA4 Appeal: 2 | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10654085        | 24-1154         |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+38              | Khodabakhshian  | 2025-11-10      | Immigration Law | Federal         |                 | Court Opinion   | District Court, |                 | https://www.cou | NULL            | https://www.cou | 10734088        | Civil Action No | Magistrate Judg | 2025-11-11 00:1 | 2025-11-11 00:1
+39              | Butler v. Democ | 2025-11-04      | Immigration Law | Federal         |                 | Court Opinion   | District Court, |                 | https://www.cou | NULL            | https://www.cou | 10730453        | Civil Action No | Judge Ana C. Re | 2025-11-11 00:1 | 2025-11-11 00:1
+40              | Doe v. Deutsche | 2025-10-30      | Immigration Law | Federal         |                 | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10714910        | 24-2829         |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+41              | Chen v. Rubio   | 2025-10-29      | Immigration Law | Federal         | 25-521
+Chen et  | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10713831        | 25-521          |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+42              | Ani v. Bondi    | 2025-10-16      | Immigration Law | Federal         |                 | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10705114        | 24-2339         |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+43              | Pelc v. Pham    | 2025-10-15      | Immigration Law | Local           |              IN | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10704255        | 25-27           |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+44              | B.R. v. Blinken | 2025-10-11      | Immigration Law | Federal         | UNITED STATES D | Court Opinion   | District Court, |                 | https://www.cou | NULL            | https://www.cou | 10700791        | Civil Action No | Judge Tanya S.  | 2025-11-11 00:1 | 2025-11-11 00:1
+45              | Bekkam v. Unite | 2025-10-10      | Immigration Law | Federal         |                 | Court Opinion   | District Court, |                 | https://www.cou | NULL            | https://www.cou | 10700420        | Civil Action No | Judge Loren L.  | 2025-11-11 00:1 | 2025-11-11 00:1
+46              | Commonwealth v. | 2025-10-09      | Immigration Law | Local           | 
+		    
+        | Court Opinion   | Massachusetts A |                 | https://www.cou | NULL            | https://www.cou | 10699611        | 24-P-372        | Englander, Hodg | 2025-11-11 00:1 | 2025-11-11 00:1
+47              | State of New Je | 2025-10-03      | Immigration Law | Federal         |           Unite | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10690424        | 25-1170         |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+48              | Y & N Building  | 2025-10-01      | Immigration Law | Federal         |                 | Court Opinion   | District Court, |                 | https://www.cou | NULL            | https://www.cou | 10687070        | Civil Action No | Judge Rudolph C | 2025-11-11 00:1 | 2025-11-11 00:1
+49              | Zhang v. United | 2025-09-29      | Citizenship     | Federal         |                 | Court Opinion   | District Court, |                 | https://www.cou | NULL            | https://www.cou | 10679694        | Civil Action No | Judge Emmet G.  | 2025-11-11 00:1 | 2025-11-11 00:1
+50              | Rosenwald v. Ki | 2025-09-24      | Immigration Law | Federal         |                 | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10676856        | 24-299          |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+51              | Inquiry into th | 2025-09-22      | Immigration Law | Federal         |                 | Court Opinion   | Supreme Court o |                 | https://www.cou | NULL            | https://www.cou | 10695912        | A240694         |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+52              | ├ûzt├╝rk v. Hyde; | 2025-09-19      | Immigration Law | Federal         | 25-1019; 25-111 | Court Opinion   | Court of Appeal |                 | https://www.cou | NULL            | https://www.cou | 10674324        | 25-1019; 25-111 |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+53              | Marri v. Rizwan | 2025-09-18      | Immigration Law | Local           |                 | Court Opinion   | Court of Appeal | 2025 UT App 137 | https://www.cou | NULL            | https://www.cou | 10674486        | Case No. 202300 |                 | 2025-11-11 00:1 | 2025-11-11 00:1
+54              | Moghadasghahfar | 2025-09-18      | Immigration Law | Federal         |                 | Court Opinion   | District Court, |                 | https://www.cou | NULL            | https://www.cou | 10674358        | Civil Action No | Judge Loren L.  | 2025-11-11 00:1 | 2025-11-11 00:1
+
+Total: 54 resources
+
+
+[5] ALL JUNCTION TABLE DATA (Many-to-Many Relationships)
+----------------------------------------------------------------------------------------------------
+
+[LINK] EVENT_RESOURCES - ALL LINKS
+----------------------------------------------------------------------------------------------------
+Event ID   Resource ID 
+----------------------------------------------------------------------------------------------------
+1          12          
+1          22          
+1          25          
+2          19          
+2          45          
+2          49          
+3          37          
+3          44          
+4          5           
+4          11          
+4          20          
+5          10          
+5          39          
+6          1           
+6          34          
+6          40          
+7          10          
+7          14          
+8          23          
+8          39          
+9          14          
+9          31          
+9          36          
+10         7           
+10         50          
+11         3           
+11         26          
+11         52          
+12         26          
+12         34          
+13         19          
+13         32          
+14         6           
+14         25          
+14         53          
+15         17          
+15         40          
+16         11          
+16         46          
+16         53          
+17         12          
+17         49          
+17         52          
+18         22          
+18         25          
+18         54          
+19         8           
+19         41          
+20         30          
+20         42          
+21         17          
+21         48          
+22         42          
+22         47          
+23         11          
+23         27          
+23         39          
+24         18          
+24         22          
+24         53          
+25         8           
+25         32          
+26         25          
+26         34          
+26         45          
+27         41          
+27         53          
+28         7           
+28         18          
+29         7           
+29         23          
+29         42          
+30         16          
+30         45          
+31         21          
+31         27          
+31         37          
+32         35          
+32         54          
+33         4           
+33         51          
+34         4           
+34         6           
+34         29          
+35         5           
+35         35          
+36         12          
+36         25          
+36         33          
+37         3           
+37         10          
+38         15          
+38         29          
+38         45          
+39         12          
+39         20          
+39         49          
+40         23          
+40         50          
+41         17          
+41         53          
+43         38          
+43         39          
+43         45          
+44         14          
+44         28          
+44         34          
+45         5           
+45         36          
+47         38          
+47         39          
+47         49          
+48         17          
+48         29          
+49         22          
+49         33          
+50         12          
+50         21          
+50         31          
+
+Total: 119 event-resource links
+
+
+[LINK] ORGANIZATION_RESOURCES - ALL LINKS
+----------------------------------------------------------------------------------------------------
+Org ID     Resource ID 
+----------------------------------------------------------------------------------------------------
+1          15          
+1          22          
+1          33          
+2          25          
+2          35          
+3          5           
+3          16          
+3          25          
+4          11          
+4          38          
+5          10          
+5          18          
+5          23          
+6          20          
+6          24          
+6          46          
+7          1           
+7          54          
+8          9           
+8          50          
+9          13          
+9          24          
+9          37          
+10         1           
+10         38          
+11         2           
+11         27          
+12         1           
+12         19          
+12         39          
+13         6           
+13         31          
+14         31          
+14         35          
+15         37          
+15         39          
+16         35          
+16         36          
+17         17          
+17         47          
+18         13          
+18         32          
+19         1           
+19         13          
+19         53          
+20         5           
+20         25          
+20         29          
+21         20          
+21         49          
+21         52          
+22         2           
+22         12          
+22         50          
+23         10          
+23         15          
+24         13          
+24         16          
+24         37          
+25         1           
+25         2           
+26         1           
+26         28          
+26         37          
+27         41          
+27         47          
+27         53          
+28         5           
+28         20          
+28         25          
+29         46          
+29         51          
+30         11          
+30         48          
+31         10          
+31         21          
+31         47          
+32         25          
+32         45          
+33         6           
+33         49          
+34         8           
+34         20          
+35         3           
+35         10          
+35         48          
+36         3           
+36         40          
+37         10          
+37         26          
+37         53          
+38         23          
+38         29          
+39         3           
+39         12          
+39         18          
+40         4           
+40         29          
+41         10          
+41         54          
+42         9           
+42         20          
+42         44          
+43         26          
+43         33          
+44         24          
+44         32          
+44         40          
+45         20          
+45         25          
+46         13          
+46         30          
+46         33          
+47         5           
+47         37          
+48         7           
+48         35          
+49         10          
+49         43          
+50         17          
+50         32          
+51         18          
+51         23          
+51         27          
+52         26          
+52         43          
+53         18          
+53         29          
+53         33          
+54         18          
+54         23          
+55         6           
+55         16          
+55         47          
+56         2           
+56         43          
+56         50          
+57         14          
+57         19          
+
+Total: 139 organization-resource links
+
+
+[6] DATA INTEGRITY CHECKS
+----------------------------------------------------------------------------------------------------
+
+[CHECK] Checking for NULL values in required fields...
+  Events with NULL title: 0 [OK]
+  Events with NULL date: 0 [OK]
+  Organizations with NULL name: 0 [OK]
+  Organizations with NULL city: 0 [OK]
+  Resources with NULL title: 0 [OK]
+  Resources with NULL description: 0 [OK]
+
+[CHECK] Checking foreign key integrity...
+  Events with invalid organization_id: 0 [OK]
+
+[CHECK] Checking relationship integrity...
+  Invalid event_resources links: 0 [OK]
+  Invalid resource references in event_resources: 0 [OK]
+
+
+[7] CONNECTION COUNT FOR ALL INSTANCES
+----------------------------------------------------------------------------------------------------
+
+[EVENT] ALL EVENTS (with connection counts):
+ID    Title                                         Resources  Has Org  Total  Status
+----------------------------------------------------------------------------------------------------
+3     Power 1/2 Hour                                2          1        3      [OK] 
+5     (Em)Power 1/2 Hour                            2          1        3      [OK] 
+7     National Association of Hispanic Journalists  2          1        3      [OK] 
+8     (Em)Power 1/2 Hour                            2          1        3      [OK] 
+10    Bar Convent Brooklyn 2025                     2          1        3      [OK] 
+12    Power 1/2 Hour                                2          1        3      [OK] 
+13    Power 1/2 Hour                                2          1        3      [OK] 
+15    In Conversation: Private Violence             2          1        3      [OK] 
+19    In Conversation: In the Shadow of Liberty     2          1        3      [OK] 
+20    In Conversation: A24's Problemista            2          1        3      [OK] 
+21    All On The Line Monthly Volunteer Virtual Mee 2          1        3      [OK] 
+22    Fridays at 4--Letter Writing and More! (4 pm  2          1        3      [OK] 
+25    2020 Victorious! Strategic Community Organizi 2          1        3      [OK] 
+27    Membership Matters * 2020 Victorious! | Commu 2          1        3      [OK] 
+28    2020 Victorious! National Priorities Reading- 2          1        3      [OK] 
+30    2020 Victorious! The Relevancy of The Preside 2          1        3      [OK] 
+32    2020 Victorious! NATIONAL PROPOSALS * Communi 2          1        3      [OK] 
+33    2020 Victorious! National Priorities-Proposal 2          1        3      [OK] 
+35    BYOP Free Texting - Register Democrats in all 2          1        3      [OK] 
+37    2020 Victorious! | National Voter Mobilizatio 2          1        3      [OK] 
+40    2020 Victorious! MLK NATIONAL DAY-WEEK OF ACT 2          1        3      [OK] 
+41    2020 Victorious! | National Vote Early Day Ca 2          1        3      [OK] 
+45    How to Partner with Field Team 6 ΓÇô for Organi 2          1        3      [OK] 
+48    Detention Advocacy Team                       2          1        3      [OK] 
+49    Big Sandy KFTC Chapter Meeting                2          1        3      [OK] 
+1     Learn Serve Lead 2025                         3          1        4      [OK] 
+2     (Em)Power 1/2 Hour                            3          1        4      [OK] 
+4     Netroots Nation 2025                          3          1        4      [OK] 
+6     Habeas Training for Immigration Lawyers       3          1        4      [OK] 
+9     Fundraising Day New York                      3          1        4      [OK] 
+11    Power 1/2 Hour                                3          1        4      [OK] 
+14    In Conversation: Separated with Jacob Soborof 3          1        4      [OK] 
+16    Power 1/2 Hour                                3          1        4      [OK] 
+17    National Association of Hispanic Journalists  3          1        4      [OK] 
+18    Pediatric Healthcare in Immigration Detention 3          1        4      [OK] 
+23    Welcome Call: Join Sunrise, Fight Fascism     3          1        4      [OK] 
+24    RCV Breakfast Club: Monthly RCV Meeting       3          1        4      [OK] 
+26    HIGHLIGHTS * 2020 Victorious! | Communities U 3          1        4      [OK] 
+29    2020 Victorious! Government Accountability *  3          1        4      [OK] 
+31    2020 Victorious! Citizen-Youth Accountability 3          1        4      [OK] 
+34    2020 Victorious! National Priorities-Proposal 3          1        4      [OK] 
+36    Shelby Chapter KFTC Meeting                   3          1        4      [OK] 
+38    2020 Victorious! Strategic Community Organizi 3          1        4      [OK] 
+39    2020 Victorious! Student-Youth Leadership * C 3          1        4      [OK] 
+43    2020 Victorious! | National Voter Mobilizatio 3          1        4      [OK] 
+44    Gila Dems Office Scheduling                   3          1        4      [OK] 
+47    Politics & Coffee with the New Trier Democrat 3          1        4      [OK] 
+50    East Kentucky Community Remembrance Project M 3          1        4      [OK] 
+
+[SUMMARY] Events with < 2 connections: 0
+
+
+[ORG] ALL ORGANIZATIONS (with connection counts):
+ID    Name                                          Events   Resources  Total  Status
+----------------------------------------------------------------------------------------------------
+7     Houston Immigration Legal Services Collaborat 0        2          2      [OK] 
+8     Lighthouse Immigration Legal Services Inc     0        2          2      [OK] 
+11    Restoration Immigration Legal Aid             0        2          2      [OK] 
+14    Immigrant Rights Action                       0        2          2      [OK] 
+16    Colorado Immigrant Rights Coalition           0        2          2      [OK] 
+17    Advocates For Immigrant Rights                0        2          2      [OK] 
+29    Texas Immigrant & Refugee Advocacy Center     0        2          2      [OK] 
+38    Nilc Immigrant Justice Fund                   0        2          2      [OK] 
+50    Refugee Resettlement Fund                     0        2          2      [OK] 
+52    New Milford Refugee Resettlement              0        2          2      [OK] 
+54    Siv & Refugee Resettlement Center             0        2          2      [OK] 
+1     Immigration Legal Services                    0        3          3      [OK] 
+2     Esperanza Immigration Legal Services          1        2          3      [OK] 
+4     Open Immigration Legal Services               1        2          3      [OK] 
+15    Rights Of Immigrants                          1        2          3      [OK] 
+18    Portland Immigrant Rights Coalition           1        2          3      [OK] 
+19    Skagit Immigrant Rights Council               0        3          3      [OK] 
+21    Maine Immigrants Rights Coalition             0        3          3      [OK] 
+22    Immigrant Legal Advocacy Project              0        3          3      [OK] 
+24    Immigrant Advocacy Of America                 0        3          3      [OK] 
+25    Refugee Immigrant Advocacy Center             1        2          3      [OK] 
+27    Rocky Mountain Immigrant Advocacy Network     0        3          3      [OK] 
+31    Migrant Center For Human Rights               0        3          3      [OK] 
+32    Center On Migrant Rights And Social Justice   1        2          3      [OK] 
+33    Alba Union For Migrant And Elder Rights       1        2          3      [OK] 
+36    Immigrant Justice Corps Inc                   1        2          3      [OK] 
+37    Americans For Immigrant Justice               0        3          3      [OK] 
+39    Colorado Immigrant Justice Fund               0        3          3      [OK] 
+40    Immigrant Opportunity Justice Center          1        2          3      [OK] 
+41    Montana Immigrant Justice Alliance            1        2          3      [OK] 
+42    Refugee Community Assistance                  0        3          3      [OK] 
+43    Refugee Assistance Alliance Inc               1        2          3      [OK] 
+45    Refugee Assistance Morris Part                1        2          3      [OK] 
+46    Global Refugee Assistance Mission             0        3          3      [OK] 
+47    Michigan Refugee Assistance Project           1        2          3      [OK] 
+48    Hillsborough Refugee Assistance Inc           1        2          3      [OK] 
+56    Ukrainian Refugee Resettlement Project Inc    0        3          3      [OK] 
+3     Compass Immigration Legal Services            1        3          4      [OK] 
+5     African Immigration Legal Services            1        3          4      [OK] 
+9     Immlaw The National Consortium Of Immigration 1        3          4      [OK] 
+13    Deportation Defense Legal Network             2        2          4      [OK] 
+23    Wyoming Immigrant Advocacy Project            2        2          4      [OK] 
+28    Las Americas Immigrant Advocacy Center        1        3          4      [OK] 
+30    Migrant Rights Foundation                     2        2          4      [OK] 
+34    Immigrant Justice Initiative                  2        2          4      [OK] 
+35    Immigrant Justice Idaho Inc                   1        3          4      [OK] 
+49    Refugee Family Assistance Program             2        2          4      [OK] 
+53    Global Refugee Resettlement Alliance          1        3          4      [OK] 
+55    Rochester Refugee Resettlement Services Inc   1        3          4      [OK] 
+57    Warren Area Refugee Resettlement Network      2        2          4      [OK] 
+6     Caritas Immigration Legal Services            2        3          5      [OK] 
+10    Immigration Equality Legal Aid                3        2          5      [OK] 
+12    Mazzini Multi Services & Immigration Legal Ai 2        3          5      [OK] 
+20    Northwest Immigrant Rights Project            2        3          5      [OK] 
+26    Immigrant Advocacy & Document Services        2        3          5      [OK] 
+44    Refugee Assistance Center Inc                 2        3          5      [OK] 
+51    Refugee Resettlement Services                 2        3          5      [OK] 
+
+[SUMMARY] Organizations with < 2 connections: 0
+
+
+[RESOURCE] ALL RESOURCES (with connection counts):
+ID    Title                                         Events   Orgs     Total  Status
+----------------------------------------------------------------------------------------------------
+9     In re: O.RG.                                  0        2        2      [OK] 
+28    Usoyan v. Republic of Turkey                  1        1        2      [OK] 
+30    s-S-F-M                                       1        1        2      [OK] 
+44    B.R. v. Blinken                               1        1        2      [OK] 
+51    Inquiry into the Conduct of the Honorable Joh 1        1        2      [OK] 
+4     People v. Martin                              2        1        3      [OK] 
+8     Reyna Alfaro-Zelaya v. Pamela Bondi           2        1        3      [OK] 
+15    Black v. Almodovar; G.M. v. Almodovar         1        2        3      [OK] 
+21    Karla Masias Castro De Vilchez v. U.S. Attorn 2        1        3      [OK] 
+24    Jimenez v. Bondi                              0        3        3      [OK] 
+36    O.C.V. v. Bondi                               2        1        3      [OK] 
+41    Chen v. Rubio                                 2        1        3      [OK] 
+42    Ani v. Bondi                                  3        0        3      [OK] 
+43    Pelc v. Pham                                  0        3        3      [OK] 
+46    Commonwealth v. Ricardo Lopez                 1        2        3      [OK] 
+48    Y & N Building Supply US LLC v. United States 1        2        3      [OK] 
+52    ├ûzt├╝rk v. Hyde; Mahdawi v. Trump              2        1        3      [OK] 
+2     Dominguez Reyes v. Bondi                      0        4        4      [OK] 
+7     Daley v. Choate                               3        1        4      [OK] 
+14    United States v. Hernandez-Adame              3        1        4      [OK] 
+16    Yupangui-Yunga v. Bondi                       1        3        4      [OK] 
+19    United States v. Kroytor                      2        2        4      [OK] 
+27    L.G.M.L v. Noem                               2        2        4      [OK] 
+31    Izuchukwu Ozurumba v. Pamela Bondi            2        2        4      [OK] 
+34    National Tps Alliance v. Noem                 4        0        4      [OK] 
+38    Khodabakhshian v. Rubio                       2        2        4      [OK] 
+40    Doe v. Deutsche Lufthansa Aktiengesellschaft  2        2        4      [OK] 
+54    Moghadasghahfarokhi v. Blinken                2        2        4      [OK] 
+3     People v. Jacques                             2        3        5      [OK] 
+6     Yifan Shen v. Commissioner, Florida Departmen 2        3        5      [OK] 
+11    United States v. Pheasant                     3        2        5      [OK] 
+13    Rojas-Espinoza v. Bondi                       0        5        5      [OK] 
+22    Ramos v. Bondi                                4        1        5      [OK] 
+26    Rangel-Fuentes v. Bondi                       2        3        5      [OK] 
+32    W.M.M. v. Trump                               2        3        5      [OK] 
+47    State of New Jersey v. Trump                  1        4        5      [OK] 
+50    Rosenwald v. Kimberly-Clark Corporation       2        3        5      [OK] 
+17    State v. Hall                                 4        2        6      [OK] 
+33    Make the Road New York v. Noem                2        4        6      [OK] 
+35    Ibarra-Perez v. United States                 2        4        6      [OK] 
+45    Bekkam v. United States Department of Homelan 5        1        6      [OK] 
+49    Zhang v. United States Citizenship and Immigr 4        2        6      [OK] 
+1     Calderon-Uresti v. Bondi                      1        6        7      [OK] 
+5     Clemente Javier Aguirre-Jarquin v. Robert Hem 3        4        7      [OK] 
+12    Ariel Marcelo Bastias v. U.S. Attorney Genera 5        2        7      [OK] 
+18    IA Migrant Movement for Justice v. Brenna Bir 2        5        7      [OK] 
+23    Community Legal Services in East Palo Alto v. 3        4        7      [OK] 
+29    Brito Guevara v. Francisco Castro             3        4        7      [OK] 
+37    Sulma Guandique-De Romero v. Pamela Bondi     2        5        7      [OK] 
+39    Butler v. Democratic People's Republic of Kor 5        2        7      [OK] 
+20    Juan Carlos Pastor-Hernandez v. Pamela Bondi  2        6        8      [OK] 
+53    Marri v. Rizwan                               5        3        8      [OK] 
+10    Williams & Connolly LLP v. United States Depa 3        7        10     [OK] 
+25    Esperanza Francisca Baltazar-Miranda De Velas 5        6        11     [OK] 
+
+[SUMMARY] Resources with < 2 connections: 0
+
+
+====================================================================================================
+VERIFICATION SUMMARY
+====================================================================================================
+
+[SUCCESS] ALL CHECKS PASSED!
+   - 48 events - all have 2+ connections
+   - 57 organizations - all have 2+ connections
+   - 54 resources - all have 2+ connections
+   - 119 event-resource links
+   - 139 organization-resource links
+
+====================================================================================================
+DATABASE VERIFICATION COMPLETE
+====================================================================================================
