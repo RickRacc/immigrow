@@ -121,7 +121,7 @@ def get_orgs():
             "updated_at": as_iso(org.updated_at),
             "resource_ids": [
                 er.resource_id
-                for er in EventResources.query.filter_by(organization_id=org.id).all()
+                for er in OrganizationResources.query.filter_by(organization_id=org.id).all()
             ]
         }
         for org in orgs
@@ -154,7 +154,7 @@ def get_org_by_id(id):
             "updated_at": as_iso(org.updated_at),
             "resource_ids": [
                 er.resource_id
-                for er in EventResources.query.filter_by(organization_id=org.id).all()
+                for er in OrganizationResources.query.filter_by(organization_id=org.id).all()
             ]
         })
 
@@ -248,7 +248,7 @@ def get_resources():
             ],
             "organization_ids": [
                 er.organization_id
-                for er in EventResources.query.filter_by(resource_id=resource.id).all()
+                for er in OrganizationResources.query.filter_by(resource_id=resource.id).all()
             ]
         }
         for resource in resources
@@ -282,7 +282,7 @@ def get_resource_by_id(id):
             ],
             "organization_ids": [
                 er.organization_id
-                for er in EventResources.query.filter_by(resource_id=resource.id).all()
+                for er in OrganizationResources.query.filter_by(resource_id=resource.id).all()
             ]
         })
 
