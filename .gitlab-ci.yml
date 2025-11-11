@@ -1,6 +1,6 @@
 image: node:20
 
-stages: [build]
+stages: [build, test]
 
 variables:
   CI: "true"
@@ -19,3 +19,15 @@ build:
   artifacts:
     paths:
       - dist            # Vite output (default)
+
+postman_tests:
+  stage: test
+  image: 
+    name: postman/newman_alpine33
+    entrypoint: [""]
+  script:
+    - newman -- version
+    - newman run inmigo_collection.json
+
+
+
