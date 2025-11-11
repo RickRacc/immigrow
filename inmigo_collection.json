@@ -1,0 +1,250 @@
+{
+	"info": {
+		"_postman_id": "e06ebbd9-3b18-4a99-b644-f23257c5fc39",
+		"name": "Immigo API",
+		"description": "> This API provides information about 3 models: events, organizations, and legal resources related to immigration support.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "48953688",
+		"_collection_link": "https://avb834-4080410.postman.co/workspace/avb834's-Workspace~d07f7e55-4171-49b7-8561-6de991fd5761/collection/48953688-e06ebbd9-3b18-4a99-b644-f23257c5fc39?action=share&source=collection_link&creator=48953688"
+	},
+	"item": [
+		{
+			"name": "events",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"description": "Returns a list of all events from the EventBrite API. Each event object includes its title, location, date, start time, length of event, and hosting organization."
+			},
+			"response": [
+				{
+					"name": "events",
+					"originalRequest": {
+						"method": "GET",
+						"header": []
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "",
+					"header": [],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\n  {\n    \"event_id\": \"101\",\n    \"title\": \"Immigrant Rights Workshop\",\n    \"description\": \"Join us for a workshop on immigrant rights.\",\n    \"location\": \"Community Center, NY\",\n    \"date\": \"2025-10-15\",\n    \"start_time\": \"10:00\",\n    \"organizer\": \"NY Immigrant Alliance\"\n  },\n  {\n    \"event_id\": \"102\",\n    \"title\": \"Legal Aid Q&A Session\",\n    \"description\": \"A session to answer questions about legal aid services.\",\n    \"location\": \"Downtown Library, NY\",\n    \"date\": \"2025-10-18\",\n    \"start_time\": \"14:00\",\n    \"organizer\": \"Legal Aid Society\"\n  },\n  {\n    \"event_id\": \"103\",\n    \"title\": \"Community Citizenship Workshop\",\n    \"description\": \"Learn about citizenship processes and resources.\",\n    \"location\": \"City Hall, NY\",\n    \"date\": \"2025-10-20\",\n    \"start_time\": \"09:30\",\n    \"organizer\": \"Citizenship Now!\"\n  }\n]"
+				}
+			]
+		},
+		{
+			"name": "events/{id}",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "?id=",
+					"query": [
+						{
+							"key": "id",
+							"value": "",
+							"description": "ID for an instance of an event"
+						}
+					]
+				},
+				"description": "Returns an event by ID from the EventBrite API. The event object includes its title, location, date, start time, length of event, and hosting organization."
+			},
+			"response": [
+				{
+					"name": "events/{id}",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "?id=103",
+							"query": [
+								{
+									"key": "id",
+									"value": "103",
+									"description": "ID for an instance of an event"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": "",
+					"header": [],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\n  {\n    \"id\": \"103\",\n    \"title\": \"Community Citizenship Workshop\",\n    \"description\": \"Learn about citizenship processes and resources.\",\n    \"location\": \"City Hall, NY\",\n    \"date\": \"2025-10-20\",\n    \"start_time\": \"09:30\",\n    \"organizer\": \"Citizenship Now!\"\n  }\n]"
+				}
+			]
+		},
+		{
+			"name": "orgs",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"description": "Returns all organizations from the webscraping of [<b>www.immigrationlawhelp.org</b>](https://www.immigrationlawhelp.org/search?state=NE). Each resource object includes its name, areas of legal assistance, types of legal assistance, location, and contact."
+			},
+			"response": [
+				{
+					"name": "orgs",
+					"originalRequest": {
+						"method": "GET",
+						"header": []
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "",
+					"header": [],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\n  {\n    \"organization_id\": \"201\",\n    \"name\": \"New York Immigrant Coalition\",\n    \"areas_of_assistance\": [\"Immigration\", \"Family Sponsorship\"],\n    \"types_of_assistance\": [\"Consultation\", \"Representation\"],\n    \"location\": \"123 Main St, NY\",\n    \"contact\": \"contact@nyic.org\"\n  },\n  {\n    \"organization_id\": \"202\",\n    \"name\": \"Brooklyn Legal Aid\",\n    \"areas_of_assistance\": [\"Asylum\", \"Deportation Defense\"],\n    \"types_of_assistance\": [\"Representation\"],\n    \"location\": \"45 Court Ave, Brooklyn, NY\",\n    \"contact\": \"info@brooklynlegal.org\"\n  },\n  {\n    \"organization_id\": \"203\",\n    \"name\": \"Queens Immigration Support\",\n    \"areas_of_assistance\": [\"Visa Applications\", \"Citizenship\"],\n    \"types_of_assistance\": [\"Consultation\"],\n    \"location\": \"78 Elm St, Queens, NY\",\n    \"contact\": \"help@qis.org\"\n  }\n]"
+				}
+			]
+		},
+		{
+			"name": "orgs/{id}",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "?id",
+					"query": [
+						{
+							"key": "id",
+							"value": null,
+							"description": "ID for an instance of an organization"
+						}
+					]
+				},
+				"description": "Returns an organization by ID from webscraping of [<b>www.immigrationlawhelp.org</b>](https://www.immigrationlawhelp.org/search?state=NE). The organization object includes its title, location, date, start time, length of event, and hosting organization."
+			},
+			"response": [
+				{
+					"name": "orgs/{id}",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "?id=203",
+							"query": [
+								{
+									"key": "id",
+									"value": "203",
+									"description": "ID for an instance of an organization"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": "",
+					"header": [],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\n  { \n    \"id\": \"203\",\n    \"name\": \"Queens Immigration Support\",\n    \"areas_of_assistance\": [\"Visa Applications\", \"Citizenship\"],\n    \"types_of_assistance\": [\"Consultation\"],\n    \"location\": \"78 Elm St, Queens, NY\",\n    \"contact\": \"help@qis.org\"\n  }\n]"
+				}
+			]
+		},
+		{
+			"name": "resources",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"description": "Returns a list of all legal resources from the ProPublica API. Each resource object includes its number, title, introduced date, latest major action, and subject."
+			},
+			"response": [
+				{
+					"name": "resources",
+					"originalRequest": {
+						"method": "GET",
+						"header": []
+					},
+					"_postman_previewlanguage": "",
+					"header": [],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\n  {\n    \"resource_number\": \"HR1234\",\n    \"title\": \"Immigration Reform Act\",\n    \"introduced_date\": \"2025-01-15\",\n    \"latest_major_action\": \"Passed House, referred to Senate\",\n    \"subject\": \"Immigration\"\n  },\n  {\n    \"resource_number\": \"S5678\",\n    \"title\": \"Asylum Procedures Update\",\n    \"introduced_date\": \"2025-02-10\",\n    \"latest_major_action\": \"Committee Review\",\n    \"subject\": \"Asylum\"\n  },\n  {\n    \"resource_number\": \"HR9101\",\n    \"title\": \"Legal Aid Funding Act\",\n    \"introduced_date\": \"2025-03-05\",\n    \"latest_major_action\": \"Awaiting Vote\",\n    \"subject\": \"Legal Aid\"\n  }\n]"
+				}
+			]
+		},
+		{
+			"name": "resources/{id}",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "?id",
+					"query": [
+						{
+							"key": "id",
+							"value": null,
+							"description": "ID for an instance of a resource"
+						}
+					]
+				},
+				"description": "Returns a legal resources by ID from the ProPublica API. The resource object includes its name, areas of legal assistance, types of legal assistance, location, and contact."
+			},
+			"response": [
+				{
+					"name": "resources/{id}",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "?id=15",
+							"query": [
+								{
+									"key": "id",
+									"value": "15",
+									"description": "ID for an instance of a resource"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": "",
+					"header": [],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "[\n  {\n    \"id\": 15,\n    \"resource_number\": \"HR9101\",\n    \"title\": \"Legal Aid Funding Act\",\n    \"introduced_date\": \"2025-03-05\",\n    \"latest_major_action\": \"Awaiting Vote\",\n    \"subject\": \"Legal Aid\"\n  }\n]"
+				}
+			]
+		}
+	]
+}
