@@ -1,39 +1,69 @@
-image: node:20
+image: node:20-bullseye
 
-stages: [build, test]
-
-variables:
-  CI: "true"
+stages:
+  - install
+  - unit
+  - e2e
+  - build
 
 cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
     - node_modules/
 
+variables:
+  CI: "true"
+  CHROME_BIN: /usr/bin/chromium
+  CHROMEDRIVER_BIN: /usr/bin/chromedriver
+
+# 1) Install deps once and cache them
+install:
+  stage: install
+  script:
+    - npm ci
+  artifacts:
+    expire_in: 1h
+    paths:
+      - node_modules/
+
+# 2) Run Jest unit tests (with JUnit report + coverage)
+unit_tests:
+  stage: unit
+  needs: ["install"]
+  script:
+    - npm run test:unit:ci -- --coverage
+  artifacts:
+    when: always
+    reports:
+      junit: junit.xml
+    paths:
+      - coverage/
+  coverage: '/All files[^|]*\|\s+([\d.]+)%/'
+
+# 3) Run Selenium E2E in headless Chrome
+e2e_tests:
+  stage: e2e
+  needs: ["install"]
+  before_script:
+    - apt-get update
+    - apt-get install -y chromium chromium-driver xvfb
+  script:
+    - xvfb-run -a npm run test:e2e
+  artifacts:
+    when: always
+    expire_in: 1 day
+    paths:
+      - src/tests/selenium/**/screenshots/
+      - src/tests/selenium/**/videos/
+      - src/tests/selenium/**/reports/
+
+# 4) Build the site (artifact usable for manual deploy)
 build:
   stage: build
-  before_script:
-    - npm ci            # install from package-lock.json
+  needs: ["install", "unit_tests"]
   script:
-    - npm run build     # runs vite build
+    - npm run build
   artifacts:
     paths:
-      - dist            # Vite output (default)
-
-pytest_tests:
-  stage: test
-  image: python:3.11
-  before_script:
-    - pip install -r backend/requirements.txt
-    - pip install pytest
-  script:
-    - pytest -q backend/
-
-postman_tests:
-  stage: test
-  image: 
-    name: postman/newman_alpine33
-    entrypoint: [""]
-  script:
-    - newman -- version
-    - newman run inmigo_collection.json
+      - dist/
+    expire_in: 1 week
