@@ -29,5 +29,12 @@ postman_tests:
     - newman -- version
     - newman run inmigo_collection.json
 
-
+  pytest_tests:
+  stage: test
+  image: python:3.11
+  before_script:
+    - pip install -r requirements.txt
+    - pip install pytest
+  script:
+    - pytest -q
 
