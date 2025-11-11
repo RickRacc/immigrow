@@ -4,8 +4,13 @@ Shows raw database structure and ALL data (not samples)
 """
 
 import os
+import sys
 import psycopg2
 from dotenv import load_dotenv
+
+# Force UTF-8 encoding for Windows console output
+if sys.platform == 'win32':
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
 # Load environment variables
 env_path = os.path.join(os.path.dirname(__file__), '..', '.env')

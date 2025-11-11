@@ -7,7 +7,28 @@ This document describes the database schema for the Immigrow project. Use this t
 - **Database:** PostgreSQL (AWS RDS)
 - **3 Main Tables:** Event, Organization, Resource
 - **2 Junction Tables:** event_resources, organization_resources
-- **Total Instances:** 47 (12 events, 15 organizations, 20 resources)
+- **Total Instances:** ~150 (40-50 events, 57 organizations, 57 resources)
+- **Media Requirement:** Each instance has 2+ forms of media (images, PDFs, audio, external links)
+
+## Media Requirements
+
+Each model instance must have at least **2 forms of media** to provide rich, diverse content:
+
+### Event Media (2 forms required)
+1. **external_url** - Link to event registration/info page (REQUIRED)
+2. **image_url** - Event banner/promotional image (REQUIRED)
+
+### Organization Media (2 forms required)
+1. **external_url** - Link to ProPublica organization page (REQUIRED)
+2. **form_990_pdf_url** - IRS Form 990 tax filing PDF (REQUIRED - fetched from ProPublica API)
+
+**Optional:** guidestar_url, image_url
+
+### Resource Media (2 forms required)
+1. **external_url** - Link to CourtListener case page (REQUIRED)
+2. **audio_url** - Oral argument audio or opinion PDF download URL (REQUIRED - extracted from CourtListener API)
+
+**Optional:** image_url
 
 ## Tables
 
@@ -85,6 +106,7 @@ This document describes the database schema for the Immigrow project. Use this t
 | external_url      | VARCHAR(500) | NULL                        | Organization website                            |
 | image_url         | VARCHAR(500) | NULL                        | Organization logo/image                         |
 | guidestar_url     | VARCHAR(500) | NULL                        | GuideStar profile URL                           |
+| form_990_pdf_url  | VARCHAR(500) | NULL                        | IRS Form 990 tax filing PDF URL (Media #2)      |
 | created_at        | DATETIME     | NULL                        | Record creation timestamp                       |
 | updated_at        | DATETIME     | NULL                        | Record update timestamp                         |
 
@@ -128,6 +150,7 @@ This document describes the database schema for the Immigrow project. Use this t
 | citation         | VARCHAR(255) | NULL                        | Legal citation                             |
 | external_url     | VARCHAR(500) | NULL                        | Link to resource                           |
 | image_url        | VARCHAR(500) | NULL                        | Resource image                             |
+| audio_url        | VARCHAR(500) | NULL                        | Oral argument audio or PDF URL (Media #2)  |
 | courtlistener_id | VARCHAR(100) | NULL                        | CourtListener cluster ID                   |
 | docket_number    | VARCHAR(100) | NULL                        | Court docket number                        |
 | judge_name       | VARCHAR(255) | NULL                        | Judge name                                 |
@@ -253,9 +276,9 @@ Organization -< organization_resources >- Resource
 When creating the UML diagram, show:
 
 ### Classes (Tables):
-1. **Event** - 18 attributes
-2. **Organization** - 18 attributes
-3. **Resource** - 16 attributes
+1. **Event** - 18 attributes (includes external_url, image_url)
+2. **Organization** - 19 attributes (includes external_url, form_990_pdf_url)
+3. **Resource** - 17 attributes (includes external_url, audio_url)
 
 ### Relationships:
 1. **Organization → Event**

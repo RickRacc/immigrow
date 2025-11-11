@@ -268,6 +268,26 @@ class ProPublicaNonprofitAPI:
             # Estimate meeting frequency
             meeting_frequency = self._estimate_meeting_frequency(ntee_code)
 
+            # Try to get Form 990 PDF URL from ProPublica API (Media #2)
+            form_990_pdf_url = None
+            try:
+                # Fetch organization details to get filing information
+                detail_response = requests.get(
+                    f"{self.BASE_URL}/organizations/{ein}.json",
+                    timeout=10
+                )
+                if detail_response.status_code == 200:
+                    detail_data = detail_response.json()
+                    filings = detail_data.get('filings_with_data', [])
+                    if filings:
+                        # Get most recent filing's PDF URL
+                        latest_filing = filings[0]
+                        pdf_url = latest_filing.get('pdf_url')
+                        if pdf_url:
+                            form_990_pdf_url = pdf_url
+            except Exception as e:
+                print(f"  Could not fetch Form 990 PDF for {name}: {e}")
+
             return {
                 'name': name[:255] if isinstance(name, str) else str(name)[:255],
                 'city': city[:100] if isinstance(city, str) else str(city)[:100],
@@ -283,7 +303,8 @@ class ProPublicaNonprofitAPI:
                 'ntee_code': ntee_code[:20],
                 'external_url': f"https://projects.propublica.org/nonprofits/organizations/{ein}",
                 'guidestar_url': f"https://www.guidestar.org/profile/{ein}",
-                'image_url': None
+                'image_url': None,
+                'form_990_pdf_url': form_990_pdf_url
             }
 
         except Exception as e:
@@ -498,6 +519,19 @@ class CourtListenerAPI:
             citation_raw = case_data.get('citation', [])
             citation = ', '.join(citation_raw) if isinstance(citation_raw, list) else str(citation_raw)
 
+            # Extract audio URL from oral arguments (Media #2)
+            audio_url = None
+            if case_data.get('audio_url'):
+                audio_url = case_data['audio_url']
+            elif case_data.get('oral_argument_audio'):
+                audio_url = case_data['oral_argument_audio']
+
+            # Also check if opinions array has download_url for PDF
+            if not audio_url and case_data.get('opinions') and len(case_data['opinions']) > 0:
+                opinion = case_data['opinions'][0]
+                if opinion.get('download_url'):
+                    audio_url = f"https://www.courtlistener.com{opinion['download_url']}"
+
             return {
                 'title': str(case_name)[:500],
                 'date_published': date_obj,
@@ -509,6 +543,7 @@ class CourtListenerAPI:
                 'citation': citation[:255],
                 'external_url': external_url,
                 'image_url': None,
+                'audio_url': audio_url,
                 'courtlistener_id': str(case_data.get('cluster_id') or case_data.get('id') or ''),
                 'docket_number': str(case_data.get('docketNumber') or case_data.get('docket_number') or '')[:100],
                 'judge_name': str(case_data.get('judge') or '')[:255]

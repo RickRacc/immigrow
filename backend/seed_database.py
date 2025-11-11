@@ -72,6 +72,7 @@ def seed_organizations() -> list:
         org_data_list = propublica_api.fetch_organizations(limit=57)
 
         organizations = []
+        org_ids = []  # Track IDs instead of objects to avoid detached instances
         batch_size = 10  # Commit every 10 organizations to avoid long transactions
 
         for idx, org_data in enumerate(org_data_list):
@@ -80,7 +81,7 @@ def seed_organizations() -> list:
                 existing = Organization.query.filter_by(ein=org_data['ein']).first()
                 if existing:
                     print(f"  - Skipping duplicate: {org_data['name']}")
-                    organizations.append(existing)
+                    org_ids.append(existing.id)
                     continue
 
                 org = Organization(
@@ -98,11 +99,13 @@ def seed_organizations() -> list:
                     ntee_code=org_data['ntee_code'],
                     external_url=org_data['external_url'],
                     guidestar_url=org_data['guidestar_url'],
-                    image_url=org_data['image_url']
+                    image_url=org_data['image_url'],
+                    form_990_pdf_url=org_data.get('form_990_pdf_url')
                 )
 
                 db.session.add(org)
-                organizations.append(org)
+                db.session.flush()  # Flush to get ID
+                org_ids.append(org.id)
                 print(f"  + Added: {org.name} ({org.city}, {org.state})")
 
                 # Commit in batches to prevent connection timeouts
@@ -117,6 +120,9 @@ def seed_organizations() -> list:
 
         # Final commit for remaining organizations
         db.session.commit()
+
+        # Query back all organizations by ID to get fresh instances attached to session
+        organizations = Organization.query.filter(Organization.id.in_(org_ids)).all()
         return organizations
 
     except Exception as e:
@@ -154,6 +160,7 @@ def seed_resources() -> list:
                     citation=res_data['citation'],
                     external_url=res_data['external_url'],
                     image_url=res_data['image_url'],
+                    audio_url=res_data.get('audio_url'),
                     courtlistener_id=res_data['courtlistener_id'],
                     docket_number=res_data['docket_number'],
                     judge_name=res_data['judge_name']
@@ -258,7 +265,7 @@ def create_relationships(events: list, organizations: list, resources: list):
             for resource in selected_resources:
                 if resource not in event.resources:
                     event.resources.append(resource)
-                    print(f"    → Event '{event.title[:35]}' ↔ Resource '{resource.title[:35]}'")
+                    print(f"    -> Event '{event.title[:35]}' <-> Resource '{resource.title[:35]}'")
 
         # Link Organizations to Resources (2-3 resources per org)
         print("\n  Linking Organizations to Resources...")
@@ -270,10 +277,10 @@ def create_relationships(events: list, organizations: list, resources: list):
             for resource in selected_resources:
                 if resource not in org.resources:
                     org.resources.append(resource)
-                    print(f"    → Org '{org.name[:35]}' ↔ Resource '{resource.title[:35]}'")
+                    print(f"    -> Org '{org.name[:35]}' <-> Resource '{resource.title[:35]}'")
 
         db.session.commit()
-        print("\n  ✓ Initial relationships created")
+        print("\n  [OK] Initial relationships created")
 
         # ENSURE ALL RESOURCES HAVE AT LEAST 2 CONNECTIONS
         print("\n  Ensuring all resources have minimum 2 connections...")
@@ -304,7 +311,7 @@ def create_relationships(events: list, organizations: list, resources: list):
                             print(f"      + Added Event '{event.title[:30]}'")
 
         db.session.commit()
-        print("\n  ✓ All relationships finalized")
+        print("\n  [OK] All relationships finalized")
 
         # Final verification
         print("\n  Final verification of all 47 instances...")
@@ -357,15 +364,15 @@ def print_summary():
         print(f"\nSample Event Relationships:")
         print(f"   Event: {sample_event.title}")
         if sample_event.organization:
-            print(f"   → Organization: {sample_event.organization.name}")
-        print(f"   → Linked Resources: {len(sample_event.resources)}")
+            print(f"   -> Organization: {sample_event.organization.name}")
+        print(f"   -> Linked Resources: {len(sample_event.resources)}")
 
     if org_count > 0:
         sample_org = Organization.query.first()
         print(f"\nSample Organization Relationships:")
         print(f"   Organization: {sample_org.name}")
-        print(f"   → Events hosted: {len(sample_org.events)}")
-        print(f"   → Linked Resources: {len(sample_org.resources)}")
+        print(f"   -> Events hosted: {len(sample_org.events)}")
+        print(f"   -> Linked Resources: {len(sample_org.resources)}")
 
     print("\n" + "=" * 70)
     print("SEEDING COMPLETE!")

@@ -124,6 +124,7 @@ class Organization(db.Model):
     external_url = db.Column(db.String(500))  # Organization website
     image_url = db.Column(db.String(500))
     guidestar_url = db.Column(db.String(500))
+    form_990_pdf_url = db.Column(db.String(500))  # IRS Form 990 PDF (Media #2)
 
     # Relationships
     events = db.relationship('Event', back_populates='organization', cascade='all, delete-orphan')
@@ -150,7 +151,8 @@ class Organization(db.Model):
             'ntee_code': self.ntee_code,
             'external_url': self.external_url,
             'image_url': self.image_url,
-            'guidestar_url': self.guidestar_url
+            'guidestar_url': self.guidestar_url,
+            'form_990_pdf_url': self.form_990_pdf_url
         }
 
         if include_relationships:
@@ -192,6 +194,7 @@ class Resource(db.Model):
     citation = db.Column(db.String(255))  # Legal citation
     external_url = db.Column(db.String(500))  # Link to resource
     image_url = db.Column(db.String(500))
+    audio_url = db.Column(db.String(500))  # Oral argument audio or PDF (Media #2)
     courtlistener_id = db.Column(db.String(100), unique=True)  # Original API ID
     docket_number = db.Column(db.String(100))
     judge_name = db.Column(db.String(255))
@@ -217,6 +220,7 @@ class Resource(db.Model):
             'citation': self.citation,
             'external_url': self.external_url,
             'image_url': self.image_url,
+            'audio_url': self.audio_url,
             'docket_number': self.docket_number,
             'judge_name': self.judge_name
         }
