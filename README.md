@@ -1,39 +1,61 @@
-# Immigrow — Phase 1 README
+# Immigrow — README
+
 
 ## Team Members
+
 
 | Name                  | EID         | GitLab ID          | Estimated Hours | Actual Hours |
 |------------------------|-------------|---------------------|-----------------|-------------|
 | Lucas Berio Perez     | lfb1234     | lucasberio           | 10              | 16          |
-| Anisha Bhaskar Torres | avb834     | anisha1045          | 3               | 6           |
-| Mrinalini Jithendra   | mj27496      | mrinalinij05        | 8               | 10           |
-| Rakesh Singh          | rps2439      | rrrakesh            | 8               | 6.75        |
+| Anisha Bhaskar Torres | avb834      | anisha1045           | 8               | 15          |
+| Mrinalini Jithendra   | mj27496     | mrinalinij05         | 8               | 10          |
+| Rakesh Singh          | rps2439     | rrrakesh             | 8               | 6.75        |
+
 
 ---
 
-## Project Leader
 
-**Lucas Berio Perez** served as the **Project Leader** for this phase.  
+## Project Leaders
+
+
+**Lucas Berio Perez** served as the **Project Leader** for phase 1. 
 Responsibilities included:
-- Setting up AWS infrastructure (S3, CloudFront, Route53) for deployment.  
-- Organizing and delegating tasks based on each member’s skills.  
-- Overseeing integration between frontend components and deployment pipeline.  
+- Setting up AWS infrastructure (S3, CloudFront, Route53) for deployment. 
+- Organizing and delegating tasks based on each member’s skills. 
+- Overseeing integration between frontend components and deployment pipeline. 
 - Ensuring team communication.
 
+
+**Anisha Bhaskar Torres** served as the **Project Leader** for phase 2. 
+Responsibilities included:
+- Setting up Flask API routes and connections with RDS database and deploying them on an  EC2 instance.
+- Writing backend tests and integrating with the Gitlab pipelines.
+- Scheduling and hosting meetings, tracking project progress, and delegating tasks.
+
+
 ---
+
 
 ## Repository Information
 
-- **Git SHA:** 1ce5b47ea3db46576dfd6502fcc73e229ab656f5 
+
+- **Git SHA:** 1ce5b47ea3db46576dfd6502fcc73e229ab656f5
 - **Pipelines URL:** https://gitlab.com/anisha1045/cs373-55090-09/-/pipelines
 - **Website URL:** [https://www.immigrow.site](https://www.immigrow.site)
-- **Postman URL:** [https://documenter.getpostman.com/view/48953688/2sB3QGsAi5](https://documenter.getpostman.com/view/48953688/2sB3QGsAi5)
+- **Backend URL:** [http://3.141.5.227:5000/](http://3.141.5.227:5000/)
+- **API Documentation URL:** [https://documenter.getpostman.com/view/48953688/2sB3QGsAi5](https://documenter.getpostman.com/view/48953688/2sB3QGsAi5)
+
 
 ---
 
+
 ## Comments
 
-This phase focused on setting up core infrastructure and the initial deployment.  
+
+- **Phase 1:**: This phase focused on setting up core infrastructure and the initial deployment. 
 The team collaborated well, with responsibilities split cleanly between frontend development, AWS setup, and GitLab CI/CD configuration. Some challenges arose during the initial DNS propagation and SSL certificate validation, but they were resolved through group debugging sessions.
+
+
+- **Phase 2:**: This phase was more involved, as we focused on setting up the backend and handling dynamic data through web scraping and API integration. We worked with RDS, EC2, and other AWS services to host and manage the data. The most challenging part was web scraping and sourcing reliable data, but we were able to collaborate well and successfully integrate the data flow across the system.
 
 ---
