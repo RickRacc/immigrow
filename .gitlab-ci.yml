@@ -54,12 +54,12 @@ e2e_tests:
     # but we call the combined script here just in case you want E2E alone:
     - xvfb-run -a npm run test:e2e
   artifacts:
-    when: always
-    paths:
-      - tests/selenium/**/screenshots/
-      - tests/selenium/**/videos/
-      - tests/selenium/**/reports/
-    expire_in: 1 week
+  when: always
+  paths:
+    - src/tests/selenium/**/screenshots/
+    - src/tests/selenium/**/videos/
+    - src/tests/selenium/**/reports/
+  expire_in: 1 day
 
 # 4) Build the site (artifact usable for manual deploy)
 build:

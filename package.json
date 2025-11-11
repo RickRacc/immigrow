@@ -16,7 +16,7 @@
     "deploy": "npm run build && npm run deploy:s3 && npm run deploy:cf",
     "test:unit": "jest --runInBand --ci",
     "test:unit:ci": "jest --runInBand --ci --reporters=default --reporters=jest-junit",
-    "test:e2e": "npm run build && start-server-and-test preview http://127.0.0.1:4173 \"node src/tests/selenium/run-all.js\"",
+    "test:e2e": "npm run build && start-server-and-test preview http://127.0.0.1:4173 \"node src/tests/selenium/run-all.cjs\"",
     "preview": "vite preview --host 127.0.0.1 --port 4173 --strictPort"
   },
   "dependencies": {
