@@ -31,5 +31,7 @@ dist-ssr
 backend/TODO_PHASE2.md
 backend/CLEANUP_SUMMARY.md
 backend/__pycache__/
+backend/**/__pycache__/
+*.pyc
 backend/instance/
 backend/venv/
