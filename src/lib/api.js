@@ -1,4 +1,3 @@
-// src/lib/api.js
 const ENV_BASE = import.meta.env.VITE_API_BASE?.trim();
 const DEFAULT_BASE =
   // If you want to point straight to a remote API in dev, set VITE_API_BASE
