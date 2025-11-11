@@ -22,7 +22,6 @@ async function fetchJson(path) {
 
 /* --------- Organizations --------- */
 export async function fetchOrgs() {
-  // Backend routes are /orgs (no trailing slash)
   return fetchJson('/orgs');
 }
 export async function fetchOrgById(id) {
