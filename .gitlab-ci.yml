@@ -1,44 +1,21 @@
-stages:
-  - build
-  - deploy
+image: node:20
+
+stages: [build]
 
 variables:
-  AWS_DEFAULT_REGION: "us-east-1"
-  AWS_PAGER: ""                # prevent AWS CLI from paging output
+  CI: "true"
 
 cache:
-  key: npm-deps
+  key: ${CI_COMMIT_REF_SLUG}
   paths:
     - node_modules/
 
 build:
-  image: node:20
   stage: build
+  before_script:
+    - npm ci            # install from package-lock.json
   script:
-    - npm ci
-    - npm run build
+    - npm run build     # runs vite build
   artifacts:
     paths:
-      - dist/
-    expire_in: 1 week
-  only:
-    - main
-
-deploy:
-  stage: deploy
-  image:
-    name: amazon/aws-cli:2.17.0
-    entrypoint: [""]           # critical: run a normal shell, not `aws` as entrypoint
-  dependencies:
-    - build
-  script:
-    - |
-      set -euo pipefail
-      echo "DEBUG: Bucket=$S3_BUCKET Dist=$CF_DIST_ID Region=$AWS_DEFAULT_REGION"
-      aws --version
-      aws sts get-caller-identity
-      aws s3 ls "s3://$S3_BUCKET" || echo "Note: ls failed (continuing to sync)"
-      aws s3 sync dist/ "s3://$S3_BUCKET" --delete --exact-timestamps
-      aws cloudfront create-invalidation --distribution-id "$CF_DIST_ID" --paths "/*"
-  only:
-    - main
+      - dist            # Vite output (default)

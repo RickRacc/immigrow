@@ -1,8 +1,18 @@
 // src/pages/Events.jsx
 import { useEffect, useState } from "react";
-import { Spinner, Alert } from "react-bootstrap";
+import { Row, Col, Card, Spinner, Alert } from "react-bootstrap";
+import { Link } from "react-router-dom";
 import { fetchEvents } from "../lib/api";
-import EntityGrid from "../components/EntityGrid";
+
+const FALLBACK = "/fallback-event.jpg"; // lives in /public
+
+function normalizeImage(raw) {
+  if (!raw) return null;
+  if (raw.startsWith("//")) return `https:${raw}`;
+  if (raw.startsWith("http")) return raw;
+  // treat unknown strings as not safe to bundle; return null -> we’ll render no <img>
+  return null;
+}
 
 export default function Events() {
   const [items, setItems] = useState([]);
@@ -16,43 +26,82 @@ export default function Events() {
         const data = await fetchEvents();
         if (cancel) return;
 
-        const rows = (data ?? []).map((e) => ({
-          id: e.id,
-          title: e.name ?? e.title ?? "Untitled event",
-          imageUrl: e.image_url || e.imageUrl || e.image || null,
-          subtitle: [e.city, e.state].filter(Boolean).join(", ") || e.venue || "",
-          foot: [e.date, e.start_time && `• ${e.start_time}`].filter(Boolean).join(" "),
-        }));
-
-        // show cards with images first
-        rows.sort((a, b) => {
-          const ai = a.imageUrl ? 1 : 0;
-          const bi = b.imageUrl ? 1 : 0;
-          return bi - ai;
+        const rows = (data ?? []).map((e) => {
+          const img = normalizeImage(e.image_url || e.imageUrl || e.image || e.photo_url || "");
+          return {
+            id: e.id,
+            name: e.name ?? e.title ?? "Untitled event",
+            date: e.date ?? null,
+            start: e.start_time ?? null,
+            end: e.end_time ?? null,
+            city: e.city ?? null,
+            state: e.state ?? null,
+            venue: e.venue ?? e.place ?? e.venue_name ?? e.location ?? null,
+            imageUrl: img, // null means don't render <img>
+            hasImage: Boolean(img),
+          };
         });
+
+        // Optional: show items with images first
+        rows.sort((a, b) => Number(b.hasImage) - Number(a.hasImage));
 
         setItems(rows);
       } catch (ex) {
         setErr(ex.message || String(ex));
       } finally {
-        setLoading(false);
+        if (!cancel) setLoading(false);
       }
     })();
-    return () => void (cancel = true);
+    return () => { cancel = true; };
   }, []);
 
-  if (loading) return (<div className="container py-4"><Spinner animation="border" /></div>);
-  if (err)      return (<div className="container py-4"><Alert variant="danger">Error loading events: {err}</Alert></div>);
+  if (loading) {
+    return (
+      <div className="container py-4">
+        <Spinner animation="border" />
+      </div>
+    );
+  }
+
+  if (err) {
+    return (
+      <div className="container py-4">
+        <Alert variant="danger">Error loading events: {err}</Alert>
+      </div>
+    );
+  }
 
   return (
-    <EntityGrid
-      items={items}
-      headerText={`Search from ${items.length} Events`}
-      linkFunc={(e) => `/events/${e.id}`}
-      titleKey="title"
-      subtitleFunc={(e) => e.subtitle}
-      footFunc={(e) => e.foot}
-      imageKey="imageUrl"
-    />
+    <div className="container py-3">
+      <h1 className="mb-3">Search from {items.length} Events</h1>
+
+      <Row xs={1} md={2} lg={3} className="g-3">
+        {items.map((e) => (
+          <Col key={e.id}>
+            <Link to={`/events/${e.id}`} className="text-reset text-decoration-none">
+              <Card className="h-100 shadow-sm border-0 rounded-4 position-relative">
+                {/* Only render an <img> when we have a resolvable URL. If none, use a static public fallback. */}
+                { (e.imageUrl) && (
+  <Card.Img variant="top" src={e.imageUrl} alt="" style={{ objectFit:"cover", height:220 }} />
+) }
+
+                <Card.Body>
+                  <Card.Title className="h5 mb-2">{e.name}</Card.Title>
+                  <div className="small text-muted">
+                    {[e.city, e.state].filter(Boolean).join(", ") || e.venue}
+                  </div>
+                  {(e.date || e.start) && (
+                    <div className="small mt-1">
+                      {[e.date, e.start && `• ${e.start}`].filter(Boolean).join(" ")}
+                    </div>
+                  )}
+                </Card.Body>
+                <span className="stretched-link" />
+              </Card>
+            </Link>
+          </Col>
+        ))}
+      </Row>
+    </div>
   );
 }
