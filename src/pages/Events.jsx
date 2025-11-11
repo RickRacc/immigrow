@@ -4,14 +4,8 @@ import { Row, Col, Card, Spinner, Alert } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { fetchEvents } from "../lib/api";
 
-const FALLBACK = "/fallback-event.jpg"; // lives in /public
-
-function normalizeImage(raw) {
-  if (!raw) return null;
-  if (raw.startsWith("//")) return `https:${raw}`;
-  if (raw.startsWith("http")) return raw;
-  // treat unknown strings as not safe to bundle; return null -> we’ll render no <img>
-  return null;
+function hasHttp(url) {
+  return typeof url === 'string' && /^https?:\/\//i.test(url);
 }
 
 export default function Events() {
@@ -27,29 +21,28 @@ export default function Events() {
         if (cancel) return;
 
         const rows = (data ?? []).map((e) => {
-          const img = normalizeImage(e.image_url || e.imageUrl || e.image || e.photo_url || "");
+          const title = e.name ?? e.title ?? "Untitled event";
+          const image = hasHttp(e.image_url) ? e.image_url : null;
           return {
             id: e.id,
-            name: e.name ?? e.title ?? "Untitled event",
+            title,
             date: e.date ?? null,
             start: e.start_time ?? null,
             end: e.end_time ?? null,
             city: e.city ?? null,
             state: e.state ?? null,
-            venue: e.venue ?? e.place ?? e.venue_name ?? e.location ?? null,
-            imageUrl: img, // null means don't render <img>
-            hasImage: Boolean(img),
+            venue: e.venue ?? e.venue_name ?? e.location ?? null,
+            imageUrl: image,
           };
         });
 
-        // Optional: show items with images first
-        rows.sort((a, b) => Number(b.hasImage) - Number(a.hasImage));
-
+        // images first
+        rows.sort((a, b) => (b.imageUrl ? 1 : 0) - (a.imageUrl ? 1 : 0));
         setItems(rows);
       } catch (ex) {
         setErr(ex.message || String(ex));
       } finally {
-        if (!cancel) setLoading(false);
+        setLoading(false);
       }
     })();
     return () => { cancel = true; };
@@ -80,15 +73,19 @@ export default function Events() {
           <Col key={e.id}>
             <Link to={`/events/${e.id}`} className="text-reset text-decoration-none">
               <Card className="h-100 shadow-sm border-0 rounded-4 position-relative">
-                {/* Only render an <img> when we have a resolvable URL. If none, use a static public fallback. */}
-                { (e.imageUrl) && (
-  <Card.Img variant="top" src={e.imageUrl} alt="" style={{ objectFit:"cover", height:220 }} />
-) }
-
+                {e.imageUrl && (
+                  <Card.Img
+                    variant="top"
+                    src={e.imageUrl}
+                    alt=""
+                    style={{ objectFit: "cover", height: 220 }}
+                    loading="lazy"
+                  />
+                )}
                 <Card.Body>
-                  <Card.Title className="h5 mb-2">{e.name}</Card.Title>
+                  <Card.Title className="h5 mb-2">{e.title}</Card.Title>
                   <div className="small text-muted">
-                    {[e.city, e.state].filter(Boolean).join(", ") || e.venue}
+                    {[e.city, e.state].filter(Boolean).join(", ") || e.venue || ""}
                   </div>
                   {(e.date || e.start) && (
                     <div className="small mt-1">

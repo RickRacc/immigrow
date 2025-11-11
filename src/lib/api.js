@@ -1,72 +1,62 @@
 // src/lib/api.js
-const API_BASE = "/api";
+const ENV_BASE = import.meta.env.VITE_API_BASE?.trim();
+const DEFAULT_BASE =
+  // If you want to point straight to a remote API in dev, set VITE_API_BASE
+  // Otherwise default to /api so Vite proxy (dev) & your CDN (prod) can route it.
+  ENV_BASE ?? '/api';
 
-// Generic fetch helper with readable errors
+function joinUrl(base, path) {
+  const b = base.replace(/\/+$/, '');
+  const p = path.startsWith('/') ? path : `/${path}`;
+  return `${b}${p}`;
+}
+
 async function fetchJson(path) {
-  const res = await fetch(`${API_BASE}${path}`);
+  const url = joinUrl(DEFAULT_BASE, path);
+  const res = await fetch(url);
   if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`HTTP ${res.status} for ${path} — ${text.slice(0, 180)}`);
+    const text = await res.text().catch(() => '');
+    throw new Error(`HTTP ${res.status} for ${path} — ${text.slice(0, 160)}`);
   }
   return res.json();
 }
 
-/* ---------- Organizations ---------- */
+/* --------- Organizations --------- */
 export async function fetchOrgs() {
-  // backend route has trailing slash
-  return fetchJson("/orgs/");
+  // Backend routes are /orgs (no trailing slash)
+  return fetchJson('/orgs');
 }
-export const fetchOrganizations = fetchOrgs; // alias
-
 export async function fetchOrgById(id) {
   return fetchJson(`/orgs/${id}`);
 }
 
-/* ---------- Events ---------- */
+/* --------- Events --------- */
 export async function fetchEvents() {
-  return fetchJson("/events");
+  return fetchJson('/events');
 }
-
 export async function fetchEventById(id) {
   return fetchJson(`/events/${id}`);
 }
-
-// filter helper: events that belong to an org
+// client-side filter helper if you want events by org
 export async function fetchEventsByOrg(orgId) {
   const all = await fetchEvents();
-  const sid = String(orgId ?? "");
-  return (all ?? []).filter(e => String(e.organization_id ?? "") === sid);
+  return (all ?? []).filter(e => String(e.organization_id ?? '') === String(orgId ?? ''));
 }
 
-/* ---------- Resources ---------- */
+/* --------- Resources --------- */
 export async function fetchResources() {
-  return fetchJson("/resources");
+  return fetchJson('/resources');
 }
-
 export async function fetchResourceById(id) {
   return fetchJson(`/resources/${id}`);
 }
 
-// Some datasets may not have an organization_id on resources.
-// We still export this to satisfy imports; it will filter if the field exists,
-// otherwise it returns an empty array (or you can choose to return all).
-export async function fetchResourcesByOrg(orgId) {
-  const all = await fetchResources();
-  const sid = String(orgId ?? "");
-  const filtered = (all ?? []).filter(r => String(r.organization_id ?? "") === sid);
-  // If your resources truly have no organization_id, you can return [] or `all`.
-  return filtered; // change to `return [];` if you prefer nothing.
-}
-
-/* ---------- default export (optional) ---------- */
 export default {
   fetchOrgs,
-  fetchOrganizations: fetchOrgs,
   fetchOrgById,
   fetchEvents,
   fetchEventById,
   fetchEventsByOrg,
   fetchResources,
   fetchResourceById,
-  fetchResourcesByOrg,
 };
