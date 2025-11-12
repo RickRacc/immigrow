@@ -29,12 +29,29 @@ export default function Events() {
         const rows = data.map((e) => {
           const title = e.name ?? e.title ?? "Untitled event";
           const image = hasHttp(e.image_url) ? e.image_url : null;
+
+          // Parse start_time which may contain both start and end times concatenated
+          let start = null;
+          let end = null;
+          if (e.start_time) {
+            // Replace non-breaking spaces with regular spaces and split by AM/PM
+            const timeStr = e.start_time.replace(/\u202f/g, ' ');
+            const timeMatch = timeStr.match(/^(.+?[AP]M)\s*(.+[AP]M)?$/i);
+            if (timeMatch) {
+              start = timeMatch[1].trim();
+              end = timeMatch[2] ? timeMatch[2].trim() : (e.end_time ?? null);
+            } else {
+              start = timeStr;
+              end = e.end_time ?? null;
+            }
+          }
+
           return {
             id: e.id,
             title,
             date: e.date ?? null,
-            start: e.start_time ?? null,
-            end: e.end_time ?? null,
+            start,
+            end,
             city: e.city ?? null,
             state: e.state ?? null,
             venue: e.venue ?? e.venue_name ?? e.location ?? null,
@@ -42,9 +59,19 @@ export default function Events() {
           };
         });
 
-        // images first
-        rows.sort((a, b) => (b.imageUrl ? 1 : 0) - (a.imageUrl ? 1 : 0));
-        setItems(rows);
+        // Sort by image priority: unique images first, then shuffle default images, then no images
+        const DEFAULT_IMAGE = "https://images.squarespace-cdn.com/content/v1/63b4656c9f96340195a2ff05/1754335248384-JOT195Q5KSY1N0L0CYW8/raices_events.png";
+
+        const uniqueImages = rows.filter(e => e.imageUrl && e.imageUrl !== DEFAULT_IMAGE);
+        const defaultImages = rows.filter(e => e.imageUrl === DEFAULT_IMAGE);
+        const noImages = rows.filter(e => !e.imageUrl);
+
+        // Shuffle the default images to spread them out
+        const shuffled = [...defaultImages].sort(() => Math.random() - 0.5);
+
+        // Interleave: unique images, then mix in default images, then no images
+        const sorted = [...uniqueImages, ...shuffled, ...noImages];
+        setItems(sorted);
         setTotal(response.total ?? 0);
         setTotalPages(response.total_pages ?? 1);
       } catch (ex) {
@@ -98,7 +125,11 @@ export default function Events() {
                   </div>
                   {(e.date || e.start) && (
                     <div className="small mt-1">
-                      {[e.date, e.start && `• ${e.start}`].filter(Boolean).join(" ")}
+                      {[
+                        e.date,
+                        e.start && `• ${e.start}`,
+                        e.end && `- ${e.end}`
+                      ].filter(Boolean).join(" ")}
                     </div>
                   )}
                 </Card.Body>

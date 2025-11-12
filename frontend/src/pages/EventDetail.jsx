@@ -53,6 +53,22 @@ export default function EventDetail() {
   const orgId =
     data.organization_id ?? data.organizationId ?? data.org_id ?? null;
 
+  // Parse start_time which may contain both start and end times concatenated
+  let startTime = null;
+  let endTime = null;
+  if (data.start_time) {
+    // Replace non-breaking spaces with regular spaces and split by AM/PM
+    const timeStr = data.start_time.replace(/\u202f/g, ' ');
+    const timeMatch = timeStr.match(/^(.+?[AP]M)\s*(.+[AP]M)?$/i);
+    if (timeMatch) {
+      startTime = timeMatch[1].trim();
+      endTime = timeMatch[2] ? timeMatch[2].trim() : (data.end_time ?? null);
+    } else {
+      startTime = timeStr;
+      endTime = data.end_time ?? null;
+    }
+  }
+
   return (
     <div className="container py-4">
       <p><Link to="/events">← Back to events</Link></p>
@@ -73,16 +89,19 @@ export default function EventDetail() {
         </div>
       </div>
 
-      {(data.date || data.start_time || data.end_time) && (
-        <div className="mb-3">
-          <Badge bg="light" text="dark" className="me-2">
+      {(data.date || startTime || endTime) && (
+        <div className="mb-3 d-flex align-items-center gap-2">
+          <Badge bg="light" text="dark">
             {data.date ?? "TBD"}
           </Badge>
-          {data.start_time && (
-            <Badge bg="secondary" className="me-2">{data.start_time}</Badge>
+          {startTime && (
+            <>
+              <Badge bg="secondary">{startTime}</Badge>
+              {endTime && <span className="text-muted">→</span>}
+            </>
           )}
-          {data.end_time && (
-            <Badge bg="secondary">{data.end_time}</Badge>
+          {endTime && (
+            <Badge bg="secondary">{endTime}</Badge>
           )}
         </div>
       )}
