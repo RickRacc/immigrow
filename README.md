@@ -9,7 +9,7 @@
 | Lucas Berio Perez     | lfb1234     | lucasberio           | 10                | 16                  |
 | Anisha Bhaskar Torres | avb834      | anisha1045           | 8                 | 15                  |
 | Mrinalini Jithendra   | mj27496     | mrinalinij05         | 8                 | 10                  |
-| Rakesh Singh          | rps2439     | rrrakesh             | P1: 8; P2: 15     | P1: 6.75; P2: 20    |
+| Rakesh Singh          | rps2439     | rrrakesh             | P1: 8; P2: 15     | P1: 6.75; P2: 23    |
 
 
 ---
@@ -31,6 +31,13 @@ Responsibilities included:
 - Setting up Flask API routes and connections with RDS database and deploying them on an  EC2 instance.
 - Writing backend tests and integrating with the Gitlab pipelines.
 - Scheduling and hosting meetings, tracking project progress, and delegating tasks.
+
+**Rakesh Singh** served as the **Project Leader** for phase 3. 
+Responsibilities included:
+- Setting up Flask API routes and making frontend changes to instance grids
+- Writing backend and Postman tests and integrating with the Gitlab pipelines.
+- Implementing sorting/filtering.
+
 
 
 ---
