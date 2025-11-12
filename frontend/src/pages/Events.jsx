@@ -59,18 +59,25 @@ export default function Events() {
           };
         });
 
-        // Sort by image priority: unique images first, then shuffle default images, then no images
+        // Sort by image priority: unique images first, interleaved with default images, then no images
         const DEFAULT_IMAGE = "https://images.squarespace-cdn.com/content/v1/63b4656c9f96340195a2ff05/1754335248384-JOT195Q5KSY1N0L0CYW8/raices_events.png";
 
         const uniqueImages = rows.filter(e => e.imageUrl && e.imageUrl !== DEFAULT_IMAGE);
         const defaultImages = rows.filter(e => e.imageUrl === DEFAULT_IMAGE);
         const noImages = rows.filter(e => !e.imageUrl);
 
-        // Shuffle the default images to spread them out
-        const shuffled = [...defaultImages].sort(() => Math.random() - 0.5);
+        // Interleave default images with unique images to spread them out
+        const sorted = [];
+        const maxLength = Math.max(uniqueImages.length, defaultImages.length);
 
-        // Interleave: unique images, then mix in default images, then no images
-        const sorted = [...uniqueImages, ...shuffled, ...noImages];
+        for (let i = 0; i < maxLength; i++) {
+          if (i < uniqueImages.length) sorted.push(uniqueImages[i]);
+          if (i < defaultImages.length) sorted.push(defaultImages[i]);
+        }
+
+        // Add events with no images at the end
+        sorted.push(...noImages);
+
         setItems(sorted);
         setTotal(response.total ?? 0);
         setTotalPages(response.total_pages ?? 1);

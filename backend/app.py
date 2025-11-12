@@ -216,31 +216,63 @@ def get_events():
 # get event by ID
 @app.route("/api/events/<int:id>", methods=["GET"])
 def get_event_by_id(id):
-    event = Event.query.get(id)
-    return jsonify(        {
-            "id": event.id,
-            "title": event.title,
-            "date": event.date.isoformat() if event.date else None,
-            "start_time": event.start_time,
-            "end_time": event.end_time,
-            "duration_minutes": event.duration_minutes,
-            "location": event.location,
-            "city": event.city,
-            "state": event.state,
-            "venue_name": event.venue_name,
-            "description": event.description,
-            "external_url": event.external_url,
-            "image_url": event.image_url,
-            "eventbrite_id": event.eventbrite_id,
-            "timezone": event.timezone,
-            "organization_id": event.organization_id,
-            "created_at": as_iso(event.created_at),
-            "updated_at": as_iso(event.updated_at),
-            "resource_ids": [
-                er.resource_id
-                for er in EventResources.query.filter_by(event_id=event.id).all()
-            ]
-        })
+    event = Event.query.get_or_404(id)
+
+    # Get organization details if exists
+    organization = None
+    if event.organization_id:
+        org = Organization.query.get(event.organization_id)
+        if org:
+            organization = {
+                "id": org.id,
+                "name": org.name,
+                "city": org.city,
+                "state": org.state,
+                "topic": org.topic,
+                "size": org.size,
+                "description": org.description,
+                "external_url": org.external_url,
+                "image_url": org.image_url
+            }
+
+    # Get resource details
+    resource_ids = [er.resource_id for er in EventResources.query.filter_by(event_id=event.id).all()]
+    resources = []
+    for rid in resource_ids:
+        res = Resource.query.get(rid)
+        if res:
+            resources.append({
+                "id": res.id,
+                "title": res.title,
+                "topic": res.topic,
+                "scope": res.scope,
+                "description": res.description,
+                "external_url": res.external_url,
+                "image_url": res.image_url
+            })
+
+    return jsonify({
+        "id": event.id,
+        "title": event.title,
+        "date": event.date.isoformat() if event.date else None,
+        "start_time": event.start_time,
+        "end_time": event.end_time,
+        "duration_minutes": event.duration_minutes,
+        "location": event.location,
+        "city": event.city,
+        "state": event.state,
+        "venue_name": event.venue_name,
+        "description": event.description,
+        "external_url": event.external_url,
+        "image_url": event.image_url,
+        "eventbrite_id": event.eventbrite_id,
+        "timezone": event.timezone,
+        "organization_id": event.organization_id,
+        "organization": organization,
+        "resources": resources,
+        "created_at": as_iso(event.created_at),
+        "updated_at": as_iso(event.updated_at)
+    })
 
 # get all resources
 @app.route("/api/resources", methods=["GET"])
