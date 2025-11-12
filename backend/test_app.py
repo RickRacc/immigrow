@@ -12,9 +12,10 @@ def client():
 def test_get_orgs(client):
     response = client.get("/api/orgs")
     assert response.status_code == 200
-    data = json.loads(response.data)
-    assert isinstance(data, list)
-    org = data[0]
+    result = json.loads(response.data)
+    assert "data" in result
+    assert isinstance(result["data"], list)
+    org = result["data"][0]
     assert org["name"] == "Immigration Legal Services"
     assert org["city"] == "Dearborn"
     assert org["topic"] == "Legal Services"
@@ -33,9 +34,10 @@ def test_get_org_by_id(client):
 def test_get_events(client):
     response = client.get("/api/events")
     assert response.status_code == 200
-    events = json.loads(response.data)
-    assert isinstance(events, list)
-    event = events[0]
+    result = json.loads(response.data)
+    assert "data" in result
+    assert isinstance(result["data"], list)
+    event = result["data"][0]
     assert event["id"] == 1
     assert event["title"] == "Learn Serve Lead 2025"
     assert event["location"] == "Texas"
@@ -55,9 +57,10 @@ def test_get_event_by_id(client):
 def test_get_resources(client):
     response = client.get("/api/resources")
     assert response.status_code == 200
-    resources = json.loads(response.data)
-    assert isinstance(resources, list)
-    resource = resources[0]
+    result = json.loads(response.data)
+    assert "data" in result
+    assert isinstance(result["data"], list)
+    resource = result["data"][0]
     assert resource["id"] == 1
     assert resource["title"] == "Calderon-Uresti v. Bondi"
     assert resource["topic"] == "Immigration Law"
@@ -72,3 +75,54 @@ def test_get_resource_by_id(client):
     assert resource["title"] == "Calderon-Uresti v. Bondi"
     assert resource["topic"] == "Immigration Law"
     assert resource["court_name"] == "Court of Appeals for the Fifth Circuit"
+
+# tests endpoint to get paginated orgs
+def test_get_orgs_paginated(client):
+    response = client.get("/api/orgs?page=1&per_page=15")
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert "data" in data
+    assert "total" in data
+    assert "page" in data
+    assert "per_page" in data
+    assert "total_pages" in data
+    assert isinstance(data["data"], list)
+    assert len(data["data"]) <= 15
+    assert data["page"] == 1
+    assert data["per_page"] == 15
+
+# tests endpoint to get paginated events
+def test_get_events_paginated(client):
+    response = client.get("/api/events?page=1&per_page=15")
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert "data" in data
+    assert "total" in data
+    assert "page" in data
+    assert "per_page" in data
+    assert "total_pages" in data
+    assert isinstance(data["data"], list)
+    assert len(data["data"]) <= 15
+    assert data["page"] == 1
+    assert data["per_page"] == 15
+    # Test page 2 exists if we have enough events
+    if data["total"] > 15:
+        response2 = client.get("/api/events?page=2&per_page=15")
+        assert response2.status_code == 200
+        data2 = json.loads(response2.data)
+        assert data2["page"] == 2
+
+# tests endpoint to get paginated resources
+def test_get_resources_paginated(client):
+    response = client.get("/api/resources?page=1&per_page=15")
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert "data" in data
+    assert "total" in data
+    assert "page" in data
+    assert "per_page" in data
+    assert "total_pages" in data
+    assert isinstance(data["data"], list)
+    assert len(data["data"]) <= 15
+    assert data["page"] == 1
+    assert data["per_page"] == 15
