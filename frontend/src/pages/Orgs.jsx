@@ -3,19 +3,25 @@ import { useEffect, useState } from "react";
 import { Row, Col, Card, Spinner, Alert, Badge } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { fetchOrgs } from "../lib/api";
+import Pagination, { PaginationInfo } from "../components/Pagination";
 
 export default function Orgs() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     let cancel = false;
     (async () => {
+      setLoading(true);
       try {
-        const data = await fetchOrgs();
+        const response = await fetchOrgs(currentPage, 15);
         if (cancel) return;
-        const rows = (data ?? []).map(o => ({
+        const data = response.data ?? [];
+        const rows = data.map(o => ({
           id: o.id,
           name: o.name ?? "Unnamed organization",
           city: o.city ?? "",
@@ -26,6 +32,8 @@ export default function Orgs() {
         // optional: sort by name
         rows.sort((a,b)=>a.name.localeCompare(b.name));
         setItems(rows);
+        setTotal(response.total ?? 0);
+        setTotalPages(response.total_pages ?? 1);
       } catch (ex) {
         setErr(ex.message || String(ex));
       } finally {
@@ -33,7 +41,7 @@ export default function Orgs() {
       }
     })();
     return () => { cancel = true; };
-  }, []);
+  }, [currentPage]);
 
   if (loading) return (
     <div className="container py-4">
@@ -51,7 +59,9 @@ export default function Orgs() {
 
   return (
     <div className="container py-3">
-      <h1 className="mb-3">Search from {items.length} Organizations</h1>
+      <h1 className="mb-3">Search from {total} Organizations</h1>
+      <PaginationInfo currentCount={items.length} itemType="organizations" />
+
       <Row xs={1} md={2} lg={3} className="g-3">
         {items.map((o) => (
           <Col key={o.id}>
@@ -79,6 +89,12 @@ export default function Orgs() {
           </Col>
         ))}
       </Row>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 }

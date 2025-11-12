@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Row, Col, Card, Spinner, Alert } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { fetchEvents } from "../lib/api";
+import Pagination, { PaginationInfo } from "../components/Pagination";
 
 function hasHttp(url) {
   return typeof url === 'string' && /^https?:\/\//i.test(url);
@@ -12,15 +13,20 @@ export default function Events() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     let cancel = false;
     (async () => {
+      setLoading(true);
       try {
-        const data = await fetchEvents();
+        const response = await fetchEvents(currentPage, 15);
         if (cancel) return;
 
-        const rows = (data ?? []).map((e) => {
+        const data = response.data ?? [];
+        const rows = data.map((e) => {
           const title = e.name ?? e.title ?? "Untitled event";
           const image = hasHttp(e.image_url) ? e.image_url : null;
           return {
@@ -39,6 +45,8 @@ export default function Events() {
         // images first
         rows.sort((a, b) => (b.imageUrl ? 1 : 0) - (a.imageUrl ? 1 : 0));
         setItems(rows);
+        setTotal(response.total ?? 0);
+        setTotalPages(response.total_pages ?? 1);
       } catch (ex) {
         setErr(ex.message || String(ex));
       } finally {
@@ -46,7 +54,7 @@ export default function Events() {
       }
     })();
     return () => { cancel = true; };
-  }, []);
+  }, [currentPage]);
 
   if (loading) {
     return (
@@ -66,7 +74,8 @@ export default function Events() {
 
   return (
     <div className="container py-3">
-      <h1 className="mb-3">Search from {items.length} Events</h1>
+      <h1 className="mb-3">Search from {total} Events</h1>
+      <PaginationInfo currentCount={items.length} itemType="events" />
 
       <Row xs={1} md={2} lg={3} className="g-3">
         {items.map((e) => (
@@ -99,6 +108,12 @@ export default function Events() {
           </Col>
         ))}
       </Row>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 }

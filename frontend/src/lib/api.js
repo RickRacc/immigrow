@@ -24,16 +24,16 @@ async function fetchJson(path) {
 }
 
 /* --------- Organizations --------- */
-export async function fetchOrgs() {
-  return fetchJson('/orgs');
+export async function fetchOrgs(page = 1, perPage = 15) {
+  return fetchJson(`/orgs?page=${page}&per_page=${perPage}`);
 }
 export async function fetchOrgById(id) {
   return fetchJson(`/orgs/${id}`);
 }
 
 /* --------- Events --------- */
-export async function fetchEvents() {
-  return fetchJson('/events');
+export async function fetchEvents(page = 1, perPage = 15) {
+  return fetchJson(`/events?page=${page}&per_page=${perPage}`);
 }
 export async function fetchEventById(id) {
   return fetchJson(`/events/${id}`);
@@ -41,12 +41,12 @@ export async function fetchEventById(id) {
 // client-side filter helper if you want events by org
 export async function fetchEventsByOrg(orgId) {
   const all = await fetchEvents();
-  return (all ?? []).filter(e => String(e.organization_id ?? '') === String(orgId ?? ''));
+  return (all?.data ?? []).filter(e => String(e.organization_id ?? '') === String(orgId ?? ''));
 }
 
 /* --------- Resources --------- */
-export async function fetchResources() {
-  return fetchJson('/resources');
+export async function fetchResources(page = 1, perPage = 15) {
+  return fetchJson(`/resources?page=${page}&per_page=${perPage}`);
 }
 export async function fetchResourceById(id) {
   return fetchJson(`/resources/${id}`);
