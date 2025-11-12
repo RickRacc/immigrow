@@ -74,8 +74,9 @@ e2e_tests:
     - apt-get update
     - apt-get install -y chromium chromium-driver xvfb
   script:
-    - export VITE_API_BASE="http://3.141.5.227:5000"
-    - cd frontend && xvfb-run -a npm run test:e2e
+    - cd frontend
+    - VITE_API_BASE="http://3.141.5.227:5000" npm run build
+    - xvfb-run -a npx start-server-and-test preview http://127.0.0.1:4173 "node src/tests/selenium/run-all.cjs"
   artifacts:
     when: always
     expire_in: 1 day
