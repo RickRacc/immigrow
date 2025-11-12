@@ -70,12 +70,11 @@ postman_tests:
 e2e_tests:
   stage: e2e
   needs: ["install"]
-  variables:
-    VITE_API_BASE: "http://3.141.5.227:5000"
   before_script:
     - apt-get update
     - apt-get install -y chromium chromium-driver xvfb
   script:
+    - export VITE_API_BASE="http://3.141.5.227:5000"
     - cd frontend && xvfb-run -a npm run test:e2e
   artifacts:
     when: always
