@@ -95,7 +95,7 @@ def home():
     return "Hello!"
 
 # get all organizations
-@app.route("/orgs", methods=["GET"])
+@app.route("/api/orgs", methods=["GET"])
 def get_orgs():
     orgs = Organization.query.all()
     return jsonify([
@@ -128,7 +128,7 @@ def get_orgs():
     ])
 
 # get organization by ID
-@app.route("/orgs/<int:id>", methods=["GET"])
+@app.route("/api/orgs/<int:id>", methods=["GET"])
 def get_org_by_id(id):
     org = Organization.query.get_or_404(id)
     return jsonify(
@@ -159,7 +159,7 @@ def get_org_by_id(id):
         })
 
 # get all events
-@app.route("/events", methods=["GET"])
+@app.route("/api/events", methods=["GET"])
 def get_events():
     events = Event.query.all()
     return jsonify([
@@ -191,7 +191,7 @@ def get_events():
     ])
 
 # get event by ID
-@app.route("/events/<int:id>", methods=["GET"])
+@app.route("/api/events/<int:id>", methods=["GET"])
 def get_event_by_id(id):
     event = Event.query.get(id)
     return jsonify(        {
@@ -220,7 +220,7 @@ def get_event_by_id(id):
         })
 
 # get all resources
-@app.route("/resources", methods=["GET"])
+@app.route("/api/resources", methods=["GET"])
 def get_resources():
     resources = Resource.query.all()
     return jsonify([
@@ -255,7 +255,7 @@ def get_resources():
     ])
 
 # get resource by ID
-@app.route("/resources/<int:id>", methods=["GET"])
+@app.route("/api/resources/<int:id>", methods=["GET"])
 def get_resource_by_id(id):
     resource = Resource.query.get(id)
     return jsonify({
