@@ -67,14 +67,14 @@ export default function Home() {
           </div>
           <div className="col-6 col-md-3">
             <img
-              src="/images/home/austin-2.jpg"
+              src="images/home/austin-2.jpg"
               alt="Family at an event in Austin"
               className="img-fluid rounded-3 w-100 h-100 object-fit-cover"
             />
           </div>
           <div className="col-6 col-md-3">
             <img
-              src="/images/home/austin-3.jpg"
+              src="images/home/austin-3.jpg"
               alt="Volunteers assisting immigrants"
               className="img-fluid rounded-3 w-100 h-100 object-fit-cover"
             />
