@@ -85,7 +85,9 @@ build:
   stage: build
   needs: ["install", "unit_tests"]
   script:
-    - cd frontend && npm run build
+    - cd frontend
+    - echo "VITE_API_BASE is $VITE_API_BASE"
+    - npm run build
   artifacts:
     paths:
       - frontend/dist/
