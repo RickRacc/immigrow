@@ -1,5 +1,16 @@
 # EC2 Backend Deployment Guide
 
+## ⚠️ URGENT: Production is Broken Until EC2 is Deployed!
+
+**Current Status:**
+- ✅ Frontend deployed with updated `/api` routes
+- ❌ Backend NOT deployed - EC2 still has old routes without `/api` prefix
+- ❌ Production showing "Error: Failed to fetch" on all model pages
+
+**Action Required:** Someone with EC2 SSH access must deploy the updated backend NOW for production to work!
+
+---
+
 ## Overview
 
 The Flask backend runs on an AWS EC2 instance at `3.141.5.227:5000`. After updating the backend code, you need to deploy it to EC2 for production to work.

@@ -10,7 +10,7 @@ def client():
 
 # tests endpoint to get all orgs
 def test_get_orgs(client):
-    response = client.get("/orgs")
+    response = client.get("/api/orgs")
     assert response.status_code == 200
     data = json.loads(response.data)
     assert isinstance(data, list)
@@ -21,7 +21,7 @@ def test_get_orgs(client):
 
 # tests endpoint to get orgs by id
 def test_get_org_by_id(client):
-    response = client.get("/orgs/1")
+    response = client.get("/api/orgs/1")
     assert response.status_code == 200
     org = json.loads(response.data)
     assert org["id"] == 1
@@ -31,7 +31,7 @@ def test_get_org_by_id(client):
 
 # tests endpoint to get all events
 def test_get_events(client):
-    response = client.get("/events")
+    response = client.get("/api/events")
     assert response.status_code == 200
     events = json.loads(response.data)
     assert isinstance(events, list)
@@ -43,7 +43,7 @@ def test_get_events(client):
 
 # tests endpoint to get events by id
 def test_get_event_by_id(client):
-    response = client.get("/events/1")
+    response = client.get("/api/events/1")
     assert response.status_code == 200
     event = json.loads(response.data)
     assert event["id"] == 1
@@ -53,7 +53,7 @@ def test_get_event_by_id(client):
 
 # tests endpoint to get all resources
 def test_get_resources(client):
-    response = client.get("/resources")
+    response = client.get("/api/resources")
     assert response.status_code == 200
     resources = json.loads(response.data)
     assert isinstance(resources, list)
@@ -65,7 +65,7 @@ def test_get_resources(client):
 
 # tests endpoint to get resource by id
 def test_get_resource_by_id(client):
-    response = client.get("/resources/1")
+    response = client.get("/api/resources/1")
     assert response.status_code == 200
     resource = json.loads(response.data)
     assert resource["id"] == 1
