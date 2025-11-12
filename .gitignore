@@ -37,6 +37,8 @@ backend/**/__pycache__/
 backend/instance/
 backend/venv/
 
+SESSION_SUMMARY.md
+
 package-lock.zip
 *.zip
 .env
