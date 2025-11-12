@@ -1,7 +1,8 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from datetime import date, time, datetime
+import math
 
 app = Flask(__name__)
 CORS(app)
@@ -97,35 +98,46 @@ def home():
 # get all organizations
 @app.route("/api/orgs", methods=["GET"])
 def get_orgs():
-    orgs = Organization.query.all()
-    return jsonify([
-        {
-            "id": org.id,
-            "name": org.name,
-            "city": org.city,
-            "state": org.state,
-            "topic": org.topic,
-            "size": org.size,
-            "meeting_frequency": org.meeting_frequency,
-            "description": org.description,
-            "address": org.address,
-            "zipcode": org.zipcode,
-            "ein": org.ein,
-            "subsection_code": org.subsection_code,
-            "ntee_code": org.ntee_code,
-            "external_url": org.external_url,
-            "image_url": org.image_url,
-            "guidestar_url": org.guidestar_url,
-            "form_990_pdf_url": org.form_990_pdf_url,
-            "created_at": as_iso(org.created_at),
-            "updated_at": as_iso(org.updated_at),
-            "resource_ids": [
-                er.resource_id
-                for er in OrganizationResources.query.filter_by(organization_id=org.id).all()
-            ]
-        }
-        for org in orgs
-    ])
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 15, type=int)
+
+    pagination = Organization.query.paginate(page=page, per_page=per_page, error_out=False)
+    orgs = pagination.items
+
+    return jsonify({
+        "data": [
+            {
+                "id": org.id,
+                "name": org.name,
+                "city": org.city,
+                "state": org.state,
+                "topic": org.topic,
+                "size": org.size,
+                "meeting_frequency": org.meeting_frequency,
+                "description": org.description,
+                "address": org.address,
+                "zipcode": org.zipcode,
+                "ein": org.ein,
+                "subsection_code": org.subsection_code,
+                "ntee_code": org.ntee_code,
+                "external_url": org.external_url,
+                "image_url": org.image_url,
+                "guidestar_url": org.guidestar_url,
+                "form_990_pdf_url": org.form_990_pdf_url,
+                "created_at": as_iso(org.created_at),
+                "updated_at": as_iso(org.updated_at),
+                "resource_ids": [
+                    er.resource_id
+                    for er in OrganizationResources.query.filter_by(organization_id=org.id).all()
+                ]
+            }
+            for org in orgs
+        ],
+        "total": pagination.total,
+        "page": page,
+        "per_page": per_page,
+        "total_pages": math.ceil(pagination.total / per_page) if pagination.total > 0 else 0
+    })
 
 # get organization by ID
 @app.route("/api/orgs/<int:id>", methods=["GET"])
@@ -161,34 +173,45 @@ def get_org_by_id(id):
 # get all events
 @app.route("/api/events", methods=["GET"])
 def get_events():
-    events = Event.query.all()
-    return jsonify([
-        {
-            "id": event.id,
-            "title": event.title,
-            "date": event.date.isoformat() if event.date else None,
-            "start_time": event.start_time,
-            "end_time": event.end_time,
-            "duration_minutes": event.duration_minutes,
-            "location": event.location,
-            "city": event.city,
-            "state": event.state,
-            "venue_name": event.venue_name,
-            "description": event.description,
-            "external_url": event.external_url,
-            "image_url": event.image_url,
-            "eventbrite_id": event.eventbrite_id,
-            "timezone": event.timezone,
-            "organization_id": event.organization_id,
-            "created_at": as_iso(event.created_at),
-            "updated_at": as_iso(event.updated_at),
-            "resource_ids": [
-                er.resource_id
-                for er in EventResources.query.filter_by(event_id=event.id).all()
-            ]
-        }
-        for event in events
-    ])
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 15, type=int)
+
+    pagination = Event.query.paginate(page=page, per_page=per_page, error_out=False)
+    events = pagination.items
+
+    return jsonify({
+        "data": [
+            {
+                "id": event.id,
+                "title": event.title,
+                "date": event.date.isoformat() if event.date else None,
+                "start_time": event.start_time,
+                "end_time": event.end_time,
+                "duration_minutes": event.duration_minutes,
+                "location": event.location,
+                "city": event.city,
+                "state": event.state,
+                "venue_name": event.venue_name,
+                "description": event.description,
+                "external_url": event.external_url,
+                "image_url": event.image_url,
+                "eventbrite_id": event.eventbrite_id,
+                "timezone": event.timezone,
+                "organization_id": event.organization_id,
+                "created_at": as_iso(event.created_at),
+                "updated_at": as_iso(event.updated_at),
+                "resource_ids": [
+                    er.resource_id
+                    for er in EventResources.query.filter_by(event_id=event.id).all()
+                ]
+            }
+            for event in events
+        ],
+        "total": pagination.total,
+        "page": page,
+        "per_page": per_page,
+        "total_pages": math.ceil(pagination.total / per_page) if pagination.total > 0 else 0
+    })
 
 # get event by ID
 @app.route("/api/events/<int:id>", methods=["GET"])
@@ -222,37 +245,48 @@ def get_event_by_id(id):
 # get all resources
 @app.route("/api/resources", methods=["GET"])
 def get_resources():
-    resources = Resource.query.all()
-    return jsonify([
-        {
-            "id": resource.id,
-            "title": resource.title,
-            "date_published": resource.date_published.isoformat() if resource.date_published else None,
-            "topic": resource.topic,
-            "scope": resource.scope,
-            "description": resource.description,
-            "format": resource.format,
-            "court_name": resource.court_name,
-            "citation": resource.citation,
-            "external_url": resource.external_url,
-            "image_url": resource.image_url,
-            "audio_url": resource.audio_url,
-            "courtlistener_id": resource.courtlistener_id,
-            "docket_number": resource.docket_number,
-            "judge_name": resource.judge_name,
-            "created_at": as_iso(resource.created_at),
-            "updated_at":  as_iso(resource.updated_at),
-            "event_ids": [
-                er.event_id
-                for er in EventResources.query.filter_by(resource_id=resource.id).all()
-            ],
-            "organization_ids": [
-                er.organization_id
-                for er in OrganizationResources.query.filter_by(resource_id=resource.id).all()
-            ]
-        }
-        for resource in resources
-    ])
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 15, type=int)
+
+    pagination = Resource.query.paginate(page=page, per_page=per_page, error_out=False)
+    resources = pagination.items
+
+    return jsonify({
+        "data": [
+            {
+                "id": resource.id,
+                "title": resource.title,
+                "date_published": resource.date_published.isoformat() if resource.date_published else None,
+                "topic": resource.topic,
+                "scope": resource.scope,
+                "description": resource.description,
+                "format": resource.format,
+                "court_name": resource.court_name,
+                "citation": resource.citation,
+                "external_url": resource.external_url,
+                "image_url": resource.image_url,
+                "audio_url": resource.audio_url,
+                "courtlistener_id": resource.courtlistener_id,
+                "docket_number": resource.docket_number,
+                "judge_name": resource.judge_name,
+                "created_at": as_iso(resource.created_at),
+                "updated_at":  as_iso(resource.updated_at),
+                "event_ids": [
+                    er.event_id
+                    for er in EventResources.query.filter_by(resource_id=resource.id).all()
+                ],
+                "organization_ids": [
+                    er.organization_id
+                    for er in OrganizationResources.query.filter_by(resource_id=resource.id).all()
+                ]
+            }
+            for resource in resources
+        ],
+        "total": pagination.total,
+        "page": page,
+        "per_page": per_page,
+        "total_pages": math.ceil(pagination.total / per_page) if pagination.total > 0 else 0
+    })
 
 # get resource by ID
 @app.route("/api/resources/<int:id>", methods=["GET"])
