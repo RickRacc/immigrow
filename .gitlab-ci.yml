@@ -6,11 +6,14 @@ stages:
   - test
   - e2e
   - build
+  - deploy
 
 variables:
   CI: "true"
   CHROME_BIN: /usr/bin/chromium
   CHROMEDRIVER_BIN: /usr/bin/chromedriver
+  AWS_DEFAULT_REGION: "us-east-1"
+  AWS_PAGER: ""
 
 cache:
   key: ${CI_COMMIT_REF_SLUG}
@@ -92,3 +95,25 @@ build:
     paths:
       - frontend/dist/
     expire_in: 1 week
+
+
+deploy:
+  stage: deploy
+  image:
+    name: amazon/aws-cli:2.17.0
+    entrypoint: [""]
+  dependencies:
+    - build
+  script:
+    - |
+      set -euo pipefail
+      echo "Deploying to S3 bucket: $S3_BUCKET"
+      aws --version
+      aws sts get-caller-identity
+      aws s3 ls "s3://$S3_BUCKET" || echo "Note: ls failed (continuing to sync)"
+      aws s3 sync frontend/dist/ "s3://$S3_BUCKET" --delete --exact-timestamps
+      echo "Invalidating CloudFront distribution: $CF_DIST_ID"
+      aws cloudfront create-invalidation --distribution-id "$CF_DIST_ID" --paths "/*"
+      echo "Deployment complete!"
+  only:
+    - main
