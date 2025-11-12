@@ -39,12 +39,24 @@ https://documenter.getpostman.com/view/48953688/2sB3QGsAi5(https://
 documenter.getpostman.com/view/48953688/2sB3QGsAi5)
 - **Base URL:** `https://immigrow.site/`
 - **Endpoints:**
-- `GET /orgs/` → Get all organizations
+- `GET /orgs?page=1&per_page=15` → Get paginated organizations
 - `GET /orgs/{id}` → Fetch organization by ID
-- `GET /events` → Get all events
+- `GET /events?page=1&per_page=15` → Get paginated events
 - `GET /events/{id}` → Fetch event by ID
-- `GET /resources` → Get all resources
+- `GET /resources?page=1&per_page=15` → Get paginated resources
 - `GET /resources/{id}` → Fetch resources by ID
+
+**Pagination Response Format:**
+```json
+{
+  "data": [...],
+  "total": 100,
+  "page": 1,
+  "per_page": 15,
+  "total_pages": 7
+}
+```
+
 All APIs are hosted by Flask on an EC2 instance. Unit tests and Postman tests run in GitLab CI for each endpoint.
 
 
@@ -99,4 +111,36 @@ Each table also has 2 forms of media as features. There is a one to many relatio
 
 ---
 ## 9. Phase II - Pagination
-Frontend: We split big lists into pages. The frontend asks the API for a specific page and how many items per page. We show how many total items there are. When you click, we load the next slice and update the list right away. Buttons turn off at first.last page. This keeps the site a bit faster and meets the rubric’s “show total + page navigation” requirement.
+
+**Backend Implementation:**
+The backend API implements server-side pagination using SQLAlchemy's `.paginate()` method for efficient database queries. Each collection endpoint (`/api/orgs`, `/api/events`, `/api/resources`) accepts optional query parameters:
+- `page` (default: 1) - Current page number
+- `per_page` (default: 15) - Number of items per page
+
+The API response format changed from a simple array to a structured object containing:
+- `data` - Array of items for the current page
+- `total` - Total number of items across all pages
+- `page` - Current page number
+- `per_page` - Items per page (always 15)
+- `total_pages` - Total number of pages
+
+This approach reduces payload size and improves performance by retrieving only the necessary data slice from the database.
+
+**Frontend Implementation:**
+Created two reusable React components for pagination:
+- `PaginationInfo` - Displays "Displaying X items" at the top of each model page, showing the actual count on the current page (e.g., "Displaying 3 events" on the last page)
+- `Pagination` - Provides navigation controls at the bottom with First, Previous, Next, and Last buttons. Buttons are disabled appropriately at page boundaries (First/Previous on page 1, Next/Last on final page).
+
+Each model page (Events, Resources, Organizations) integrates pagination with:
+- State management tracking `currentPage`, `totalPages`, and `total` count
+- Automatic data fetching when page changes via `useEffect` hook
+- Display of total instance count in the page header
+- Loading states and error handling for pagination requests
+
+**Data Distribution:**
+- Organizations: 57 instances across 4 pages (15, 15, 15, 12 items)
+- Events: 48 instances across 4 pages (15, 15, 15, 3 items)
+- Resources: 54 instances across 4 pages (15, 15, 15, 9 items)
+
+**Testing Coverage:**
+Backend tests include 9 pytest tests covering both paginated and individual endpoints, verifying response structure, pagination metadata, and data accuracy. Postman collection includes 9 API tests with 3 dedicated pagination tests validating the response format. All existing frontend unit tests (10) and end-to-end Selenium tests (10) continue to pass without modification, as pagination is implemented transparently to the UI components.
