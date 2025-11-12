@@ -4,6 +4,9 @@ const DEFAULT_BASE =
   // Otherwise default to /api so Vite proxy (dev) & your CDN (prod) can route it.
   ENV_BASE ?? '/api';
 
+
+console.log("DEFAULT_BASE (built-in):", DEFAULT_BASE);
+
 function joinUrl(base, path) {
   const b = base.replace(/\/+$/, '');
   const p = path.startsWith('/') ? path : `/${path}`;
