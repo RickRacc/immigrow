@@ -38,6 +38,7 @@ backend/instance/
 backend/venv/
 
 SESSION_SUMMARY.md
+PHASE2_VERIFICATION.md
 
 package-lock.zip
 *.zip
