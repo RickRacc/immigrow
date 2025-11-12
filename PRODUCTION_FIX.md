@@ -2,13 +2,13 @@
 
 ## Current Status
 
-### ✅ What's Working
+### What's Working
 - Backend deployed to EC2 with `/api` routes
 - Backend returns JSON data: `http://3.141.5.227:5000/api/orgs` works
 - Frontend deployed to S3/CloudFront
 - About page shows Phase 2 updates
 
-### ❌ What's Broken
+###  What's Broken
 - Organizations, Events, Resources pages show "Error: Failed to fetch"
 - Browser console shows: "Mixed Content" or "NetworkError when attempting to fetch resource"
 
@@ -28,8 +28,8 @@
 4. Result: "Failed to fetch" error
 
 **Why local dev works:**
-- Local: `http://localhost:5175` → `http://localhost:5000` (both HTTP ✅)
-- Production: `https://immigrow.site` → `http://3.141.5.227:5000` (HTTPS → HTTP ❌)
+- Local: `http://localhost:5175` → `http://localhost:5000` (both HTTP so it works but won't in production)
+- Production: `https://immigrow.site` → `http://3.141.5.227:5000` (HTTPS → HTTP )
 
 ---
 
@@ -47,7 +47,7 @@ You **MUST** do both steps. Doing only one will not fix production.
 |---|---|---|
 | Remove `VITE_API_BASE` | Frontend calls `/api/orgs` but CloudFront doesn't know where to route it | Still broken (404 or wrong response) |
 | Configure CloudFront | Frontend still calls `http://3.141.5.227:5000` directly | Still broken (mixed content error) |
-| Do BOTH | Frontend calls `/api/orgs` → CloudFront routes to EC2 → Works! | ✅ Fixed! |
+| Do BOTH | Frontend calls `/api/orgs` → CloudFront routes to EC2 → Works! | Fixed! |
 
 ---
 
@@ -59,7 +59,7 @@ You **MUST** do both steps. Doing only one will not fix production.
 ```javascript
 // Frontend code interprets this as:
 fetch('http://3.141.5.227:5000/api/orgs')
-// ❌ Browser blocks: HTTPS site calling HTTP API
+//  Browser blocks: HTTPS site calling HTTP API
 ```
 
 **Desired behavior (without `VITE_API_BASE`):**
@@ -68,7 +68,7 @@ fetch('http://3.141.5.227:5000/api/orgs')
 fetch('/api/orgs')
 // Which browser interprets as:
 fetch('https://immigrow.site/api/orgs')
-// ✅ Same protocol (HTTPS), browser allows it
+//  Same protocol (HTTPS), browser allows it
 // CloudFront then routes it to EC2 backend internally
 ```
 
