@@ -88,6 +88,11 @@ def test_get_resource_by_id(client):
     assert resource["title"] == "Calderon-Uresti v. Bondi"
     assert resource["topic"] == "Immigration Law"
     assert resource["court_name"] == "Court of Appeals for the Fifth Circuit"
+    # Test that new fields are present
+    assert "events" in resource
+    assert "organizations" in resource
+    assert isinstance(resource["events"], list)
+    assert isinstance(resource["organizations"], list)
 
 # tests endpoint to get paginated orgs
 def test_get_orgs_paginated(client):

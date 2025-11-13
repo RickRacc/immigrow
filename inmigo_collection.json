@@ -305,8 +305,10 @@
 							"    pm.expect(resource.title).to.eql(\"Dominguez Reyes v. Bondi\");",
 							"    pm.expect(resource.topic).to.eql(\"Immigration Law\");",
 							"    pm.expect(resource.scope).to.eql(\"Federal\");",
-							"    pm.expect(resource.organization_ids).to.include(25);",
 							"    pm.expect(resource.external_url).to.eql(\"https://www.courtlistener.com/opinion/10732066/dominguez-reyes-v-bondi/\");",
+							"    // Test new fields: events and organizations objects",
+							"    pm.expect(resource.events).to.be.an(\"array\");",
+							"    pm.expect(resource.organizations).to.be.an(\"array\");",
 							"});"
 						],
 						"type": "text/javascript",

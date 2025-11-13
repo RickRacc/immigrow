@@ -354,34 +354,66 @@ def get_resources():
 # get resource by ID
 @app.route("/api/resources/<int:id>", methods=["GET"])
 def get_resource_by_id(id):
-    resource = Resource.query.get(id)
+    resource = Resource.query.get_or_404(id)
+
+    # Get event details
+    event_ids = [er.event_id for er in EventResources.query.filter_by(resource_id=resource.id).all()]
+    events = []
+    for eid in event_ids:
+        event = Event.query.get(eid)
+        if event:
+            events.append({
+                "id": event.id,
+                "title": event.title,
+                "date": event.date.isoformat() if event.date else None,
+                "start_time": event.start_time,
+                "location": event.location,
+                "city": event.city,
+                "state": event.state,
+                "description": event.description,
+                "external_url": event.external_url,
+                "image_url": event.image_url
+            })
+
+    # Get organization details
+    organization_ids = [er.organization_id for er in OrganizationResources.query.filter_by(resource_id=resource.id).all()]
+    organizations = []
+    for oid in organization_ids:
+        org = Organization.query.get(oid)
+        if org:
+            organizations.append({
+                "id": org.id,
+                "name": org.name,
+                "city": org.city,
+                "state": org.state,
+                "topic": org.topic,
+                "size": org.size,
+                "description": org.description,
+                "external_url": org.external_url,
+                "image_url": org.image_url
+            })
+
     return jsonify({
-            "id": resource.id,
-            "title": resource.title,
-            "date_published": resource.date_published.isoformat() if resource.date_published else None,
-            "topic": resource.topic,
-            "scope": resource.scope,
-            "description": resource.description,
-            "format": resource.format,
-            "court_name": resource.court_name,
-            "citation": resource.citation,
-            "external_url": resource.external_url,
-            "image_url": resource.image_url,
-            "audio_url": resource.audio_url,
-            "courtlistener_id": resource.courtlistener_id,
-            "docket_number": resource.docket_number,
-            "judge_name": resource.judge_name,
-            "created_at": as_iso(resource.created_at),
-            "updated_at":  as_iso(resource.updated_at),
-            "event_ids": [
-                er.event_id
-                for er in EventResources.query.filter_by(resource_id=resource.id).all()
-            ],
-            "organization_ids": [
-                er.organization_id
-                for er in OrganizationResources.query.filter_by(resource_id=resource.id).all()
-            ]
-        })
+        "id": resource.id,
+        "title": resource.title,
+        "date_published": resource.date_published.isoformat() if resource.date_published else None,
+        "topic": resource.topic,
+        "scope": resource.scope,
+        "description": resource.description,
+        "format": resource.format,
+        "court_name": resource.court_name,
+        "citation": resource.citation,
+        "external_url": resource.external_url,
+        "image_url": resource.image_url,
+        "audio_url": resource.audio_url,
+        "courtlistener_id": resource.courtlistener_id,
+        "docket_number": resource.docket_number,
+        "judge_name": resource.judge_name,
+        "created_at": as_iso(resource.created_at),
+        "updated_at": as_iso(resource.updated_at),
+        "events": events,
+        "organizations": organizations
+    })
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
