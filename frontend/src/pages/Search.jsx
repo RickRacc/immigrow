@@ -1,19 +1,61 @@
 // src/pages/Search.jsx
 import { useState } from "react";
-import { Container, Form, Row, Col, Spinner, Alert } from "react-bootstrap";
+import { Container, Form, Row, Col, Spinner, Alert, Card, Badge } from "react-bootstrap";
+import { Link } from "react-router-dom";
 import { fetchEvents, fetchOrgs, fetchResources } from "../lib/api";
+import HighlightedText from "../components/HighlightedText";
+import MatchIndicator from "../components/MatchIndicator";
+import Pagination from "../components/Pagination";
 
 export default function Search() {
   const [searchQuery, setSearchQuery] = useState("");
   const [appliedSearch, setAppliedSearch] = useState(""); // Track what's actually being searched
 
   // State for each model's results
-  const [eventsData, setEventsData] = useState({ data: [], total: 0 });
-  const [orgsData, setOrgsData] = useState({ data: [], total: 0 });
-  const [resourcesData, setResourcesData] = useState({ data: [], total: 0 });
+  const [eventsData, setEventsData] = useState({ data: [], total: 0, totalPages: 1 });
+  const [orgsData, setOrgsData] = useState({ data: [], total: 0, totalPages: 1 });
+  const [resourcesData, setResourcesData] = useState({ data: [], total: 0, totalPages: 1 });
+
+  // Separate pagination state for each model
+  const [eventsPage, setEventsPage] = useState(1);
+  const [orgsPage, setOrgsPage] = useState(1);
+  const [resourcesPage, setResourcesPage] = useState(1);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Track which models are loading individually
+  const [loadingEvents, setLoadingEvents] = useState(false);
+  const [loadingOrgs, setLoadingOrgs] = useState(false);
+  const [loadingResources, setLoadingResources] = useState(false);
+
+  // Helper function to check if URL is valid
+  const hasHttp = (url) => typeof url === 'string' && /^https?:\/\//i.test(url);
+
+  // Match fields for each model (for MatchIndicator)
+  const eventMatchFields = [
+    { key: 'title', label: 'Title' },
+    { key: 'description', label: 'Description' },
+    { key: 'location', label: 'Location' },
+    { key: 'city', label: 'City' },
+    { key: 'state', label: 'State' }
+  ];
+
+  const orgMatchFields = [
+    { key: 'name', label: 'Name' },
+    { key: 'description', label: 'Description' },
+    { key: 'city', label: 'City' },
+    { key: 'state', label: 'State' },
+    { key: 'topic', label: 'Topic' }
+  ];
+
+  const resourceMatchFields = [
+    { key: 'title', label: 'Title' },
+    { key: 'description', label: 'Description' },
+    { key: 'topic', label: 'Topic' },
+    { key: 'scope', label: 'Scope' },
+    { key: 'court_name', label: 'Court' }
+  ];
 
   const handleSearchSubmit = async (e) => {
     e.preventDefault();
@@ -27,6 +69,11 @@ export default function Search() {
     setError("");
     setAppliedSearch(searchQuery);
 
+    // Reset all pages to 1 when new search is performed
+    setEventsPage(1);
+    setOrgsPage(1);
+    setResourcesPage(1);
+
     try {
       // Make 3 parallel API calls to search all models
       const [eventsResponse, orgsResponse, resourcesResponse] = await Promise.all([
@@ -38,21 +85,76 @@ export default function Search() {
       // Update state with results
       setEventsData({
         data: eventsResponse.data || [],
-        total: eventsResponse.total || 0
+        total: eventsResponse.total || 0,
+        totalPages: eventsResponse.total_pages || 1
       });
       setOrgsData({
         data: orgsResponse.data || [],
-        total: orgsResponse.total || 0
+        total: orgsResponse.total || 0,
+        totalPages: orgsResponse.total_pages || 1
       });
       setResourcesData({
         data: resourcesResponse.data || [],
-        total: resourcesResponse.total || 0
+        total: resourcesResponse.total || 0,
+        totalPages: resourcesResponse.total_pages || 1
       });
     } catch (err) {
       setError(`Search failed: ${err.message}`);
       console.error("Search error:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Individual load functions for pagination
+  const loadEventsPage = async (page) => {
+    setLoadingEvents(true);
+    try {
+      const response = await fetchEvents(page, 15, { search: appliedSearch });
+      setEventsData({
+        data: response.data || [],
+        total: response.total || 0,
+        totalPages: response.total_pages || 1
+      });
+      setEventsPage(page);
+    } catch (err) {
+      console.error("Error loading events page:", err);
+    } finally {
+      setLoadingEvents(false);
+    }
+  };
+
+  const loadOrgsPage = async (page) => {
+    setLoadingOrgs(true);
+    try {
+      const response = await fetchOrgs(page, 15, { search: appliedSearch });
+      setOrgsData({
+        data: response.data || [],
+        total: response.total || 0,
+        totalPages: response.total_pages || 1
+      });
+      setOrgsPage(page);
+    } catch (err) {
+      console.error("Error loading orgs page:", err);
+    } finally {
+      setLoadingOrgs(false);
+    }
+  };
+
+  const loadResourcesPage = async (page) => {
+    setLoadingResources(true);
+    try {
+      const response = await fetchResources(page, 15, { search: appliedSearch });
+      setResourcesData({
+        data: response.data || [],
+        total: response.total || 0,
+        totalPages: response.total_pages || 1
+      });
+      setResourcesPage(page);
+    } catch (err) {
+      console.error("Error loading resources page:", err);
+    } finally {
+      setLoadingResources(false);
     }
   };
 
@@ -125,7 +227,8 @@ export default function Search() {
 
       {/* Results Sections - Horizontal Layout */}
       {!loading && appliedSearch && (
-        <Row className="mt-4">
+        <Row className="mt-4 g-4">
+          {/* Events Column */}
           <Col md={4}>
             <h2 className="mb-3">
               Events
@@ -134,12 +237,73 @@ export default function Search() {
             {eventsData.total === 0 ? (
               <p className="text-muted">No events found</p>
             ) : (
-              <p className="text-muted">
-                Showing {eventsData.data.length} of {eventsData.total} events
-              </p>
+              <>
+                {loadingEvents && (
+                  <div className="text-center my-3">
+                    <Spinner animation="border" size="sm" />
+                  </div>
+                )}
+                <div className="d-flex flex-column gap-3">
+                  {eventsData.data.map((event) => (
+                  <Link
+                    key={event.id}
+                    to={`/events/${event.id}`}
+                    className="text-reset text-decoration-none"
+                  >
+                    <Card className="shadow-sm border-0 rounded-3 h-100">
+                      {hasHttp(event.image_url) && (
+                        <Card.Img
+                          variant="top"
+                          src={event.image_url}
+                          alt=""
+                          style={{ objectFit: "cover", height: 140 }}
+                          loading="lazy"
+                        />
+                      )}
+                      <Card.Body>
+                        <Card.Title className="h6 mb-2">
+                          <HighlightedText
+                            text={event.title || event.name || "Untitled"}
+                            searchQuery={appliedSearch}
+                          />
+                        </Card.Title>
+                        <div className="small text-muted">
+                          <HighlightedText
+                            text={[event.city, event.state].filter(Boolean).join(", ") || event.location || ""}
+                            searchQuery={appliedSearch}
+                          />
+                        </div>
+                        {event.date && (
+                          <div className="small mt-1">
+                            {event.date}
+                            {event.start_time && ` • ${event.start_time}`}
+                          </div>
+                        )}
+                        <MatchIndicator
+                          item={event}
+                          searchQuery={appliedSearch}
+                          fieldsToCheck={eventMatchFields}
+                        />
+                      </Card.Body>
+                    </Card>
+                  </Link>
+                  ))}
+                </div>
+                {/* Pagination for Events */}
+                {eventsData.totalPages > 1 && !loadingEvents && (
+                  <div className="mt-3">
+                    <Pagination
+                      currentPage={eventsPage}
+                      totalPages={eventsData.totalPages}
+                      onPageChange={loadEventsPage}
+                    />
+                  </div>
+                )}
+              </>
             )}
           </Col>
 
+          {/* Organizations Column */}
           <Col md={4}>
             <h2 className="mb-3">
               Organizations
@@ -148,12 +312,72 @@ export default function Search() {
             {orgsData.total === 0 ? (
               <p className="text-muted">No organizations found</p>
             ) : (
-              <p className="text-muted">
-                Showing {orgsData.data.length} of {orgsData.total} organizations
-              </p>
+              <>
+                {loadingOrgs && (
+                  <div className="text-center my-3">
+                    <Spinner animation="border" size="sm" />
+                  </div>
+                )}
+                <div className="d-flex flex-column gap-3">
+                  {orgsData.data.map((org) => (
+                  <Link
+                    key={org.id}
+                    to={`/orgs/${org.id}`}
+                    className="text-reset text-decoration-none"
+                  >
+                    <Card className="shadow-sm border-0 rounded-3 h-100">
+                      {hasHttp(org.image_url) && (
+                        <Card.Img
+                          variant="top"
+                          src={org.image_url}
+                          alt=""
+                          style={{ objectFit: "cover", height: 140 }}
+                          loading="lazy"
+                        />
+                      )}
+                      <Card.Body>
+                        <Card.Title className="h6 mb-2">
+                          <HighlightedText
+                            text={org.name || "Unnamed"}
+                            searchQuery={appliedSearch}
+                          />
+                        </Card.Title>
+                        <div className="small text-muted mb-2">
+                          <HighlightedText
+                            text={[org.city, org.state].filter(Boolean).join(", ")}
+                            searchQuery={appliedSearch}
+                          />
+                        </div>
+                        {org.topic && (
+                          <Badge bg="primary" className="mb-2">
+                            <HighlightedText text={org.topic} searchQuery={appliedSearch} />
+                          </Badge>
+                        )}
+                        <MatchIndicator
+                          item={org}
+                          searchQuery={appliedSearch}
+                          fieldsToCheck={orgMatchFields}
+                        />
+                      </Card.Body>
+                    </Card>
+                  </Link>
+                  ))}
+                </div>
+                {/* Pagination for Organizations */}
+                {orgsData.totalPages > 1 && !loadingOrgs && (
+                  <div className="mt-3">
+                    <Pagination
+                      currentPage={orgsPage}
+                      totalPages={orgsData.totalPages}
+                      onPageChange={loadOrgsPage}
+                    />
+                  </div>
+                )}
+              </>
             )}
           </Col>
 
+          {/* Resources Column */}
           <Col md={4}>
             <h2 className="mb-3">
               Resources
@@ -162,9 +386,68 @@ export default function Search() {
             {resourcesData.total === 0 ? (
               <p className="text-muted">No resources found</p>
             ) : (
-              <p className="text-muted">
-                Showing {resourcesData.data.length} of {resourcesData.total} resources
-              </p>
+              <>
+                {loadingResources && (
+                  <div className="text-center my-3">
+                    <Spinner animation="border" size="sm" />
+                  </div>
+                )}
+                <div className="d-flex flex-column gap-3">
+                  {resourcesData.data.map((resource) => (
+                  <Link
+                    key={resource.id}
+                    to={`/resources/${resource.id}`}
+                    className="text-reset text-decoration-none"
+                  >
+                    <Card className="shadow-sm border-0 rounded-3 h-100">
+                      {hasHttp(resource.image_url) && (
+                        <Card.Img
+                          variant="top"
+                          src={resource.image_url}
+                          alt=""
+                          style={{ objectFit: "cover", height: 140 }}
+                          loading="lazy"
+                        />
+                      )}
+                      <Card.Body>
+                        <Card.Title className="h6 mb-2">
+                          <HighlightedText
+                            text={resource.title || "Untitled"}
+                            searchQuery={appliedSearch}
+                          />
+                        </Card.Title>
+                        {resource.topic && (
+                          <Badge bg="warning" text="dark" className="mb-2">
+                            <HighlightedText text={resource.topic} searchQuery={appliedSearch} />
+                          </Badge>
+                        )}
+                        <div className="small text-muted">
+                          <HighlightedText
+                            text={[resource.court_name, resource.scope].filter(Boolean).join(" · ")}
+                            searchQuery={appliedSearch}
+                          />
+                        </div>
+                        <MatchIndicator
+                          item={resource}
+                          searchQuery={appliedSearch}
+                          fieldsToCheck={resourceMatchFields}
+                        />
+                      </Card.Body>
+                    </Card>
+                  </Link>
+                  ))}
+                </div>
+                {/* Pagination for Resources */}
+                {resourcesData.totalPages > 1 && !loadingResources && (
+                  <div className="mt-3">
+                    <Pagination
+                      currentPage={resourcesPage}
+                      totalPages={resourcesData.totalPages}
+                      onPageChange={loadResourcesPage}
+                    />
+                  </div>
+                )}
+              </>
             )}
           </Col>
         </Row>
