@@ -167,27 +167,42 @@ def get_orgs():
     # Start with base query
     query = Organization.query
 
-    # Apply search filter (searches across ALL text fields including non-displayed ones)
+    # Apply search filter using multi-word search algorithm
+    # (searches across ALL text fields including non-displayed ones)
+    org_searchable_fields = [
+        'name', 'city', 'state', 'topic', 'description', 'address', 'size',
+        'meeting_frequency', 'zipcode', 'ein', 'subsection_code', 'ntee_code',
+        'external_url', 'guidestar_url'
+    ]
+
     if search_query:
-        search_pattern = f"%{search_query}%"
-        query = query.filter(
-            db.or_(
-                Organization.name.ilike(search_pattern),
-                Organization.city.ilike(search_pattern),
-                Organization.state.ilike(search_pattern),
-                Organization.topic.ilike(search_pattern),
-                Organization.description.ilike(search_pattern),
-                Organization.address.ilike(search_pattern),
-                Organization.size.ilike(search_pattern),
-                Organization.meeting_frequency.ilike(search_pattern),
-                Organization.zipcode.ilike(search_pattern),
-                Organization.ein.ilike(search_pattern),
-                Organization.subsection_code.ilike(search_pattern),
-                Organization.ntee_code.ilike(search_pattern),
-                Organization.external_url.ilike(search_pattern),
-                Organization.guidestar_url.ilike(search_pattern)
-            )
-        )
+        # Split search query into words
+        words = re.findall(r'\w+', search_query.lower())
+        if words:
+            # Build OR condition for any word match
+            word_conditions = []
+            for word in words:
+                word_pattern = f"%{word}%"
+                word_conditions.append(
+                    db.or_(
+                        Organization.name.ilike(word_pattern),
+                        Organization.city.ilike(word_pattern),
+                        Organization.state.ilike(word_pattern),
+                        Organization.topic.ilike(word_pattern),
+                        Organization.description.ilike(word_pattern),
+                        Organization.address.ilike(word_pattern),
+                        Organization.size.ilike(word_pattern),
+                        Organization.meeting_frequency.ilike(word_pattern),
+                        Organization.zipcode.ilike(word_pattern),
+                        Organization.ein.ilike(word_pattern),
+                        Organization.subsection_code.ilike(word_pattern),
+                        Organization.ntee_code.ilike(word_pattern),
+                        Organization.external_url.ilike(word_pattern),
+                        Organization.guidestar_url.ilike(word_pattern)
+                    )
+                )
+            # Combine all word conditions with OR
+            query = query.filter(db.or_(*word_conditions))
 
     # Apply filters - support multiple values (comma-separated)
     if filter_state:
@@ -208,18 +223,45 @@ def get_orgs():
             size_conditions = [Organization.size.ilike(f"%{sz}%") for sz in sizes]
             query = query.filter(db.or_(*size_conditions))
 
-    # Apply sorting
-    if sort_by == 'name':
-        query = query.order_by(Organization.name.desc() if sort_order == 'desc' else Organization.name.asc())
-    elif sort_by == 'city':
-        query = query.order_by(Organization.city.desc() if sort_order == 'desc' else Organization.city.asc())
-    else:
-        # Default sort by name ascending
-        query = query.order_by(Organization.name.asc())
+    # If search query exists, apply relevance-based sorting
+    # Otherwise use the regular sorting
+    if search_query:
+        # Get all matching results (no pagination yet)
+        all_orgs = query.all()
 
-    # Paginate results
-    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
-    orgs = pagination.items
+        # Calculate relevance scores for each result
+        orgs_with_scores = []
+        for org in all_orgs:
+            score = calculate_relevance_score(org, search_query, org_searchable_fields)
+            orgs_with_scores.append((org, score))
+
+        # Sort by relevance score (descending - highest score first)
+        orgs_with_scores.sort(key=lambda x: x[1], reverse=True)
+
+        # Apply pagination manually
+        total = len(orgs_with_scores)
+        start_idx = (page - 1) * per_page
+        end_idx = start_idx + per_page
+        paginated_orgs_with_scores = orgs_with_scores[start_idx:end_idx]
+        orgs = [o for o, score in paginated_orgs_with_scores]
+
+        # Calculate total pages
+        total_pages = math.ceil(total / per_page) if total > 0 else 0
+    else:
+        # Apply regular sorting when no search query
+        if sort_by == 'name':
+            query = query.order_by(Organization.name.desc() if sort_order == 'desc' else Organization.name.asc())
+        elif sort_by == 'city':
+            query = query.order_by(Organization.city.desc() if sort_order == 'desc' else Organization.city.asc())
+        else:
+            # Default sort by name ascending
+            query = query.order_by(Organization.name.asc())
+
+        # Paginate results
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        orgs = pagination.items
+        total = pagination.total
+        total_pages = pagination.total_pages
 
     return jsonify({
         "data": [
@@ -250,10 +292,10 @@ def get_orgs():
             }
             for org in orgs
         ],
-        "total": pagination.total,
+        "total": total,
         "page": page,
         "per_page": per_page,
-        "total_pages": math.ceil(pagination.total / per_page) if pagination.total > 0 else 0,
+        "total_pages": total_pages,
         "search_query": search_query,
         "filters": {
             "state": filter_state,
@@ -349,24 +391,38 @@ def get_events():
     # Start with base query
     query = Event.query
 
-    # Apply search filter (searches across ALL text fields including non-displayed ones)
+    # Apply search filter using multi-word search algorithm
+    # (searches across ALL text fields including non-displayed ones)
+    event_searchable_fields = [
+        'title', 'description', 'location', 'city', 'state', 'venue_name',
+        'start_time', 'end_time', 'timezone', 'external_url', 'eventbrite_id'
+    ]
+
     if search_query:
-        search_pattern = f"%{search_query}%"
-        query = query.filter(
-            db.or_(
-                Event.title.ilike(search_pattern),
-                Event.description.ilike(search_pattern),
-                Event.location.ilike(search_pattern),
-                Event.city.ilike(search_pattern),
-                Event.state.ilike(search_pattern),
-                Event.venue_name.ilike(search_pattern),
-                Event.start_time.ilike(search_pattern),
-                Event.end_time.ilike(search_pattern),
-                Event.timezone.ilike(search_pattern),
-                Event.external_url.ilike(search_pattern),
-                Event.eventbrite_id.ilike(search_pattern)
-            )
-        )
+        # Split search query into words
+        words = re.findall(r'\w+', search_query.lower())
+        if words:
+            # Build OR condition for any word match
+            word_conditions = []
+            for word in words:
+                word_pattern = f"%{word}%"
+                word_conditions.append(
+                    db.or_(
+                        Event.title.ilike(word_pattern),
+                        Event.description.ilike(word_pattern),
+                        Event.location.ilike(word_pattern),
+                        Event.city.ilike(word_pattern),
+                        Event.state.ilike(word_pattern),
+                        Event.venue_name.ilike(word_pattern),
+                        Event.start_time.ilike(word_pattern),
+                        Event.end_time.ilike(word_pattern),
+                        Event.timezone.ilike(word_pattern),
+                        Event.external_url.ilike(word_pattern),
+                        Event.eventbrite_id.ilike(word_pattern)
+                    )
+                )
+            # Combine all word conditions with OR
+            query = query.filter(db.or_(*word_conditions))
 
     # Apply filters - support multiple values (comma-separated)
     if filter_location:
@@ -389,18 +445,45 @@ def get_events():
         elif filter_duration == 'long':
             query = query.filter(Event.duration_minutes > 90)
 
-    # Apply sorting
-    if sort_by == 'date':
-        query = query.order_by(Event.date.desc() if sort_order == 'desc' else Event.date.asc())
-    elif sort_by == 'title':
-        query = query.order_by(Event.title.desc() if sort_order == 'desc' else Event.title.asc())
-    else:
-        # Default sort by date descending (most recent first)
-        query = query.order_by(Event.date.desc())
+    # If search query exists, apply relevance-based sorting
+    # Otherwise use the regular sorting
+    if search_query:
+        # Get all matching results (no pagination yet)
+        all_events = query.all()
 
-    # Paginate results
-    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
-    events = pagination.items
+        # Calculate relevance scores for each result
+        events_with_scores = []
+        for event in all_events:
+            score = calculate_relevance_score(event, search_query, event_searchable_fields)
+            events_with_scores.append((event, score))
+
+        # Sort by relevance score (descending - highest score first)
+        events_with_scores.sort(key=lambda x: x[1], reverse=True)
+
+        # Apply pagination manually
+        total = len(events_with_scores)
+        start_idx = (page - 1) * per_page
+        end_idx = start_idx + per_page
+        paginated_events_with_scores = events_with_scores[start_idx:end_idx]
+        events = [e for e, score in paginated_events_with_scores]
+
+        # Calculate total pages
+        total_pages = math.ceil(total / per_page) if total > 0 else 0
+    else:
+        # Apply regular sorting when no search query
+        if sort_by == 'date':
+            query = query.order_by(Event.date.desc() if sort_order == 'desc' else Event.date.asc())
+        elif sort_by == 'title':
+            query = query.order_by(Event.title.desc() if sort_order == 'desc' else Event.title.asc())
+        else:
+            # Default sort by date descending (most recent first)
+            query = query.order_by(Event.date.desc())
+
+        # Paginate results
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        events = pagination.items
+        total = pagination.total
+        total_pages = pagination.total_pages
 
     return jsonify({
         "data": [
@@ -430,10 +513,10 @@ def get_events():
             }
             for event in events
         ],
-        "total": pagination.total,
+        "total": total,
         "page": page,
         "per_page": per_page,
-        "total_pages": math.ceil(pagination.total / per_page) if pagination.total > 0 else 0,
+        "total_pages": total_pages,
         "search_query": search_query,
         "filters": {
             "location": filter_location,
