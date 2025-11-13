@@ -230,10 +230,12 @@ export default function Search() {
         <Row className="mt-4 g-4">
           {/* Events Column */}
           <Col md={4}>
-            <h2 className="mb-3">
-              Events
-              <span className="text-muted fs-6 ms-2">({eventsData.total})</span>
-            </h2>
+            <div className="p-3 bg-light border rounded-3 mb-3">
+              <h2 className="mb-1">Events</h2>
+              <div className="text-muted small">
+                Showing {eventsData.data.length} of {eventsData.total}
+              </div>
+            </div>
             {eventsData.total === 0 ? (
               <p className="text-muted">No events found</p>
             ) : (
@@ -250,7 +252,7 @@ export default function Search() {
                     to={`/events/${event.id}`}
                     className="text-reset text-decoration-none"
                   >
-                    <Card className="shadow-sm border-0 rounded-3 h-100">
+                    <Card className="shadow-sm border-0 rounded-3 h-100" style={{ minHeight: '280px' }}>
                       {hasHttp(event.image_url) && (
                         <Card.Img
                           variant="top"
@@ -305,10 +307,12 @@ export default function Search() {
 
           {/* Organizations Column */}
           <Col md={4}>
-            <h2 className="mb-3">
-              Organizations
-              <span className="text-muted fs-6 ms-2">({orgsData.total})</span>
-            </h2>
+            <div className="p-3 bg-light border rounded-3 mb-3">
+              <h2 className="mb-1">Organizations</h2>
+              <div className="text-muted small">
+                Showing {orgsData.data.length} of {orgsData.total}
+              </div>
+            </div>
             {orgsData.total === 0 ? (
               <p className="text-muted">No organizations found</p>
             ) : (
@@ -325,7 +329,7 @@ export default function Search() {
                     to={`/orgs/${org.id}`}
                     className="text-reset text-decoration-none"
                   >
-                    <Card className="shadow-sm border-0 rounded-3 h-100">
+                    <Card className="shadow-sm border-0 rounded-3 h-100" style={{ minHeight: '280px' }}>
                       {hasHttp(org.image_url) && (
                         <Card.Img
                           variant="top"
@@ -379,10 +383,12 @@ export default function Search() {
 
           {/* Resources Column */}
           <Col md={4}>
-            <h2 className="mb-3">
-              Resources
-              <span className="text-muted fs-6 ms-2">({resourcesData.total})</span>
-            </h2>
+            <div className="p-3 bg-light border rounded-3 mb-3">
+              <h2 className="mb-1">Resources</h2>
+              <div className="text-muted small">
+                Showing {resourcesData.data.length} of {resourcesData.total}
+              </div>
+            </div>
             {resourcesData.total === 0 ? (
               <p className="text-muted">No resources found</p>
             ) : (
@@ -399,7 +405,7 @@ export default function Search() {
                     to={`/resources/${resource.id}`}
                     className="text-reset text-decoration-none"
                   >
-                    <Card className="shadow-sm border-0 rounded-3 h-100">
+                    <Card className="shadow-sm border-0 rounded-3 h-100" style={{ minHeight: '280px' }}>
                       {hasHttp(resource.image_url) && (
                         <Card.Img
                           variant="top"
