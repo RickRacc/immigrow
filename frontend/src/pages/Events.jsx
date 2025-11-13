@@ -19,18 +19,22 @@ export default function Events() {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
 
-  // Search and filter state
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortOptions, setSortOptions] = useState({ sort_by: "", sort_order: "asc" });
-  const [filters, setFilters] = useState({});
+  // Search and filter state - tracks the APPLIED filters (what's actually being used for API calls)
+  const [appliedFilters, setAppliedFilters] = useState({
+    search: "",
+    sortBy: "",
+    sortOrder: "asc",
+    filters: {}
+  });
 
   const loadEvents = async () => {
     setLoading(true);
     try {
       const options = {
-        search: searchQuery,
-        ...sortOptions,
-        ...filters
+        search: appliedFilters.search,
+        sort_by: appliedFilters.sortBy,
+        sort_order: appliedFilters.sortOrder,
+        ...appliedFilters.filters
       };
 
       const response = await fetchEvents(currentPage, 15, options);
@@ -85,7 +89,12 @@ export default function Events() {
       loadEvents();
     }
     return () => { cancel = true; };
-  }, [currentPage, searchQuery, sortOptions, filters]);
+  }, [currentPage, appliedFilters]);
+
+  const handleApplyFilters = (values) => {
+    setAppliedFilters(values);
+    setCurrentPage(1); // Reset to first page when filters change
+  };
 
   if (loading) {
     return (
@@ -151,12 +160,11 @@ export default function Events() {
       <h1 className="mb-3">Search from {total} Events</h1>
 
       <SearchAndFilters
-        onSearch={setSearchQuery}
-        onSortChange={setSortOptions}
-        onFilterChange={setFilters}
+        onApply={handleApplyFilters}
         sortOptions={sortOptionsConfig}
         filterFields={filterFieldsConfig}
         searchPlaceholder="Search events by title, location, description..."
+        initialValues={appliedFilters}
       />
 
       <PaginationInfo currentCount={items.length} itemType="events" />
@@ -177,12 +185,12 @@ export default function Events() {
                 )}
                 <Card.Body>
                   <Card.Title className="h5 mb-2">
-                    <HighlightedText text={e.title} searchQuery={searchQuery} />
+                    <HighlightedText text={e.title} searchQuery={appliedFilters.search} />
                   </Card.Title>
                   <div className="small text-muted">
                     <HighlightedText
                       text={[e.city, e.state].filter(Boolean).join(", ") || e.venue || ""}
-                      searchQuery={searchQuery}
+                      searchQuery={appliedFilters.search}
                     />
                   </div>
                   {(e.date || e.start) && (
