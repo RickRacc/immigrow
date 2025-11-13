@@ -111,9 +111,42 @@ export async function fetchEventsByOrg(orgId) {
 }
 
 /* --------- Resources --------- */
-export async function fetchResources(page = 1, perPage = 15) {
-  return fetchJson(`/resources?page=${page}&per_page=${perPage}`);
+export async function fetchResources(page = 1, perPage = 15, options = {}) {
+  const params = new URLSearchParams({
+    page: String(page),
+    per_page: String(perPage)
+  });
+
+  // Add search parameter
+  if (options.search) {
+    params.append('search', options.search);
+  }
+
+  // Add sort parameters
+  if (options.sort_by) {
+    params.append('sort_by', options.sort_by);
+  }
+  if (options.sort_order) {
+    params.append('sort_order', options.sort_order);
+  }
+
+  // Add filter parameters (handle arrays by joining with commas)
+  if (options.topic) {
+    const topicValue = Array.isArray(options.topic) ? options.topic.join(',') : options.topic;
+    if (topicValue) params.append('topic', topicValue);
+  }
+  if (options.scope) {
+    const scopeValue = Array.isArray(options.scope) ? options.scope.join(',') : options.scope;
+    if (scopeValue) params.append('scope', scopeValue);
+  }
+  if (options.court_name) {
+    const courtValue = Array.isArray(options.court_name) ? options.court_name.join(',') : options.court_name;
+    if (courtValue) params.append('court_name', courtValue);
+  }
+
+  return fetchJson(`/resources?${params.toString()}`);
 }
+
 export async function fetchResourceById(id) {
   return fetchJson(`/resources/${id}`);
 }
