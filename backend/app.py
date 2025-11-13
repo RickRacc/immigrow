@@ -116,7 +116,7 @@ def get_orgs():
     # Start with base query
     query = Organization.query
 
-    # Apply search filter (searches across all text fields)
+    # Apply search filter (searches across ALL text fields including non-displayed ones)
     if search_query:
         search_pattern = f"%{search_query}%"
         query = query.filter(
@@ -128,7 +128,13 @@ def get_orgs():
                 Organization.description.ilike(search_pattern),
                 Organization.address.ilike(search_pattern),
                 Organization.size.ilike(search_pattern),
-                Organization.meeting_frequency.ilike(search_pattern)
+                Organization.meeting_frequency.ilike(search_pattern),
+                Organization.zipcode.ilike(search_pattern),
+                Organization.ein.ilike(search_pattern),
+                Organization.subsection_code.ilike(search_pattern),
+                Organization.ntee_code.ilike(search_pattern),
+                Organization.external_url.ilike(search_pattern),
+                Organization.guidestar_url.ilike(search_pattern)
             )
         )
 
@@ -292,7 +298,7 @@ def get_events():
     # Start with base query
     query = Event.query
 
-    # Apply search filter (searches across all text fields)
+    # Apply search filter (searches across ALL text fields including non-displayed ones)
     if search_query:
         search_pattern = f"%{search_query}%"
         query = query.filter(
@@ -305,7 +311,9 @@ def get_events():
                 Event.venue_name.ilike(search_pattern),
                 Event.start_time.ilike(search_pattern),
                 Event.end_time.ilike(search_pattern),
-                Event.timezone.ilike(search_pattern)
+                Event.timezone.ilike(search_pattern),
+                Event.external_url.ilike(search_pattern),
+                Event.eventbrite_id.ilike(search_pattern)
             )
         )
 
@@ -469,7 +477,7 @@ def get_resources():
     # Start with base query
     query = Resource.query
 
-    # Apply search filter (searches across all text fields)
+    # Apply search filter (searches across ALL text fields including non-displayed ones)
     if search_query:
         search_pattern = f"%{search_query}%"
         query = query.filter(
@@ -481,7 +489,10 @@ def get_resources():
                 Resource.court_name.ilike(search_pattern),
                 Resource.citation.ilike(search_pattern),
                 Resource.judge_name.ilike(search_pattern),
-                Resource.docket_number.ilike(search_pattern)
+                Resource.docket_number.ilike(search_pattern),
+                Resource.format.ilike(search_pattern),
+                Resource.external_url.ilike(search_pattern),
+                Resource.courtlistener_id.ilike(search_pattern)
             )
         )
 
