@@ -231,3 +231,38 @@
 - Backend handles pagination via `page` and `per_page` query params
 - Frontend has reusable Pagination component
 - All model pages already implement pagination
+
+---
+
+## IMPLEMENTATION PROGRESS
+
+### ✅ Completed: Events Model (Backend + Frontend)
+
+**Backend Changes (`backend/app.py`):**
+- Updated `/api/events` endpoint with query parameter support:
+  - `search` - Full-text search across all event text fields
+  - `sort_by` - Sort by `date` or `title`
+  - `sort_order` - `asc` or `desc`
+  - `state` - Filter by state
+  - `timezone` - Filter by timezone (EST/PST/CST/MST)
+  - `duration` - Filter by duration category (short <60min, medium 60-90min, long >90min)
+- Returns search_query, filters, and sort parameters in response for frontend state sync
+
+**Frontend Changes:**
+1. **New Components:**
+   - `frontend/src/components/SearchAndFilters.jsx` - Reusable search/sort/filter UI component
+   - `frontend/src/components/HighlightedText.jsx` - Highlights search matches in text
+
+2. **Updated Files:**
+   - `frontend/src/lib/api.js` - Updated `fetchEvents()` to accept options object with search/sort/filter params
+   - `frontend/src/pages/Events.jsx` - Integrated SearchAndFilters component with highlighting
+
+**Features Implemented for Events:**
+- ✅ Sort by: date (asc/desc), title (asc/desc)
+- ✅ Filter by: state, timezone, duration
+- ✅ Full-text search across all event attributes
+- ✅ Search highlighting with `<mark>` tags
+- ✅ Maintains pagination functionality
+- ✅ Reusable components for other models
+
+**Next Steps:** Organizations Model

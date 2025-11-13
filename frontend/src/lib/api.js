@@ -32,12 +32,43 @@ export async function fetchOrgById(id) {
 }
 
 /* --------- Events --------- */
-export async function fetchEvents(page = 1, perPage = 15) {
-  return fetchJson(`/events?page=${page}&per_page=${perPage}`);
+export async function fetchEvents(page = 1, perPage = 15, options = {}) {
+  const params = new URLSearchParams({
+    page: String(page),
+    per_page: String(perPage)
+  });
+
+  // Add search parameter
+  if (options.search) {
+    params.append('search', options.search);
+  }
+
+  // Add sort parameters
+  if (options.sort_by) {
+    params.append('sort_by', options.sort_by);
+  }
+  if (options.sort_order) {
+    params.append('sort_order', options.sort_order);
+  }
+
+  // Add filter parameters
+  if (options.state) {
+    params.append('state', options.state);
+  }
+  if (options.timezone) {
+    params.append('timezone', options.timezone);
+  }
+  if (options.duration) {
+    params.append('duration', options.duration);
+  }
+
+  return fetchJson(`/events?${params.toString()}`);
 }
+
 export async function fetchEventById(id) {
   return fetchJson(`/events/${id}`);
 }
+
 // client-side filter helper if you want events by org
 export async function fetchEventsByOrg(orgId) {
   const all = await fetchEvents();

@@ -207,7 +207,64 @@ def get_events():
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 15, type=int)
 
-    pagination = Event.query.paginate(page=page, per_page=per_page, error_out=False)
+    # Search parameter
+    search_query = request.args.get('search', '', type=str).strip()
+
+    # Sort parameters: sort_by (date, title) and sort_order (asc, desc)
+    sort_by = request.args.get('sort_by', '', type=str).lower()
+    sort_order = request.args.get('sort_order', 'asc', type=str).lower()
+
+    # Filter parameters
+    filter_state = request.args.get('state', '', type=str).strip()
+    filter_timezone = request.args.get('timezone', '', type=str).strip()
+    filter_duration = request.args.get('duration', '', type=str).strip()  # short, medium, long
+
+    # Start with base query
+    query = Event.query
+
+    # Apply search filter (searches across all text fields)
+    if search_query:
+        search_pattern = f"%{search_query}%"
+        query = query.filter(
+            db.or_(
+                Event.title.ilike(search_pattern),
+                Event.description.ilike(search_pattern),
+                Event.location.ilike(search_pattern),
+                Event.city.ilike(search_pattern),
+                Event.state.ilike(search_pattern),
+                Event.venue_name.ilike(search_pattern),
+                Event.start_time.ilike(search_pattern),
+                Event.end_time.ilike(search_pattern),
+                Event.timezone.ilike(search_pattern)
+            )
+        )
+
+    # Apply filters
+    if filter_state:
+        query = query.filter(Event.state.ilike(filter_state))
+
+    if filter_timezone:
+        query = query.filter(Event.timezone.ilike(filter_timezone))
+
+    if filter_duration:
+        if filter_duration == 'short':
+            query = query.filter(Event.duration_minutes < 60)
+        elif filter_duration == 'medium':
+            query = query.filter(Event.duration_minutes >= 60, Event.duration_minutes <= 90)
+        elif filter_duration == 'long':
+            query = query.filter(Event.duration_minutes > 90)
+
+    # Apply sorting
+    if sort_by == 'date':
+        query = query.order_by(Event.date.desc() if sort_order == 'desc' else Event.date.asc())
+    elif sort_by == 'title':
+        query = query.order_by(Event.title.desc() if sort_order == 'desc' else Event.title.asc())
+    else:
+        # Default sort by date descending (most recent first)
+        query = query.order_by(Event.date.desc())
+
+    # Paginate results
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
     events = pagination.items
 
     return jsonify({
@@ -241,7 +298,17 @@ def get_events():
         "total": pagination.total,
         "page": page,
         "per_page": per_page,
-        "total_pages": math.ceil(pagination.total / per_page) if pagination.total > 0 else 0
+        "total_pages": math.ceil(pagination.total / per_page) if pagination.total > 0 else 0,
+        "search_query": search_query,
+        "filters": {
+            "state": filter_state,
+            "timezone": filter_timezone,
+            "duration": filter_duration
+        },
+        "sort": {
+            "sort_by": sort_by,
+            "sort_order": sort_order
+        }
     })
 
 # get event by ID
