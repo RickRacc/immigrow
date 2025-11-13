@@ -3,6 +3,7 @@ from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from datetime import date, time, datetime
 import math
+import re
 
 app = Flask(__name__)
 CORS(app)
@@ -16,6 +17,56 @@ def as_iso(val):
     if isinstance(val, str):
         return val
     return str(val)
+
+
+def calculate_relevance_score(item, search_query, searchable_fields):
+    """
+    Calculate relevance score for search results.
+    Returns score where higher = more relevant.
+
+    Algorithm:
+    1. Full phrase match (after normalizing whitespace) = 1000+ points
+    2. Each matching word = 100 points
+    3. Consecutive word sequences = 50 bonus points per sequence
+    """
+    if not search_query:
+        return 0
+
+    # Normalize and split search query into words
+    words = re.findall(r'\w+', search_query.lower())
+    if not words:
+        return 0
+
+    # Normalize search phrase (remove extra whitespace)
+    normalized_phrase = ' '.join(words)
+
+    score = 0
+    all_text = ""
+
+    # Collect all searchable text from the item
+    for field in searchable_fields:
+        value = getattr(item, field, None)
+        if value:
+            all_text += " " + str(value).lower()
+
+    # Normalize whitespace in collected text
+    normalized_text = ' '.join(all_text.split())
+
+    # Check for full phrase match (highest priority)
+    if normalized_phrase in normalized_text:
+        score += 1000
+
+    # Count matching words
+    matching_words = sum(1 for word in words if word in normalized_text)
+    score += matching_words * 100
+
+    # Bonus for consecutive word sequences
+    for i in range(len(words) - 1):
+        consecutive = f"{words[i]} {words[i+1]}"
+        if consecutive in normalized_text:
+            score += 50
+
+    return score
 
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Immigrow123@immigrow-db.cz8gegw2sqh9.us-east-2.rds.amazonaws.com:5432/Immigrow'
@@ -477,24 +528,38 @@ def get_resources():
     # Start with base query
     query = Resource.query
 
-    # Apply search filter (searches across ALL text fields including non-displayed ones)
+    # Apply search filter using multi-word search algorithm
+    # (searches across ALL text fields including non-displayed ones)
+    resource_searchable_fields = [
+        'title', 'topic', 'scope', 'description', 'court_name', 'citation',
+        'judge_name', 'docket_number', 'format', 'external_url', 'courtlistener_id'
+    ]
+
     if search_query:
-        search_pattern = f"%{search_query}%"
-        query = query.filter(
-            db.or_(
-                Resource.title.ilike(search_pattern),
-                Resource.topic.ilike(search_pattern),
-                Resource.scope.ilike(search_pattern),
-                Resource.description.ilike(search_pattern),
-                Resource.court_name.ilike(search_pattern),
-                Resource.citation.ilike(search_pattern),
-                Resource.judge_name.ilike(search_pattern),
-                Resource.docket_number.ilike(search_pattern),
-                Resource.format.ilike(search_pattern),
-                Resource.external_url.ilike(search_pattern),
-                Resource.courtlistener_id.ilike(search_pattern)
-            )
-        )
+        # Split search query into words
+        words = re.findall(r'\w+', search_query.lower())
+        if words:
+            # Build OR condition for any word match
+            word_conditions = []
+            for word in words:
+                word_pattern = f"%{word}%"
+                word_conditions.append(
+                    db.or_(
+                        Resource.title.ilike(word_pattern),
+                        Resource.topic.ilike(word_pattern),
+                        Resource.scope.ilike(word_pattern),
+                        Resource.description.ilike(word_pattern),
+                        Resource.court_name.ilike(word_pattern),
+                        Resource.citation.ilike(word_pattern),
+                        Resource.judge_name.ilike(word_pattern),
+                        Resource.docket_number.ilike(word_pattern),
+                        Resource.format.ilike(word_pattern),
+                        Resource.external_url.ilike(word_pattern),
+                        Resource.courtlistener_id.ilike(word_pattern)
+                    )
+                )
+            # Combine all word conditions with OR
+            query = query.filter(db.or_(*word_conditions))
 
     # Apply filters - support multiple values (comma-separated)
     if filter_topic:
@@ -515,18 +580,45 @@ def get_resources():
             court_conditions = [Resource.court_name.ilike(f"%{c}%") for c in courts]
             query = query.filter(db.or_(*court_conditions))
 
-    # Apply sorting
-    if sort_by == 'date_published':
-        query = query.order_by(Resource.date_published.desc() if sort_order == 'desc' else Resource.date_published.asc())
-    elif sort_by == 'title':
-        query = query.order_by(Resource.title.desc() if sort_order == 'desc' else Resource.title.asc())
-    else:
-        # Default sort by date_published descending (most recent first)
-        query = query.order_by(Resource.date_published.desc())
+    # If search query exists, apply relevance-based sorting
+    # Otherwise use the regular sorting
+    if search_query:
+        # Get all matching results (no pagination yet)
+        all_resources = query.all()
 
-    # Paginate results
-    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
-    resources = pagination.items
+        # Calculate relevance scores for each result
+        resources_with_scores = []
+        for resource in all_resources:
+            score = calculate_relevance_score(resource, search_query, resource_searchable_fields)
+            resources_with_scores.append((resource, score))
+
+        # Sort by relevance score (descending - highest score first)
+        resources_with_scores.sort(key=lambda x: x[1], reverse=True)
+
+        # Apply pagination manually
+        total = len(resources_with_scores)
+        start_idx = (page - 1) * per_page
+        end_idx = start_idx + per_page
+        paginated_resources_with_scores = resources_with_scores[start_idx:end_idx]
+        resources = [r for r, score in paginated_resources_with_scores]
+
+        # Calculate total pages
+        total_pages = math.ceil(total / per_page) if total > 0 else 0
+    else:
+        # Apply regular sorting when no search query
+        if sort_by == 'date_published':
+            query = query.order_by(Resource.date_published.desc() if sort_order == 'desc' else Resource.date_published.asc())
+        elif sort_by == 'title':
+            query = query.order_by(Resource.title.desc() if sort_order == 'desc' else Resource.title.asc())
+        else:
+            # Default sort by date_published descending (most recent first)
+            query = query.order_by(Resource.date_published.desc())
+
+        # Paginate results
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        resources = pagination.items
+        total = pagination.total
+        total_pages = pagination.total_pages
 
     return jsonify({
         "data": [
@@ -559,10 +651,10 @@ def get_resources():
             }
             for resource in resources
         ],
-        "total": pagination.total,
+        "total": total,
         "page": page,
         "per_page": per_page,
-        "total_pages": math.ceil(pagination.total / per_page) if pagination.total > 0 else 0,
+        "total_pages": total_pages,
         "search_query": search_query,
         "filters": {
             "topic": filter_topic,
