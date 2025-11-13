@@ -6,6 +6,7 @@ import { fetchOrgs } from "../lib/api";
 import Pagination, { PaginationInfo } from "../components/Pagination";
 import SearchAndFilters from "../components/SearchAndFilters";
 import HighlightedText from "../components/HighlightedText";
+import MatchIndicator from "../components/MatchIndicator";
 
 export default function Orgs() {
   const [items, setItems] = useState([]);
@@ -46,6 +47,13 @@ export default function Orgs() {
         meetingFrequency: o.meeting_frequency ?? "",
         ein: o.ein ?? "",
         imageUrl: (typeof o.image_url === 'string' && /^https?:\/\//i.test(o.image_url)) ? o.image_url : null,
+        // Include all searchable fields for MatchIndicator
+        address: o.address ?? "",
+        zipcode: o.zipcode ?? "",
+        subsection_code: o.subsection_code ?? "",
+        ntee_code: o.ntee_code ?? "",
+        external_url: o.external_url ?? "",
+        guidestar_url: o.guidestar_url ?? ""
       }));
 
       setItems(rows);
@@ -89,6 +97,24 @@ export default function Orgs() {
   const sortOptionsConfig = [
     { value: "name", label: "Name" },
     { value: "city", label: "City" }
+  ];
+
+  // Fields to check for match indicator
+  const orgMatchFields = [
+    { key: 'name', label: 'Name' },
+    { key: 'description', label: 'Description' },
+    { key: 'city', label: 'City' },
+    { key: 'state', label: 'State' },
+    { key: 'topic', label: 'Topic' },
+    { key: 'address', label: 'Address' },
+    { key: 'zipcode', label: 'Zipcode' },
+    { key: 'ein', label: 'EIN' },
+    { key: 'size', label: 'Size' },
+    { key: 'meetingFrequency', label: 'Meeting Frequency' },
+    { key: 'subsection_code', label: 'Subsection Code' },
+    { key: 'ntee_code', label: 'NTEE Code' },
+    { key: 'external_url', label: 'URL' },
+    { key: 'guidestar_url', label: 'Guidestar URL' }
   ];
 
   const filterFieldsConfig = [
@@ -203,6 +229,12 @@ export default function Orgs() {
                       <span className="badge bg-light text-dark">EIN: {o.ein}</span>
                     </div>
                   )}
+
+                  <MatchIndicator
+                    item={o}
+                    searchQuery={appliedFilters.search}
+                    fieldsToCheck={orgMatchFields}
+                  />
                 </Card.Body>
                 <span className="stretched-link" />
               </Card>

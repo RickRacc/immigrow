@@ -6,6 +6,7 @@ import { fetchEvents } from "../lib/api";
 import Pagination, { PaginationInfo } from "../components/Pagination";
 import SearchAndFilters from "../components/SearchAndFilters";
 import HighlightedText from "../components/HighlightedText";
+import MatchIndicator from "../components/MatchIndicator";
 
 function hasHttp(url) {
   return typeof url === 'string' && /^https?:\/\//i.test(url);
@@ -70,6 +71,12 @@ export default function Events() {
           timezone: e.timezone ?? null,
           venue: e.venue ?? e.venue_name ?? e.location ?? null,
           imageUrl: image,
+          // Include all searchable fields for MatchIndicator
+          description: e.description ?? null,
+          location: e.location ?? null,
+          venue_name: e.venue_name ?? null,
+          external_url: e.external_url ?? null,
+          eventbrite_id: e.eventbrite_id ?? null
         };
       });
 
@@ -159,6 +166,19 @@ export default function Events() {
     }
   ];
 
+  // Fields to check for match indicator
+  const eventMatchFields = [
+    { key: 'title', label: 'Title' },
+    { key: 'description', label: 'Description' },
+    { key: 'location', label: 'Location' },
+    { key: 'city', label: 'City' },
+    { key: 'state', label: 'State' },
+    { key: 'venue_name', label: 'Venue' },
+    { key: 'timezone', label: 'Timezone' },
+    { key: 'external_url', label: 'URL' },
+    { key: 'eventbrite_id', label: 'Eventbrite ID' }
+  ];
+
   return (
     <div className="container py-3">
       <h1 className="mb-3">Search from {total} Events</h1>
@@ -207,6 +227,11 @@ export default function Events() {
                       {e.timezone && ` (${e.timezone})`}
                     </div>
                   )}
+                  <MatchIndicator
+                    item={e}
+                    searchQuery={appliedFilters.search}
+                    fieldsToCheck={eventMatchFields}
+                  />
                 </Card.Body>
                 <span className="stretched-link" />
               </Card>

@@ -6,6 +6,7 @@ import { fetchResources } from "../lib/api";
 import Pagination, { PaginationInfo } from "../components/Pagination";
 import SearchAndFilters from "../components/SearchAndFilters";
 import HighlightedText from "../components/HighlightedText";
+import MatchIndicator from "../components/MatchIndicator";
 
 export default function Resources() {
   const [items, setItems] = useState([]);
@@ -51,6 +52,14 @@ export default function Resources() {
         ]
           .filter(Boolean)
           .join(" · "),
+        // Include all searchable fields for MatchIndicator
+        description: r.description ?? "",
+        citation: r.citation ?? "",
+        judge_name: r.judge_name ?? "",
+        docket_number: r.docket_number ?? "",
+        format: r.format ?? "",
+        external_url: r.external_url ?? "",
+        courtlistener_id: r.courtlistener_id ?? ""
       }));
 
       setItems(rows);
@@ -78,6 +87,21 @@ export default function Resources() {
 
   if (loading) return (<div className="container py-4"><Spinner animation="border" /></div>);
   if (err) return (<div className="container py-4"><Alert variant="danger">Error: {err}</Alert></div>);
+
+  // Fields to check for match indicator
+  const resourceMatchFields = [
+    { key: 'title', label: 'Title' },
+    { key: 'description', label: 'Description' },
+    { key: 'topic', label: 'Topic' },
+    { key: 'scope', label: 'Scope' },
+    { key: 'courtName', label: 'Court' },
+    { key: 'citation', label: 'Citation' },
+    { key: 'judge_name', label: 'Judge' },
+    { key: 'docket_number', label: 'Docket Number' },
+    { key: 'format', label: 'Format' },
+    { key: 'external_url', label: 'URL' },
+    { key: 'courtlistener_id', label: 'CourtListener ID' }
+  ];
 
   // Configuration for SearchAndFilters component
   const sortOptionsConfig = [
@@ -171,6 +195,12 @@ export default function Resources() {
                       <HighlightedText text={r.foot} searchQuery={appliedFilters.search} />
                     </div>
                   )}
+
+                  <MatchIndicator
+                    item={r}
+                    searchQuery={appliedFilters.search}
+                    fieldsToCheck={resourceMatchFields}
+                  />
                 </Card.Body>
                 <span className="stretched-link" />
               </Card>
