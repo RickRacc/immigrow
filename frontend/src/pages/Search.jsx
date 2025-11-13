@@ -35,21 +35,23 @@ export default function Search() {
         </Row>
       </Form>
 
-      {/* Results Sections - Placeholders */}
-      <div className="mt-5">
-        <h2 className="mb-3">Events</h2>
-        <p className="text-muted">Event results will appear here...</p>
-      </div>
+      {/* Results Sections - Horizontal Layout */}
+      <Row className="mt-5">
+        <Col md={4}>
+          <h2 className="mb-3">Events</h2>
+          <p className="text-muted">Event results will appear here...</p>
+        </Col>
 
-      <div className="mt-5">
-        <h2 className="mb-3">Organizations</h2>
-        <p className="text-muted">Organization results will appear here...</p>
-      </div>
+        <Col md={4}>
+          <h2 className="mb-3">Organizations</h2>
+          <p className="text-muted">Organization results will appear here...</p>
+        </Col>
 
-      <div className="mt-5">
-        <h2 className="mb-3">Resources</h2>
-        <p className="text-muted">Resource results will appear here...</p>
-      </div>
+        <Col md={4}>
+          <h2 className="mb-3">Resources</h2>
+          <p className="text-muted">Resource results will appear here...</p>
+        </Col>
+      </Row>
     </Container>
   );
 }
