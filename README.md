@@ -65,4 +65,6 @@ The team collaborated well, with responsibilities split cleanly between frontend
 
 - **Phase 2:**: This phase was more involved, as we focused on setting up the backend and handling dynamic data through web scraping and API integration. We worked with RDS, EC2, and other AWS services to host and manage the data. The most challenging part was web scraping and sourcing reliable data, but we were able to collaborate well and successfully integrate the data flow across the system.
 
+- **Phase 3:**:
+
 ---
