@@ -92,7 +92,7 @@ build:
   script:
     - cd frontend
     - echo "VITE_API_BASE is $VITE_API_BASE"
-    - VITE_API_BASE="https://api.immigrow.me" npm run build
+    - VITE_API_BASE="https://api.immigrow.me/api" npm run build
   artifacts:
     paths:
       - frontend/dist/
