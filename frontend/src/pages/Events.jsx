@@ -122,6 +122,7 @@ export default function Events() {
     {
       name: "location",
       label: "Location",
+      type: "checkbox",
       options: [
         { value: "Virtual Event", label: "Virtual Event" },
         { value: "Texas", label: "Texas" },
@@ -138,6 +139,7 @@ export default function Events() {
     {
       name: "timezone",
       label: "Timezone",
+      type: "checkbox",
       options: [
         { value: "EST", label: "EST" },
         { value: "CST", label: "CST" },
@@ -148,6 +150,7 @@ export default function Events() {
     {
       name: "duration",
       label: "Duration",
+      type: "dropdown",
       options: [
         { value: "short", label: "Short (< 1 hour)" },
         { value: "medium", label: "Medium (1-1.5 hours)" },

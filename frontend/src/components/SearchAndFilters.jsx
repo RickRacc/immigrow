@@ -1,6 +1,7 @@
 // src/components/SearchAndFilters.jsx
 import { useState, useEffect } from "react";
 import { Form, Row, Col, Button, InputGroup } from "react-bootstrap";
+import CheckboxFilter from "./CheckboxFilter";
 
 /**
  * Reusable Search and Filters component
@@ -8,7 +9,7 @@ import { Form, Row, Col, Button, InputGroup } from "react-bootstrap";
  * @param {Object} props
  * @param {Function} props.onApply - Callback when "Apply Filters" is clicked
  * @param {Array} props.sortOptions - Array of {value, label} objects for sort dropdown
- * @param {Array} props.filterFields - Array of filter field configs
+ * @param {Array} props.filterFields - Array of filter field configs (type: 'dropdown' or 'checkbox')
  * @param {string} props.searchPlaceholder - Placeholder for search input
  * @param {Object} props.initialValues - Initial values for search/sort/filter
  */
@@ -114,25 +115,45 @@ export default function SearchAndFilters({
           </Col>
         )}
 
-        {/* Filter Fields */}
-        {filterFields.map((field) => (
-          <Col md={6} lg={3} key={field.name}>
-            <Form.Label className="small fw-bold mb-1">{field.label}</Form.Label>
-            <Form.Select
-              size="sm"
-              value={filters[field.name] || ""}
-              onChange={(e) => handleFilterChange(field.name, e.target.value)}
-            >
-              <option value="">-- All --</option>
-              {field.options.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </Form.Select>
-          </Col>
-        ))}
+        {/* Filter Fields - Dropdown type */}
+        {filterFields
+          .filter((field) => field.type === "dropdown" || !field.type)
+          .map((field) => (
+            <Col md={6} lg={3} key={field.name}>
+              <Form.Label className="small fw-bold mb-1">{field.label}</Form.Label>
+              <Form.Select
+                size="sm"
+                value={filters[field.name] || ""}
+                onChange={(e) => handleFilterChange(field.name, e.target.value)}
+              >
+                <option value="">-- All --</option>
+                {field.options.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </Form.Select>
+            </Col>
+          ))}
       </Row>
+
+      {/* Checkbox Filters - Full width row */}
+      {filterFields.filter((field) => field.type === "checkbox").length > 0 && (
+        <Row className="g-2 mb-3">
+          {filterFields
+            .filter((field) => field.type === "checkbox")
+            .map((field) => (
+              <Col md={6} lg={4} key={field.name}>
+                <CheckboxFilter
+                  label={field.label}
+                  options={field.options}
+                  selectedValues={Array.isArray(filters[field.name]) ? filters[field.name] : []}
+                  onChange={(values) => handleFilterChange(field.name, values)}
+                />
+              </Col>
+            ))}
+        </Row>
+      )}
 
       {/* Action Buttons */}
       <Row>

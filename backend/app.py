@@ -214,7 +214,7 @@ def get_events():
     sort_by = request.args.get('sort_by', '', type=str).lower()
     sort_order = request.args.get('sort_order', 'asc', type=str).lower()
 
-    # Filter parameters
+    # Filter parameters (now support comma-separated multiple values)
     filter_location = request.args.get('location', '', type=str).strip()
     filter_timezone = request.args.get('timezone', '', type=str).strip()
     filter_duration = request.args.get('duration', '', type=str).strip()  # short, medium, long
@@ -239,12 +239,18 @@ def get_events():
             )
         )
 
-    # Apply filters
+    # Apply filters - support multiple values (comma-separated)
     if filter_location:
-        query = query.filter(Event.location.ilike(f"%{filter_location}%"))
+        locations = [loc.strip() for loc in filter_location.split(',') if loc.strip()]
+        if locations:
+            location_conditions = [Event.location.ilike(f"%{loc}%") for loc in locations]
+            query = query.filter(db.or_(*location_conditions))
 
     if filter_timezone:
-        query = query.filter(Event.timezone.ilike(filter_timezone))
+        timezones = [tz.strip() for tz in filter_timezone.split(',') if tz.strip()]
+        if timezones:
+            timezone_conditions = [Event.timezone.ilike(tz) for tz in timezones]
+            query = query.filter(db.or_(*timezone_conditions))
 
     if filter_duration:
         if filter_duration == 'short':

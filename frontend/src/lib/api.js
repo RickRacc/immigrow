@@ -51,12 +51,14 @@ export async function fetchEvents(page = 1, perPage = 15, options = {}) {
     params.append('sort_order', options.sort_order);
   }
 
-  // Add filter parameters
+  // Add filter parameters (handle arrays by joining with commas)
   if (options.location) {
-    params.append('location', options.location);
+    const locationValue = Array.isArray(options.location) ? options.location.join(',') : options.location;
+    if (locationValue) params.append('location', locationValue);
   }
   if (options.timezone) {
-    params.append('timezone', options.timezone);
+    const timezoneValue = Array.isArray(options.timezone) ? options.timezone.join(',') : options.timezone;
+    if (timezoneValue) params.append('timezone', timezoneValue);
   }
   if (options.duration) {
     params.append('duration', options.duration);
