@@ -101,7 +101,67 @@ def get_orgs():
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 15, type=int)
 
-    pagination = Organization.query.paginate(page=page, per_page=per_page, error_out=False)
+    # Search parameter
+    search_query = request.args.get('search', '', type=str).strip()
+
+    # Sort parameters: sort_by (name, city) and sort_order (asc, desc)
+    sort_by = request.args.get('sort_by', '', type=str).lower()
+    sort_order = request.args.get('sort_order', 'asc', type=str).lower()
+
+    # Filter parameters (support comma-separated multiple values)
+    filter_state = request.args.get('state', '', type=str).strip()
+    filter_topic = request.args.get('topic', '', type=str).strip()
+    filter_size = request.args.get('size', '', type=str).strip()
+
+    # Start with base query
+    query = Organization.query
+
+    # Apply search filter (searches across all text fields)
+    if search_query:
+        search_pattern = f"%{search_query}%"
+        query = query.filter(
+            db.or_(
+                Organization.name.ilike(search_pattern),
+                Organization.city.ilike(search_pattern),
+                Organization.state.ilike(search_pattern),
+                Organization.topic.ilike(search_pattern),
+                Organization.description.ilike(search_pattern),
+                Organization.address.ilike(search_pattern),
+                Organization.size.ilike(search_pattern),
+                Organization.meeting_frequency.ilike(search_pattern)
+            )
+        )
+
+    # Apply filters - support multiple values (comma-separated)
+    if filter_state:
+        states = [s.strip() for s in filter_state.split(',') if s.strip()]
+        if states:
+            state_conditions = [Organization.state.ilike(s) for s in states]
+            query = query.filter(db.or_(*state_conditions))
+
+    if filter_topic:
+        topics = [t.strip() for t in filter_topic.split(',') if t.strip()]
+        if topics:
+            topic_conditions = [Organization.topic.ilike(f"%{t}%") for t in topics]
+            query = query.filter(db.or_(*topic_conditions))
+
+    if filter_size:
+        sizes = [sz.strip() for sz in filter_size.split(',') if sz.strip()]
+        if sizes:
+            size_conditions = [Organization.size.ilike(f"%{sz}%") for sz in sizes]
+            query = query.filter(db.or_(*size_conditions))
+
+    # Apply sorting
+    if sort_by == 'name':
+        query = query.order_by(Organization.name.desc() if sort_order == 'desc' else Organization.name.asc())
+    elif sort_by == 'city':
+        query = query.order_by(Organization.city.desc() if sort_order == 'desc' else Organization.city.asc())
+    else:
+        # Default sort by name ascending
+        query = query.order_by(Organization.name.asc())
+
+    # Paginate results
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
     orgs = pagination.items
 
     return jsonify({
@@ -136,7 +196,17 @@ def get_orgs():
         "total": pagination.total,
         "page": page,
         "per_page": per_page,
-        "total_pages": math.ceil(pagination.total / per_page) if pagination.total > 0 else 0
+        "total_pages": math.ceil(pagination.total / per_page) if pagination.total > 0 else 0,
+        "search_query": search_query,
+        "filters": {
+            "state": filter_state,
+            "topic": filter_topic,
+            "size": filter_size
+        },
+        "sort": {
+            "sort_by": sort_by,
+            "sort_order": sort_order
+        }
     })
 
 # get organization by ID

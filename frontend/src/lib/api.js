@@ -24,9 +24,42 @@ async function fetchJson(path) {
 }
 
 /* --------- Organizations --------- */
-export async function fetchOrgs(page = 1, perPage = 15) {
-  return fetchJson(`/orgs?page=${page}&per_page=${perPage}`);
+export async function fetchOrgs(page = 1, perPage = 15, options = {}) {
+  const params = new URLSearchParams({
+    page: String(page),
+    per_page: String(perPage)
+  });
+
+  // Add search parameter
+  if (options.search) {
+    params.append('search', options.search);
+  }
+
+  // Add sort parameters
+  if (options.sort_by) {
+    params.append('sort_by', options.sort_by);
+  }
+  if (options.sort_order) {
+    params.append('sort_order', options.sort_order);
+  }
+
+  // Add filter parameters (handle arrays by joining with commas)
+  if (options.state) {
+    const stateValue = Array.isArray(options.state) ? options.state.join(',') : options.state;
+    if (stateValue) params.append('state', stateValue);
+  }
+  if (options.topic) {
+    const topicValue = Array.isArray(options.topic) ? options.topic.join(',') : options.topic;
+    if (topicValue) params.append('topic', topicValue);
+  }
+  if (options.size) {
+    const sizeValue = Array.isArray(options.size) ? options.size.join(',') : options.size;
+    if (sizeValue) params.append('size', sizeValue);
+  }
+
+  return fetchJson(`/orgs?${params.toString()}`);
 }
+
 export async function fetchOrgById(id) {
   return fetchJson(`/orgs/${id}`);
 }
