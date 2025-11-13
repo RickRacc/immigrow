@@ -143,32 +143,63 @@ def get_orgs():
 @app.route("/api/orgs/<int:id>", methods=["GET"])
 def get_org_by_id(id):
     org = Organization.query.get_or_404(id)
-    return jsonify(
-        {
-            "id": org.id,
-            "name": org.name,
-            "city": org.city,
-            "state": org.state,
-            "topic": org.topic,
-            "size": org.size,
-            "meeting_frequency": org.meeting_frequency,
-            "description": org.description,
-            "address": org.address,
-            "zipcode": org.zipcode,
-            "ein": org.ein,
-            "subsection_code": org.subsection_code,
-            "ntee_code": org.ntee_code,
-            "external_url": org.external_url,
-            "image_url": org.image_url,
-            "guidestar_url": org.guidestar_url,
-            "form_990_pdf_url": org.form_990_pdf_url,
-            "created_at": as_iso(org.created_at),
-            "updated_at": as_iso(org.updated_at),
-            "resource_ids": [
-                er.resource_id
-                for er in OrganizationResources.query.filter_by(organization_id=org.id).all()
-            ]
+
+    # Get events hosted by this organization
+    events = Event.query.filter_by(organization_id=org.id).all()
+    events_list = []
+    for event in events:
+        events_list.append({
+            "id": event.id,
+            "title": event.title,
+            "date": event.date.isoformat() if event.date else None,
+            "start_time": event.start_time,
+            "location": event.location,
+            "city": event.city,
+            "state": event.state,
+            "description": event.description,
+            "external_url": event.external_url,
+            "image_url": event.image_url
         })
+
+    # Get resource details
+    resource_ids = [er.resource_id for er in OrganizationResources.query.filter_by(organization_id=org.id).all()]
+    resources = []
+    for rid in resource_ids:
+        res = Resource.query.get(rid)
+        if res:
+            resources.append({
+                "id": res.id,
+                "title": res.title,
+                "topic": res.topic,
+                "scope": res.scope,
+                "description": res.description,
+                "external_url": res.external_url,
+                "image_url": res.image_url
+            })
+
+    return jsonify({
+        "id": org.id,
+        "name": org.name,
+        "city": org.city,
+        "state": org.state,
+        "topic": org.topic,
+        "size": org.size,
+        "meeting_frequency": org.meeting_frequency,
+        "description": org.description,
+        "address": org.address,
+        "zipcode": org.zipcode,
+        "ein": org.ein,
+        "subsection_code": org.subsection_code,
+        "ntee_code": org.ntee_code,
+        "external_url": org.external_url,
+        "image_url": org.image_url,
+        "guidestar_url": org.guidestar_url,
+        "form_990_pdf_url": org.form_990_pdf_url,
+        "created_at": as_iso(org.created_at),
+        "updated_at": as_iso(org.updated_at),
+        "events": events_list,
+        "resources": resources
+    })
 
 # get all events
 @app.route("/api/events", methods=["GET"])
