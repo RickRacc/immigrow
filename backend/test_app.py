@@ -29,6 +29,11 @@ def test_get_org_by_id(client):
     assert org["name"] == "Immigration Legal Services"
     assert org["city"] == "Dearborn"
     assert org["topic"] == "Legal Services"
+    # Test that new fields are present
+    assert "events" in org
+    assert "resources" in org
+    assert isinstance(org["events"], list)
+    assert isinstance(org["resources"], list)
 
 # tests endpoint to get all events
 def test_get_events(client):
@@ -52,6 +57,14 @@ def test_get_event_by_id(client):
     assert event["title"] == "Learn Serve Lead 2025"
     assert event["location"] == "Texas"
     assert event["external_url"] == "https://www.raicestexas.org/events/association-of-american-medical-colleges-conference"
+    # Test that new fields are present
+    assert "organization" in event
+    assert "resources" in event
+    assert isinstance(event["resources"], list)
+    # If organization exists, verify it has expected structure
+    if event["organization"]:
+        assert "id" in event["organization"]
+        assert "name" in event["organization"]
 
 # tests endpoint to get all resources
 def test_get_resources(client):
