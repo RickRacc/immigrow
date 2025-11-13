@@ -454,7 +454,67 @@ def get_resources():
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 15, type=int)
 
-    pagination = Resource.query.paginate(page=page, per_page=per_page, error_out=False)
+    # Search parameter
+    search_query = request.args.get('search', '', type=str).strip()
+
+    # Sort parameters: sort_by (date_published, title) and sort_order (asc, desc)
+    sort_by = request.args.get('sort_by', '', type=str).lower()
+    sort_order = request.args.get('sort_order', 'asc', type=str).lower()
+
+    # Filter parameters (support comma-separated multiple values)
+    filter_topic = request.args.get('topic', '', type=str).strip()
+    filter_scope = request.args.get('scope', '', type=str).strip()
+    filter_court = request.args.get('court_name', '', type=str).strip()
+
+    # Start with base query
+    query = Resource.query
+
+    # Apply search filter (searches across all text fields)
+    if search_query:
+        search_pattern = f"%{search_query}%"
+        query = query.filter(
+            db.or_(
+                Resource.title.ilike(search_pattern),
+                Resource.topic.ilike(search_pattern),
+                Resource.scope.ilike(search_pattern),
+                Resource.description.ilike(search_pattern),
+                Resource.court_name.ilike(search_pattern),
+                Resource.citation.ilike(search_pattern),
+                Resource.judge_name.ilike(search_pattern),
+                Resource.docket_number.ilike(search_pattern)
+            )
+        )
+
+    # Apply filters - support multiple values (comma-separated)
+    if filter_topic:
+        topics = [t.strip() for t in filter_topic.split(',') if t.strip()]
+        if topics:
+            topic_conditions = [Resource.topic.ilike(f"%{t}%") for t in topics]
+            query = query.filter(db.or_(*topic_conditions))
+
+    if filter_scope:
+        scopes = [s.strip() for s in filter_scope.split(',') if s.strip()]
+        if scopes:
+            scope_conditions = [Resource.scope.ilike(s) for s in scopes]
+            query = query.filter(db.or_(*scope_conditions))
+
+    if filter_court:
+        courts = [c.strip() for c in filter_court.split(',') if c.strip()]
+        if courts:
+            court_conditions = [Resource.court_name.ilike(f"%{c}%") for c in courts]
+            query = query.filter(db.or_(*court_conditions))
+
+    # Apply sorting
+    if sort_by == 'date_published':
+        query = query.order_by(Resource.date_published.desc() if sort_order == 'desc' else Resource.date_published.asc())
+    elif sort_by == 'title':
+        query = query.order_by(Resource.title.desc() if sort_order == 'desc' else Resource.title.asc())
+    else:
+        # Default sort by date_published descending (most recent first)
+        query = query.order_by(Resource.date_published.desc())
+
+    # Paginate results
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
     resources = pagination.items
 
     return jsonify({
@@ -491,7 +551,17 @@ def get_resources():
         "total": pagination.total,
         "page": page,
         "per_page": per_page,
-        "total_pages": math.ceil(pagination.total / per_page) if pagination.total > 0 else 0
+        "total_pages": math.ceil(pagination.total / per_page) if pagination.total > 0 else 0,
+        "search_query": search_query,
+        "filters": {
+            "topic": filter_topic,
+            "scope": filter_scope,
+            "court_name": filter_court
+        },
+        "sort": {
+            "sort_by": sort_by,
+            "sort_order": sort_order
+        }
     })
 
 # get resource by ID
