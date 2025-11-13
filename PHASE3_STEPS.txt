@@ -1,0 +1,52 @@
+
+Here are the changes we need for Phase 3 -
+Searching, Sorting, Filtering
+Implement sorting OR filtering on at least 5 attributes per model on each model page
+Implemented by calling the backend API using query parameters
+MUST have atleast one attribute that is either filtered and one that is sorted (i.e. can’t have 5 filtering or 5 sorting)
+Usage instructions added to backend API documentation
+In phase IV, other groups might use this feature to build a visualization using your data API
+Implement searching on each model page
+Search results are identical to the cards on the model page (reuse code!) and link to the instance matching the search
+Search all text and attributes that are part of the model data, even if it isn’t visible on the instance card (it may be visible on the instance page)
+Implement searching on the entire website on a dedicated page
+Search results link to the instance matching the search
+Search results have some sort of logical organization or designation of model type
+Search all text and attributes that are part of the website data, even if it isn’t visible on the model cards
+Search results are Google-like: Accept a multi-word input and return a list of results ordered by relevance to the input
+The most relevant results contain the full input phrase
+Multi-word matches are more relevant than single-word matches
+For example “the quick fox” is more relevant than “quickly the fox runs” is more relevant than “the fox” given the input “quick fox” because “the quick fox” contains the complete phrase “quick fox”, while “quickly the fox runs” contains “quick” AND “fox” but not the phrase, and “the fox” only contains one of “quick” OR “fox”
+Other factors that determine relevance are at your discretion (e.g., word/phrase frequency, fuzzy matching, etc.), as long as they are nontrivial
+Search results show a highlighted portion that matches the search query similar to when you do Ctrl+F
+Highlighted on both the model page search and the overall website search
+The appearance and underlying code should look and be identical in all four of the following situations:
+1) grid of instance pages on the model pages
+2) grid of instance pages on an instance page, showing the connected instances of other models
+3) the result of a general search on seperate page
+4) the result of a model-specific search on the model pages
+This includes pagination (How many instances are there? How many instances are on a page? How many pages are there? Go to the first page, last page, next page, and previous page.)
+
+
+API Documentation: now includes query parameters and descriptions for searching (if not in front end), sorting, and filtering
+
+We already have the tests implemented to meet phase 2:
+At least 10 frontend unit tests using Mocha or Jest
+At least 10 frontend acceptance tests using Selenium
+At least one backend test per endpoint using UnitTest or PyTest
+At least one API test per endpoint using Postman
+
+But for phase 3 we Need to:
+Add tests for searching, sorting, and filtering functionality
+
+
+
+So from reading the rubric - I understand that we need to be able to EITHER sort OR Filter (don't have to do both and have limited time so not going to) for 5 seperate attributes on each model page (event, resource, organization page).
+Then we need a search feature on each model page as well with the ctrl f effect and with the algorithm described in the rubric.
+I think it is wise to properly select the 5 features we want to sort or filter by and how for each model.
+
+So since we search for all text and attributes that are part of the model data even if it isn't visible on the card - I think it would be good to add something to the card listing the matching phrases or keywords - so that it isn't confusing why certain model instance cards have higher priority
+
+For the general search - we will make an entirely new page and have it linked in the nav bar. And for this since instances displayed have to be categorized in some form by their model - I think it makes sense to just have three seperate grids or 'tables' labeled 'Events', 'Organizations', 'Resources' in that order, with display most relevant instances of those models in those grids/tables
+
+Let me know if you have any questions, and be sure to consider all aspects of implementation.
