@@ -261,7 +261,7 @@ def get_orgs():
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
         orgs = pagination.items
         total = pagination.total
-        total_pages = pagination.total_pages
+        total_pages = pagination.pages
 
     return jsonify({
         "data": [
@@ -483,7 +483,7 @@ def get_events():
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
         events = pagination.items
         total = pagination.total
-        total_pages = pagination.total_pages
+        total_pages = pagination.pages
 
     return jsonify({
         "data": [
@@ -701,7 +701,7 @@ def get_resources():
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
         resources = pagination.items
         total = pagination.total
-        total_pages = pagination.total_pages
+        total_pages = pagination.pages
 
     return jsonify({
         "data": [
