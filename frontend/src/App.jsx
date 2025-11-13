@@ -6,6 +6,7 @@ import About from "./pages/About";
 import Events from "./pages/Events";
 import Orgs from "./pages/Orgs";
 import Resources from "./pages/Resources";
+import Search from "./pages/Search";
 
 // detail pages
 import EventDetail from "./pages/EventDetail";
@@ -19,6 +20,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
+          <Route path="/search" element={<Search />} />
 
           <Route path="/events" element={<Events />} />
           <Route path="/orgs" element={<Orgs />} />

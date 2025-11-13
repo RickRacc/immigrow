@@ -17,6 +17,9 @@ export default function Layout({ children }) {
           <Navbar.Toggle aria-controls="main-nav" />
           <Navbar.Collapse id="main-nav">
             <Nav className="ms-auto">
+              <Nav.Link as={NavLink} to="/search" className="nav-search">
+                Search
+              </Nav.Link>
               <Nav.Link as={NavLink} to="/events" className="nav-events">
                 Events
               </Nav.Link>
