@@ -36,7 +36,8 @@ Responsibilities included:
 Responsibilities included:
 - Setting up Flask API routes and making frontend changes to instance grids
 - Writing backend and Postman tests and integrating with the Gitlab pipelines.
-- Implementing sorting/filtering.
+- Implementing sorting/filtering/search for 3 model pages.
+- Implementing general search page
 
 
 
@@ -65,7 +66,7 @@ The team collaborated well, with responsibilities split cleanly between frontend
 
 - **Phase 2:**: This phase was more involved, as we focused on setting up the backend and handling dynamic data through web scraping and API integration. We worked with RDS, EC2, and other AWS services to host and manage the data. The most challenging part was web scraping and sourcing reliable data, but we were able to collaborate well and successfully integrate the data flow across the system.
 
-- **Phase 3:**:
+- **Phase 3:** This phase focused on implementing search, sort, and filter functionality across all model pages, along with a global search feature. We implemented a Google-like multi-word search algorithm with relevance ranking, added sort/filter capabilities for 5+ attributes per model, and created a comprehensive global search page that searches across all three models simultaneously. The implementation includes search highlighting, match indicators, independent pagination per model, and reusable components. Testing was expanded to cover the new search/sort/filter functionality.
 
 
 ---
