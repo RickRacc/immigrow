@@ -52,8 +52,8 @@ export async function fetchEvents(page = 1, perPage = 15, options = {}) {
   }
 
   // Add filter parameters
-  if (options.state) {
-    params.append('state', options.state);
+  if (options.location) {
+    params.append('location', options.location);
   }
   if (options.timezone) {
     params.append('timezone', options.timezone);

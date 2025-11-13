@@ -120,18 +120,19 @@ export default function Events() {
 
   const filterFieldsConfig = [
     {
-      name: "state",
-      label: "State",
+      name: "location",
+      label: "Location",
       options: [
-        { value: "TX", label: "Texas" },
-        { value: "CA", label: "California" },
-        { value: "NY", label: "New York" },
-        { value: "FL", label: "Florida" },
-        { value: "IL", label: "Illinois" },
-        { value: "PA", label: "Pennsylvania" },
-        { value: "AZ", label: "Arizona" },
-        { value: "WA", label: "Washington" },
-        { value: "KY", label: "Kentucky" }
+        { value: "Virtual Event", label: "Virtual Event" },
+        { value: "Texas", label: "Texas" },
+        { value: "California", label: "California" },
+        { value: "New York", label: "New York" },
+        { value: "Arizona", label: "Arizona" },
+        { value: "Washington", label: "Washington" },
+        { value: "Kentucky", label: "Kentucky" },
+        { value: "Illinois", label: "Illinois" },
+        { value: "Pennsylvania", label: "Pennsylvania" },
+        { value: "Florida", label: "Florida" }
       ]
     },
     {

@@ -215,7 +215,7 @@ def get_events():
     sort_order = request.args.get('sort_order', 'asc', type=str).lower()
 
     # Filter parameters
-    filter_state = request.args.get('state', '', type=str).strip()
+    filter_location = request.args.get('location', '', type=str).strip()
     filter_timezone = request.args.get('timezone', '', type=str).strip()
     filter_duration = request.args.get('duration', '', type=str).strip()  # short, medium, long
 
@@ -240,8 +240,8 @@ def get_events():
         )
 
     # Apply filters
-    if filter_state:
-        query = query.filter(Event.state.ilike(filter_state))
+    if filter_location:
+        query = query.filter(Event.location.ilike(f"%{filter_location}%"))
 
     if filter_timezone:
         query = query.filter(Event.timezone.ilike(filter_timezone))
@@ -301,7 +301,7 @@ def get_events():
         "total_pages": math.ceil(pagination.total / per_page) if pagination.total > 0 else 0,
         "search_query": search_query,
         "filters": {
-            "state": filter_state,
+            "location": filter_location,
             "timezone": filter_timezone,
             "duration": filter_duration
         },
