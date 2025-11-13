@@ -144,3 +144,82 @@ def test_get_resources_paginated(client):
     assert len(data["data"]) <= 15
     assert data["page"] == 1
     assert data["per_page"] == 15
+# Phase 3: Test search functionality
+def test_events_search(client):
+    response = client.get("/api/events?search=clinic")
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert "data" in data
+    assert isinstance(data["data"], list)
+
+def test_orgs_search(client):
+    response = client.get("/api/orgs?search=legal")
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert "data" in data
+    assert isinstance(data["data"], list)
+
+def test_resources_search(client):
+    response = client.get("/api/resources?search=immigration")
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert "data" in data
+    assert isinstance(data["data"], list)
+
+# Phase 3: Test sort functionality
+def test_events_sort_by_date(client):
+    response = client.get("/api/events?sort_by=date&sort_order=asc")
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert "data" in data
+
+def test_orgs_sort_by_name(client):
+    response = client.get("/api/orgs?sort_by=name&sort_order=desc")
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert "data" in data
+
+def test_resources_sort_by_title(client):
+    response = client.get("/api/resources?sort_by=title&sort_order=asc")
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert "data" in data
+
+# Phase 3: Test filter functionality
+def test_events_filter_by_location(client):
+    response = client.get("/api/events?location=Texas")
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert "data" in data
+
+def test_orgs_filter_by_state(client):
+    response = client.get("/api/orgs?state=TX")
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert "data" in data
+
+def test_resources_filter_by_scope(client):
+    response = client.get("/api/resources?scope=Federal")
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert "data" in data
+
+# Phase 3: Test combined search + sort + filter
+def test_events_combined(client):
+    response = client.get("/api/events?search=clinic&sort_by=date&location=Texas")
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert "data" in data
+    assert "total" in data
+
+def test_orgs_combined(client):
+    response = client.get("/api/orgs?search=legal&sort_by=name&state=TX")
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert "data" in data
+
+def test_resources_combined(client):
+    response = client.get("/api/resources?search=immigration&sort_by=title&scope=Federal")
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert "data" in data
