@@ -229,232 +229,257 @@ export default function Search() {
       {!loading && appliedSearch && (
         <Row className="mt-4 g-4">
           {/* Events Column */}
-          <Col md={4}>
-            <div className="p-3 bg-light border rounded-3 mb-3">
-              <h2 className="mb-1">Events</h2>
+          <Col md={4} className="border-end">
+            <div className="mb-3">
+              <h3 className="mb-1">Events</h3>
               <div className="text-muted small">
                 Showing {eventsData.data.length} of {eventsData.total}
               </div>
             </div>
-            {eventsData.total === 0 ? (
-              <p className="text-muted">No events found</p>
-            ) : (
-              <>
-                {loadingEvents && (
-                  <div className="text-center my-3">
-                    <Spinner animation="border" size="sm" />
-                  </div>
-                )}
-                <div className="d-flex flex-column gap-3">
-                  {eventsData.data.map((event) => (
-                  <Link
-                    key={event.id}
-                    to={`/events/${event.id}`}
-                    className="text-reset text-decoration-none"
-                  >
-                    <Card className="shadow-sm border-0 rounded-3 h-100" style={{ minHeight: '280px' }}>
-                      {hasHttp(event.image_url) && (
-                        <Card.Img
-                          variant="top"
-                          src={event.image_url}
-                          alt=""
-                          style={{ objectFit: "cover", height: 140 }}
-                          loading="lazy"
-                        />
-                      )}
-                      <Card.Body>
-                        <Card.Title className="h6 mb-2">
-                          <HighlightedText
-                            text={event.title || event.name || "Untitled"}
-                            searchQuery={appliedSearch}
+            {/* Scrollable container */}
+            <div style={{ maxHeight: '800px', overflowY: 'auto', paddingRight: '10px' }}>
+              {eventsData.total === 0 ? (
+                <p className="text-muted">No events found</p>
+              ) : (
+                <>
+                  {loadingEvents && (
+                    <div className="text-center my-3">
+                      <Spinner animation="border" size="sm" />
+                    </div>
+                  )}
+                  <div className="d-flex flex-column gap-3">
+                    {eventsData.data.map((event) => (
+                    <Link
+                      key={event.id}
+                      to={`/events/${event.id}`}
+                      className="text-reset text-decoration-none"
+                    >
+                      <Card className="shadow-sm border-0 rounded-4 position-relative" style={{ minHeight: '260px' }}>
+                        {hasHttp(event.image_url) && (
+                          <Card.Img
+                            variant="top"
+                            src={event.image_url}
+                            alt=""
+                            style={{ objectFit: "cover", height: 160 }}
+                            loading="lazy"
                           />
-                        </Card.Title>
-                        <div className="small text-muted">
-                          <HighlightedText
-                            text={[event.city, event.state].filter(Boolean).join(", ") || event.location || ""}
-                            searchQuery={appliedSearch}
-                          />
-                        </div>
-                        {event.date && (
-                          <div className="small mt-1">
-                            {event.date}
-                            {event.start_time && ` • ${event.start_time}`}
-                          </div>
                         )}
-                        <MatchIndicator
-                          item={event}
-                          searchQuery={appliedSearch}
-                          fieldsToCheck={eventMatchFields}
-                        />
-                      </Card.Body>
-                    </Card>
-                  </Link>
-                  ))}
-                </div>
-                {/* Pagination for Events */}
-                {eventsData.totalPages > 1 && !loadingEvents && (
-                  <div className="mt-3">
-                    <Pagination
-                      currentPage={eventsPage}
-                      totalPages={eventsData.totalPages}
-                      onPageChange={loadEventsPage}
-                    />
+                        <Card.Body className="d-flex flex-column">
+                          <Card.Title className="h6 mb-2">
+                            <HighlightedText
+                              text={event.title || event.name || "Untitled"}
+                              searchQuery={appliedSearch}
+                            />
+                          </Card.Title>
+                          <div className="small text-muted mb-2">
+                            <HighlightedText
+                              text={[event.city, event.state].filter(Boolean).join(", ") || event.location || ""}
+                              searchQuery={appliedSearch}
+                            />
+                          </div>
+                          {event.date && (
+                            <div className="small mt-auto" style={{ lineHeight: "1.4" }}>
+                              {event.date}
+                              {event.start_time && ` • ${event.start_time}`}
+                            </div>
+                          )}
+                          <MatchIndicator
+                            item={event}
+                            searchQuery={appliedSearch}
+                            fieldsToCheck={eventMatchFields}
+                          />
+                        </Card.Body>
+                        <span className="stretched-link" />
+                      </Card>
+                    </Link>
+                    ))}
                   </div>
-                )}
-              </>
-            )}
+                  {/* Pagination for Events */}
+                  {eventsData.totalPages > 1 && !loadingEvents && (
+                    <div className="mt-3 mb-3">
+                      <Pagination
+                        currentPage={eventsPage}
+                        totalPages={eventsData.totalPages}
+                        onPageChange={loadEventsPage}
+                      />
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           </Col>
 
           {/* Organizations Column */}
-          <Col md={4}>
-            <div className="p-3 bg-light border rounded-3 mb-3">
-              <h2 className="mb-1">Organizations</h2>
+          <Col md={4} className="border-end">
+            <div className="mb-3">
+              <h3 className="mb-1">Organizations</h3>
               <div className="text-muted small">
                 Showing {orgsData.data.length} of {orgsData.total}
               </div>
             </div>
-            {orgsData.total === 0 ? (
-              <p className="text-muted">No organizations found</p>
-            ) : (
-              <>
-                {loadingOrgs && (
-                  <div className="text-center my-3">
-                    <Spinner animation="border" size="sm" />
-                  </div>
-                )}
-                <div className="d-flex flex-column gap-3">
-                  {orgsData.data.map((org) => (
-                  <Link
-                    key={org.id}
-                    to={`/orgs/${org.id}`}
-                    className="text-reset text-decoration-none"
-                  >
-                    <Card className="shadow-sm border-0 rounded-3 h-100" style={{ minHeight: '280px' }}>
-                      {hasHttp(org.image_url) && (
-                        <Card.Img
-                          variant="top"
-                          src={org.image_url}
-                          alt=""
-                          style={{ objectFit: "cover", height: 140 }}
-                          loading="lazy"
-                        />
-                      )}
-                      <Card.Body>
-                        <Card.Title className="h6 mb-2">
-                          <HighlightedText
-                            text={org.name || "Unnamed"}
-                            searchQuery={appliedSearch}
+            {/* Scrollable container */}
+            <div style={{ maxHeight: '800px', overflowY: 'auto', paddingRight: '10px' }}>
+              {orgsData.total === 0 ? (
+                <p className="text-muted">No organizations found</p>
+              ) : (
+                <>
+                  {loadingOrgs && (
+                    <div className="text-center my-3">
+                      <Spinner animation="border" size="sm" />
+                    </div>
+                  )}
+                  <div className="d-flex flex-column gap-3">
+                    {orgsData.data.map((org) => (
+                    <Link
+                      key={org.id}
+                      to={`/orgs/${org.id}`}
+                      className="text-reset text-decoration-none"
+                    >
+                      <Card className="shadow-sm border-0 rounded-4 position-relative" style={{ minHeight: '260px' }}>
+                        {hasHttp(org.image_url) && (
+                          <Card.Img
+                            variant="top"
+                            src={org.image_url}
+                            alt=""
+                            style={{ objectFit: "cover", height: 160 }}
+                            loading="lazy"
                           />
-                        </Card.Title>
-                        <div className="small text-muted mb-2">
-                          <HighlightedText
-                            text={[org.city, org.state].filter(Boolean).join(", ")}
-                            searchQuery={appliedSearch}
-                          />
-                        </div>
-                        {org.topic && (
-                          <Badge bg="primary" className="mb-2">
-                            <HighlightedText text={org.topic} searchQuery={appliedSearch} />
-                          </Badge>
                         )}
-                        <MatchIndicator
-                          item={org}
-                          searchQuery={appliedSearch}
-                          fieldsToCheck={orgMatchFields}
-                        />
-                      </Card.Body>
-                    </Card>
-                  </Link>
-                  ))}
-                </div>
-                {/* Pagination for Organizations */}
-                {orgsData.totalPages > 1 && !loadingOrgs && (
-                  <div className="mt-3">
-                    <Pagination
-                      currentPage={orgsPage}
-                      totalPages={orgsData.totalPages}
-                      onPageChange={loadOrgsPage}
-                    />
+                        <Card.Body className="d-flex flex-column">
+                          <Card.Title className="h6 mb-2">
+                            <HighlightedText
+                              text={org.name || "Unnamed"}
+                              searchQuery={appliedSearch}
+                            />
+                          </Card.Title>
+                          <div className="small text-muted mb-2">
+                            <HighlightedText
+                              text={[org.city, org.state].filter(Boolean).join(", ")}
+                              searchQuery={appliedSearch}
+                            />
+                          </div>
+                          {org.topic && (
+                            <Badge bg="primary" className="mb-2">
+                              <HighlightedText text={org.topic} searchQuery={appliedSearch} />
+                            </Badge>
+                          )}
+                          {org.description && (
+                            <p className="small text-muted mb-0 mt-auto" style={{ lineHeight: "1.4" }}>
+                              <HighlightedText
+                                text={org.description.slice(0, 100) + (org.description.length > 100 ? "..." : "")}
+                                searchQuery={appliedSearch}
+                              />
+                            </p>
+                          )}
+                          <MatchIndicator
+                            item={org}
+                            searchQuery={appliedSearch}
+                            fieldsToCheck={orgMatchFields}
+                          />
+                        </Card.Body>
+                        <span className="stretched-link" />
+                      </Card>
+                    </Link>
+                    ))}
                   </div>
-                )}
-              </>
-            )}
+                  {/* Pagination for Organizations */}
+                  {orgsData.totalPages > 1 && !loadingOrgs && (
+                    <div className="mt-3 mb-3">
+                      <Pagination
+                        currentPage={orgsPage}
+                        totalPages={orgsData.totalPages}
+                        onPageChange={loadOrgsPage}
+                      />
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           </Col>
 
           {/* Resources Column */}
           <Col md={4}>
-            <div className="p-3 bg-light border rounded-3 mb-3">
-              <h2 className="mb-1">Resources</h2>
+            <div className="mb-3">
+              <h3 className="mb-1">Resources</h3>
               <div className="text-muted small">
                 Showing {resourcesData.data.length} of {resourcesData.total}
               </div>
             </div>
-            {resourcesData.total === 0 ? (
-              <p className="text-muted">No resources found</p>
-            ) : (
-              <>
-                {loadingResources && (
-                  <div className="text-center my-3">
-                    <Spinner animation="border" size="sm" />
-                  </div>
-                )}
-                <div className="d-flex flex-column gap-3">
-                  {resourcesData.data.map((resource) => (
-                  <Link
-                    key={resource.id}
-                    to={`/resources/${resource.id}`}
-                    className="text-reset text-decoration-none"
-                  >
-                    <Card className="shadow-sm border-0 rounded-3 h-100" style={{ minHeight: '280px' }}>
-                      {hasHttp(resource.image_url) && (
-                        <Card.Img
-                          variant="top"
-                          src={resource.image_url}
-                          alt=""
-                          style={{ objectFit: "cover", height: 140 }}
-                          loading="lazy"
-                        />
-                      )}
-                      <Card.Body>
-                        <Card.Title className="h6 mb-2">
-                          <HighlightedText
-                            text={resource.title || "Untitled"}
-                            searchQuery={appliedSearch}
+            {/* Scrollable container */}
+            <div style={{ maxHeight: '800px', overflowY: 'auto', paddingRight: '10px' }}>
+              {resourcesData.total === 0 ? (
+                <p className="text-muted">No resources found</p>
+              ) : (
+                <>
+                  {loadingResources && (
+                    <div className="text-center my-3">
+                      <Spinner animation="border" size="sm" />
+                    </div>
+                  )}
+                  <div className="d-flex flex-column gap-3">
+                    {resourcesData.data.map((resource) => (
+                    <Link
+                      key={resource.id}
+                      to={`/resources/${resource.id}`}
+                      className="text-reset text-decoration-none"
+                    >
+                      <Card className="shadow-sm border-0 rounded-4 position-relative" style={{ minHeight: '260px' }}>
+                        {hasHttp(resource.image_url) && (
+                          <Card.Img
+                            variant="top"
+                            src={resource.image_url}
+                            alt=""
+                            style={{ objectFit: "cover", height: 160 }}
+                            loading="lazy"
                           />
-                        </Card.Title>
-                        {resource.topic && (
-                          <Badge bg="warning" text="dark" className="mb-2">
-                            <HighlightedText text={resource.topic} searchQuery={appliedSearch} />
-                          </Badge>
                         )}
-                        <div className="small text-muted">
-                          <HighlightedText
-                            text={[resource.court_name, resource.scope].filter(Boolean).join(" · ")}
+                        <Card.Body className="d-flex flex-column">
+                          <Card.Title className="h6 mb-2">
+                            <HighlightedText
+                              text={resource.title || "Untitled"}
+                              searchQuery={appliedSearch}
+                            />
+                          </Card.Title>
+                          {resource.topic && (
+                            <Badge bg="warning" text="dark" className="mb-2">
+                              <HighlightedText text={resource.topic} searchQuery={appliedSearch} />
+                            </Badge>
+                          )}
+                          <div className="small text-muted mb-2">
+                            <HighlightedText
+                              text={[resource.court_name, resource.scope].filter(Boolean).join(" · ")}
+                              searchQuery={appliedSearch}
+                            />
+                          </div>
+                          {resource.foot && (
+                            <div className="small text-muted mt-auto" style={{ lineHeight: "1.4" }}>
+                              <HighlightedText text={resource.foot} searchQuery={appliedSearch} />
+                            </div>
+                          )}
+                          <MatchIndicator
+                            item={resource}
                             searchQuery={appliedSearch}
+                            fieldsToCheck={resourceMatchFields}
                           />
-                        </div>
-                        <MatchIndicator
-                          item={resource}
-                          searchQuery={appliedSearch}
-                          fieldsToCheck={resourceMatchFields}
-                        />
-                      </Card.Body>
-                    </Card>
-                  </Link>
-                  ))}
-                </div>
-                {/* Pagination for Resources */}
-                {resourcesData.totalPages > 1 && !loadingResources && (
-                  <div className="mt-3">
-                    <Pagination
-                      currentPage={resourcesPage}
-                      totalPages={resourcesData.totalPages}
-                      onPageChange={loadResourcesPage}
-                    />
+                        </Card.Body>
+                        <span className="stretched-link" />
+                      </Card>
+                    </Link>
+                    ))}
                   </div>
-                )}
-              </>
-            )}
+                  {/* Pagination for Resources */}
+                  {resourcesData.totalPages > 1 && !loadingResources && (
+                    <div className="mt-3 mb-3">
+                      <Pagination
+                        currentPage={resourcesPage}
+                        totalPages={resourcesData.totalPages}
+                        onPageChange={loadResourcesPage}
+                      />
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           </Col>
         </Row>
       )}
