@@ -4,6 +4,8 @@ import { Row, Col, Card, Spinner, Alert, Badge } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { fetchOrgs } from "../lib/api";
 import Pagination, { PaginationInfo } from "../components/Pagination";
+import SearchAndFilters from "../components/SearchAndFilters";
+import HighlightedText from "../components/HighlightedText";
 
 export default function Orgs() {
   const [items, setItems] = useState([]);
@@ -13,39 +15,61 @@ export default function Orgs() {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
 
+  // Search and filter state
+  const [appliedFilters, setAppliedFilters] = useState({
+    search: "",
+    sortBy: "",
+    sortOrder: "asc",
+    filters: {}
+  });
+
+  const loadOrgs = async () => {
+    setLoading(true);
+    try {
+      const options = {
+        search: appliedFilters.search,
+        sort_by: appliedFilters.sortBy,
+        sort_order: appliedFilters.sortOrder,
+        ...appliedFilters.filters
+      };
+
+      const response = await fetchOrgs(currentPage, 15, options);
+      const data = response.data ?? [];
+      const rows = data.map(o => ({
+        id: o.id,
+        name: o.name ?? "Unnamed organization",
+        city: o.city ?? "",
+        state: o.state ?? "",
+        topic: o.topic ?? "",
+        size: o.size ?? "",
+        description: o.description ?? "",
+        meetingFrequency: o.meeting_frequency ?? "",
+        ein: o.ein ?? "",
+        imageUrl: (typeof o.image_url === 'string' && /^https?:\/\//i.test(o.image_url)) ? o.image_url : null,
+      }));
+
+      setItems(rows);
+      setTotal(response.total ?? 0);
+      setTotalPages(response.total_pages ?? 1);
+    } catch (ex) {
+      setErr(ex.message || String(ex));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     let cancel = false;
-    (async () => {
-      setLoading(true);
-      try {
-        const response = await fetchOrgs(currentPage, 15);
-        if (cancel) return;
-        const data = response.data ?? [];
-        const rows = data.map(o => ({
-          id: o.id,
-          name: o.name ?? "Unnamed organization",
-          city: o.city ?? "",
-          state: o.state ?? "",
-          topic: o.topic ?? "",
-          size: o.size ?? "",
-          description: o.description ?? "",
-          meetingFrequency: o.meeting_frequency ?? "",
-          ein: o.ein ?? "",
-          imageUrl: (typeof o.image_url === 'string' && /^https?:\/\//i.test(o.image_url)) ? o.image_url : null,
-        }));
-        // optional: sort by name
-        rows.sort((a,b)=>a.name.localeCompare(b.name));
-        setItems(rows);
-        setTotal(response.total ?? 0);
-        setTotalPages(response.total_pages ?? 1);
-      } catch (ex) {
-        setErr(ex.message || String(ex));
-      } finally {
-        setLoading(false);
-      }
-    })();
+    if (!cancel) {
+      loadOrgs();
+    }
     return () => { cancel = true; };
-  }, [currentPage]);
+  }, [currentPage, appliedFilters]);
+
+  const handleApplyFilters = (values) => {
+    setAppliedFilters(values);
+    setCurrentPage(1);
+  };
 
   if (loading) return (
     <div className="container py-4">
@@ -61,9 +85,65 @@ export default function Orgs() {
     </div>
   );
 
+  // Configuration for SearchAndFilters component
+  const sortOptionsConfig = [
+    { value: "name", label: "Name" },
+    { value: "city", label: "City" }
+  ];
+
+  const filterFieldsConfig = [
+    {
+      name: "state",
+      label: "State",
+      type: "checkbox",
+      options: [
+        { value: "MI", label: "Michigan" },
+        { value: "PA", label: "Pennsylvania" },
+        { value: "CA", label: "California" },
+        { value: "MA", label: "Massachusetts" },
+        { value: "TX", label: "Texas" },
+        { value: "CT", label: "Connecticut" },
+        { value: "SC", label: "South Carolina" },
+        { value: "IA", label: "Iowa" },
+        { value: "FL", label: "Florida" },
+        { value: "VA", label: "Virginia" },
+        { value: "TN", label: "Tennessee" },
+        { value: "HI", label: "Hawaii" }
+      ]
+    },
+    {
+      name: "topic",
+      label: "Topic",
+      type: "checkbox",
+      options: [
+        { value: "Legal Services", label: "Legal Services" },
+        { value: "Human Services", label: "Human Services" },
+        { value: "Community", label: "Community Services" },
+        { value: "Civil Rights", label: "Civil Rights" }
+      ]
+    },
+    {
+      name: "size",
+      label: "Size",
+      type: "checkbox",
+      options: [
+        { value: "501(c)(3)", label: "501(c)(3) Nonprofit" }
+      ]
+    }
+  ];
+
   return (
     <div className="container py-3">
       <h1 className="mb-3">Search from {total} Organizations</h1>
+
+      <SearchAndFilters
+        onApply={handleApplyFilters}
+        sortOptions={sortOptionsConfig}
+        filterFields={filterFieldsConfig}
+        searchPlaceholder="Search organizations by name, topic, city, description..."
+        initialValues={appliedFilters}
+      />
+
       <PaginationInfo currentCount={items.length} itemType="organizations" />
 
       <Row xs={1} md={2} lg={3} className="g-3">
@@ -81,15 +161,24 @@ export default function Orgs() {
                   />
                 )}
                 <Card.Body className="d-flex flex-column">
-                  <Card.Title className="h5 mb-2">{o.name}</Card.Title>
+                  <Card.Title className="h5 mb-2">
+                    <HighlightedText text={o.name} searchQuery={appliedFilters.search} />
+                  </Card.Title>
 
                   <div className="small text-muted mb-2">
                     <i className="bi bi-geo-alt-fill me-1"></i>
-                    {[o.city, o.state].filter(Boolean).join(", ")}
+                    <HighlightedText
+                      text={[o.city, o.state].filter(Boolean).join(", ")}
+                      searchQuery={appliedFilters.search}
+                    />
                   </div>
 
                   <div className="d-flex flex-wrap gap-1 mb-2">
-                    {o.topic && <Badge bg="primary" className="text-white">{o.topic}</Badge>}
+                    {o.topic && (
+                      <Badge bg="primary" className="text-white">
+                        <HighlightedText text={o.topic} searchQuery={appliedFilters.search} />
+                      </Badge>
+                    )}
                     {o.size && <Badge bg="secondary">{o.size}</Badge>}
                   </div>
 
@@ -102,8 +191,10 @@ export default function Orgs() {
 
                   {o.description && (
                     <p className="small text-muted mb-0 mt-auto" style={{ lineHeight: "1.4" }}>
-                      {o.description.slice(0, 100)}
-                      {o.description.length > 100 ? "..." : ""}
+                      <HighlightedText
+                        text={o.description.slice(0, 100) + (o.description.length > 100 ? "..." : "")}
+                        searchQuery={appliedFilters.search}
+                      />
                     </p>
                   )}
 
