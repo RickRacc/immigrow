@@ -356,17 +356,31 @@ export default function Search() {
                               searchQuery={appliedSearch}
                             />
                           </Card.Title>
+
                           <div className="small text-muted mb-2">
+                            <i className="bi bi-geo-alt-fill me-1"></i>
                             <HighlightedText
                               text={[org.city, org.state].filter(Boolean).join(", ")}
                               searchQuery={appliedSearch}
                             />
                           </div>
-                          {org.topic && (
-                            <Badge bg="primary" className="mb-2">
-                              <HighlightedText text={org.topic} searchQuery={appliedSearch} />
-                            </Badge>
+
+                          <div className="d-flex flex-wrap gap-1 mb-2">
+                            {org.topic && (
+                              <Badge bg="primary" className="text-white">
+                                <HighlightedText text={org.topic} searchQuery={appliedSearch} />
+                              </Badge>
+                            )}
+                            {org.size && <Badge bg="secondary">{org.size}</Badge>}
+                          </div>
+
+                          {org.meeting_frequency && (
+                            <div className="small text-muted mb-2">
+                              <i className="bi bi-calendar-event me-1"></i>
+                              Meets {org.meeting_frequency}
+                            </div>
                           )}
+
                           {org.description && (
                             <p className="small text-muted mb-0 mt-auto" style={{ lineHeight: "1.4" }}>
                               <HighlightedText
@@ -375,6 +389,13 @@ export default function Search() {
                               />
                             </p>
                           )}
+
+                          {org.ein && (
+                            <div className="small text-muted mt-2">
+                              <span className="badge bg-light text-dark">EIN: {org.ein}</span>
+                            </div>
+                          )}
+
                           <MatchIndicator
                             item={org}
                             searchQuery={appliedSearch}
@@ -444,22 +465,30 @@ export default function Search() {
                               searchQuery={appliedSearch}
                             />
                           </Card.Title>
+
                           {resource.topic && (
-                            <Badge bg="warning" text="dark" className="mb-2">
-                              <HighlightedText text={resource.topic} searchQuery={appliedSearch} />
-                            </Badge>
+                            <div className="mb-2">
+                              <Badge bg="warning" text="dark">
+                                <HighlightedText text={resource.topic} searchQuery={appliedSearch} />
+                              </Badge>
+                            </div>
                           )}
-                          <div className="small text-muted mb-2">
-                            <HighlightedText
-                              text={[resource.court_name, resource.scope].filter(Boolean).join(" · ")}
-                              searchQuery={appliedSearch}
-                            />
-                          </div>
+
+                          {[resource.court_name, resource.scope].filter(Boolean).join(" · ") && (
+                            <div className="small text-muted mb-2">
+                              <HighlightedText
+                                text={[resource.court_name, resource.scope].filter(Boolean).join(" · ")}
+                                searchQuery={appliedSearch}
+                              />
+                            </div>
+                          )}
+
                           {resource.foot && (
                             <div className="small text-muted mt-auto" style={{ lineHeight: "1.4" }}>
                               <HighlightedText text={resource.foot} searchQuery={appliedSearch} />
                             </div>
                           )}
+
                           <MatchIndicator
                             item={resource}
                             searchQuery={appliedSearch}
