@@ -13,9 +13,24 @@ export default function MatchIndicator({ item, searchQuery, fieldsToCheck }) {
   const query = searchQuery.trim().toLowerCase();
   const matchedFields = [];
 
+  // Split query into individual words for multi-word matching
+  const queryWords = query.split(/\s+/).filter(word => word.length > 0);
+
   fieldsToCheck.forEach(field => {
     const value = item[field.key];
-    if (value && String(value).toLowerCase().includes(query)) {
+    if (!value) return;
+
+    const valueStr = String(value).toLowerCase();
+
+    // Check if the full query matches (highest priority)
+    if (valueStr.includes(query)) {
+      matchedFields.push(field.label);
+      return;
+    }
+
+    // Check if any individual word matches (for multi-word queries)
+    const hasWordMatch = queryWords.some(word => valueStr.includes(word));
+    if (hasWordMatch) {
       matchedFields.push(field.label);
     }
   });

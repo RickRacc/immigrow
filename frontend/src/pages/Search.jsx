@@ -32,13 +32,38 @@ export default function Search() {
   // Helper function to check if URL is valid
   const hasHttp = (url) => typeof url === 'string' && /^https?:\/\//i.test(url);
 
+  // Helper function to parse event times (handles concatenated start/end times)
+  const parseEventTime = (event) => {
+    let start = null;
+    let end = null;
+
+    if (event.start_time) {
+      // Replace non-breaking spaces with regular spaces and split by AM/PM
+      const timeStr = event.start_time.replace(/\u202f/g, ' ');
+      const timeMatch = timeStr.match(/^(.+?[AP]M)\s*(.+[AP]M)?$/i);
+      if (timeMatch) {
+        start = timeMatch[1].trim();
+        end = timeMatch[2] ? timeMatch[2].trim() : (event.end_time ?? null);
+      } else {
+        start = timeStr;
+        end = event.end_time ?? null;
+      }
+    }
+
+    return { ...event, start_time: start, end_time: end };
+  };
+
   // Match fields for each model (for MatchIndicator)
   const eventMatchFields = [
     { key: 'title', label: 'Title' },
     { key: 'description', label: 'Description' },
     { key: 'location', label: 'Location' },
     { key: 'city', label: 'City' },
-    { key: 'state', label: 'State' }
+    { key: 'state', label: 'State' },
+    { key: 'venue_name', label: 'Venue' },
+    { key: 'timezone', label: 'Timezone' },
+    { key: 'external_url', label: 'URL' },
+    { key: 'eventbrite_id', label: 'Eventbrite ID' }
   ];
 
   const orgMatchFields = [
@@ -46,7 +71,12 @@ export default function Search() {
     { key: 'description', label: 'Description' },
     { key: 'city', label: 'City' },
     { key: 'state', label: 'State' },
-    { key: 'topic', label: 'Topic' }
+    { key: 'topic', label: 'Topic' },
+    { key: 'address', label: 'Address' },
+    { key: 'zipcode', label: 'Zipcode' },
+    { key: 'ein', label: 'EIN' },
+    { key: 'size', label: 'Size' },
+    { key: 'meeting_frequency', label: 'Meeting Frequency' }
   ];
 
   const resourceMatchFields = [
@@ -54,7 +84,12 @@ export default function Search() {
     { key: 'description', label: 'Description' },
     { key: 'topic', label: 'Topic' },
     { key: 'scope', label: 'Scope' },
-    { key: 'court_name', label: 'Court' }
+    { key: 'court_name', label: 'Court' },
+    { key: 'citation', label: 'Citation' },
+    { key: 'judge_name', label: 'Judge' },
+    { key: 'docket_number', label: 'Docket Number' },
+    { key: 'format', label: 'Format' },
+    { key: 'external_url', label: 'URL' }
   ];
 
   const handleSearchSubmit = async (e) => {
@@ -82,9 +117,9 @@ export default function Search() {
         fetchResources(1, 15, { search: searchQuery })
       ]);
 
-      // Update state with results
+      // Update state with results (parse event times)
       setEventsData({
-        data: eventsResponse.data || [],
+        data: (eventsResponse.data || []).map(parseEventTime),
         total: eventsResponse.total || 0,
         totalPages: eventsResponse.total_pages || 1
       });
@@ -112,7 +147,7 @@ export default function Search() {
     try {
       const response = await fetchEvents(page, 15, { search: appliedSearch });
       setEventsData({
-        data: response.data || [],
+        data: (response.data || []).map(parseEventTime),
         total: response.total || 0,
         totalPages: response.total_pages || 1
       });
