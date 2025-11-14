@@ -24,10 +24,18 @@ def calculate_relevance_score(item, search_query, searchable_fields):
     Calculate relevance score for search results.
     Returns score where higher = more relevant.
 
-    Algorithm:
-    1. Full phrase match (after normalizing whitespace) = 1000+ points
-    2. Each matching word = 100 points
+    Algorithm (per PHASE3_STEPS.txt):
+    1. Full phrase match (complete phrase as substring) = 1000 points
+    2. Each matching word (substring matching) = 100 points
     3. Consecutive word sequences = 50 bonus points per sequence
+
+    Example from spec: query "quick fox"
+    - "the quick fox" = 1000 (phrase) + 200 (both words) + 50 (consecutive) = 1250
+    - "quickly the fox runs" = 0 (no phrase) + 200 (both: "quick" in "quickly" + "fox") = 200
+    - "the fox" = 0 (no phrase) + 100 (only "fox" present) = 100
+
+    Ranking: 1250 > 200 > 100 (matches spec requirement)
+    Note: "quick" DOES match "quickly" (substring matching as per spec)
     """
     if not search_query:
         return 0
@@ -56,7 +64,7 @@ def calculate_relevance_score(item, search_query, searchable_fields):
     if normalized_phrase in normalized_text:
         score += 1000
 
-    # Count matching words
+    # Count matching words (substring matching - "quick" matches "quickly")
     matching_words = sum(1 for word in words if word in normalized_text)
     score += matching_words * 100
 
