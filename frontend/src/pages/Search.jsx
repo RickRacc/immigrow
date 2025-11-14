@@ -277,10 +277,14 @@ export default function Search() {
                               searchQuery={appliedSearch}
                             />
                           </div>
-                          {event.date && (
+                          {(event.date || event.start_time) && (
                             <div className="small mt-auto" style={{ lineHeight: "1.4" }}>
-                              {event.date}
-                              {event.start_time && ` • ${event.start_time}`}
+                              {[
+                                event.date,
+                                event.start_time && `• ${event.start_time}`,
+                                event.end_time && `- ${event.end_time}`
+                              ].filter(Boolean).join(" ")}
+                              {event.timezone && ` (${event.timezone})`}
                             </div>
                           )}
                           <MatchIndicator
