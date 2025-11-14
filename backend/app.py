@@ -246,6 +246,9 @@ def get_orgs():
         # Sort by relevance score (descending - highest score first)
         orgs_with_scores.sort(key=lambda x: x[1], reverse=True)
 
+        # Filter out 0-score results (Google-like: only show relevant results)
+        orgs_with_scores = [(org, score) for org, score in orgs_with_scores if score > 0]
+
         # Apply pagination manually
         total = len(orgs_with_scores)
         start_idx = (page - 1) * per_page
@@ -468,6 +471,9 @@ def get_events():
         # Sort by relevance score (descending - highest score first)
         events_with_scores.sort(key=lambda x: x[1], reverse=True)
 
+        # Filter out 0-score results (Google-like: only show relevant results)
+        events_with_scores = [(event, score) for event, score in events_with_scores if score > 0]
+
         # Apply pagination manually
         total = len(events_with_scores)
         start_idx = (page - 1) * per_page
@@ -685,6 +691,9 @@ def get_resources():
 
         # Sort by relevance score (descending - highest score first)
         resources_with_scores.sort(key=lambda x: x[1], reverse=True)
+
+        # Filter out 0-score results (Google-like: only show relevant results)
+        resources_with_scores = [(resource, score) for resource, score in resources_with_scores if score > 0]
 
         # Apply pagination manually
         total = len(resources_with_scores)
