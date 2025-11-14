@@ -34,7 +34,7 @@
         "request": {
           "method": "GET",
           "header": [],
-          "url": "http://3.141.5.227:5000/api/events",
+          "url": "http://3.141.5.227:5000/api/events?sort_by=id&sort_order=asc",
           "description": "Returns a list of all events from the EventBrite API. Each event object includes information such as its id, description, location, duration_minutes, external_url, and other relevant information."
         },
         "response": [
@@ -152,7 +152,7 @@
         "request": {
           "method": "GET",
           "header": [],
-          "url": "http://3.141.5.227:5000/api/orgs",
+          "url": "http://3.141.5.227:5000/api/orgs?sort_by=id&sort_order=asc",
           "description": "Returns all organizations from the webscraping of [<b>www.immigrationlawhelp.org</b>](https://www.immigrationlawhelp.org/search?state=NE). Each organization object includes information such as its name, topic, description, state, external_url, and other relevant information."
         },
         "response": [
@@ -269,7 +269,7 @@
         "request": {
           "method": "GET",
           "header": [],
-          "url": "http://3.141.5.227:5000/api/resources",
+          "url": "http://3.141.5.227:5000/api/resources?sort_by=id&sort_order=asc",
           "description": "Returns a list of all legal resources from the ProPublica API. Each resource object includes information such as its title, audio_url, description, topic, court_name, and other relevant information."
         },
         "response": [
