@@ -48,7 +48,7 @@ Responsibilities included:
 
 
 - **Git SHA:** 7fadd02601e9709a51399a50c0e8202d9074c8e5
-- **Pipelines URL:** https://gitlab.com/anisha1045/cs373-55090-09/-/pipelines
+- **Pipelines URL:** https://gitlab.com/rrrakesh/cs373-55090-09/-/pipelines
 - **Website URL:** [https://immigrow.me](https://immigrow.me)
 - **Backend URL:** [https://api.immigrow.me/](https://api.immigrow.me/)
 - **API Documentation URL:** [https://documenter.getpostman.com/view/48953688/2sB3QGsAi5](https://documenter.getpostman.com/view/48953688/2sB3QGsAi5)
