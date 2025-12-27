@@ -2,6 +2,8 @@
 Project was made on GitLab and imported to GitHub:
 https://gitlab.com/rrrakesh/cs373-55090-09
 
+There you can take a better look at our pipelines, branches, issues, etc
+
 
 ## Team Members
 
